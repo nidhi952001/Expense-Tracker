@@ -1,0 +1,18 @@
+package com.example.expensetracker.dao
+
+import androidx.lifecycle.LiveData
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import com.example.expensetracker.entity.Wallet
+
+@Dao
+interface WalletDao {
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addWallet(wallet: Wallet)
+
+    @Query("select * from wallet")
+    fun showWallet():LiveData<List<Wallet>>
+}
