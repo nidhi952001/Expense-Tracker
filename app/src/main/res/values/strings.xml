@@ -1,3 +1,31 @@
 <resources>
     <string name="app_name">ExpenseTracker</string>
+    <string name="expense">Expense</string>
+    <string name="income">Income</string>
+    <string name="home">Home</string>
+    <string name="add_name">Add Name</string>
+
+    <!--top bar -->
+    <string name="go_back">GO Back</string>
+    <string name="save">Save</string>
+   <!-- bottom bar-->
+    <string name="transaction">Transaction</string>
+    <string name="calendar">Calendar</string>
+    <string name="add">Add</string>
+    <string name="statistic">Statistic</string>
+    <string name="wallet">Wallet</string>
+
+   <!-- first time home screen-->
+    <string name="money_category">Expense Category</string>
+    <string name="money_detail">Category make it easier to track and monitor your spending</string>
+    <string name="financial_category">Financial Monitoring</string>
+    <string name="financial_detail">Keep your income and expenses on track</string>
+    <string name="get_started">GET STARTED</string>
+    <string name="add_account">Add Account</string>
+    <string name="initial_amount">Initial Amount</string>
+    <string name="initial_amount_sub">How much money do you have in your cash wallet?</string>
+    <string name="clear">Clear</string>
+    <string name="currency">Indian Rupee</string>
+    <string name="choose_name">Choose a name for your account.</string>
+    <string name="next">Next</string>
 </resources>

@@ -11,7 +11,7 @@ data class Wallet (
     val walletName:String,
     val walletType: TypeOfWallet,
     val initalAmount:Float,
-    val walletIcon: Int
+    val walletIcon: String
 )
 
 enum class TypeOfWallet{
