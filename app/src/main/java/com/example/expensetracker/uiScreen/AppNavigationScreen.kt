@@ -27,7 +27,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newCoroutineContext
 
-enum class TopLevelDestination(@StringRes val route: Int){
+enum class TopLevelDestination(@StringRes val route: Int) {
     expense(route = R.string.expense),
     income(route = R.string.income),
     transaction(route = R.string.transaction),
@@ -37,9 +37,10 @@ enum class TopLevelDestination(@StringRes val route: Int){
     addName(route = R.string.add_name),
     addInitialAmount(route = R.string.initial_amount)
 }
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun AppNavigationScreen(userName:String){
+fun AppNavigationScreen(userName: String) {
     println("userName $userName")
     //navigation
     val navController = rememberNavController()
@@ -49,44 +50,46 @@ fun AppNavigationScreen(userName:String){
     //view model
     val expViewModel: ExpenseViewModel = hiltViewModel()
     val walletViewModel: WalletViewModel = hiltViewModel()
-    val homeViewModel:HomeViewModel = hiltViewModel()
+    val homeViewModel: HomeViewModel = hiltViewModel()
 
     Scaffold(
         topBar = {
-            AppTopBar(userName,currentRoute,navController)
+            AppTopBar(userName, currentRoute, navController)
         },
         bottomBar = {
-            AppBottomBar(navController,currentRoute)
+            AppBottomBar(navController, currentRoute)
         }
-    ) { padding->
+    ) { padding ->
         NavHost(
             navController = navController,
-            startDestination = if(userName.equals("User")) TopLevelDestination.home.name else TopLevelDestination.transaction.name,
+            startDestination = if (userName.equals("User")) TopLevelDestination.home.name else TopLevelDestination.transaction.name,
             modifier = Modifier.padding(padding)
-        ){
-            composable(route = TopLevelDestination.home.name){
-                homeScreen(onGetStarted = { navController.navigate(TopLevelDestination.addName.name) },
-                    modifier = Modifier.fillMaxSize().padding(start = 20.dp, end = 20.dp))
+        ) {
+            composable(route = TopLevelDestination.home.name) {
+                homeScreen(
+                    onGetStarted = { navController.navigate(TopLevelDestination.addName.name) },
+                    modifier = Modifier.fillMaxSize().padding(start = 20.dp, end = 20.dp)
+                )
             }
-            composable(route = TopLevelDestination.addName.name){
-                addNameScreen(modifier = Modifier.fillMaxSize() , saveUserName = {
+            composable(route = TopLevelDestination.addName.name) {
+                addNameScreen(modifier = Modifier.fillMaxSize(), saveUserName = {
                     homeViewModel.saveUserNamee(it)
                     navController.navigate(TopLevelDestination.addInitialAmount.name)
                 })
             }
-            composable(route = TopLevelDestination.addInitialAmount.name){
-                saveInitalMoneyScreen(modifier = Modifier.fillMaxSize() , saveInitialMoney = {
+            composable(route = TopLevelDestination.addInitialAmount.name) {
+                saveInitalMoneyScreen(modifier = Modifier.fillMaxSize(), saveInitialMoney = {
                     walletViewModel.saveInitialAmount(it)
                     navController.navigate(TopLevelDestination.transaction.name)
                 })
             }
-            composable(route = TopLevelDestination.transaction.name){
+            composable(route = TopLevelDestination.transaction.name) {
                 TransactionScreen()
             }
-            composable(route = TopLevelDestination.expense.name){
+            composable(route = TopLevelDestination.expense.name) {
                 addExpense(expenseViewModel = expViewModel)
             }
-            composable(route = TopLevelDestination.wallet.name){
+            composable(route = TopLevelDestination.wallet.name) {
                 addWallet(walletViewModel = walletViewModel)
             }
         }

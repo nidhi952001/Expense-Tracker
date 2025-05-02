@@ -19,15 +19,17 @@ import javax.inject.Singleton
 class DataBaseModule {
     @Provides
     @Singleton
-    fun  provideDatabaseAccess(@ApplicationContext context: Context):AppDataBase{
-       return Room.databaseBuilder(
-           context,AppDataBase::class.java,"app_database")
-           .fallbackToDestructiveMigration(true)
-           .build()
+    fun provideDatabaseAccess(@ApplicationContext context: Context): AppDataBase {
+        return Room.databaseBuilder(
+            context, AppDataBase::class.java, "app_database"
+        )
+            .fallbackToDestructiveMigration(true)
+            .build()
     }
+
     @Provides
     @Singleton
-    fun provideCategoryDao(appDataBase: AppDataBase):CategoryDao{
+    fun provideCategoryDao(appDataBase: AppDataBase): CategoryDao {
         return appDataBase.categoryDao
     }
 
@@ -39,7 +41,7 @@ class DataBaseModule {
 
     @Provides
     @Singleton
-    fun provideIncomeDao(appDataBase: AppDataBase):IncomeDao{
+    fun provideIncomeDao(appDataBase: AppDataBase): IncomeDao {
         return appDataBase.incomeDao
     }
 

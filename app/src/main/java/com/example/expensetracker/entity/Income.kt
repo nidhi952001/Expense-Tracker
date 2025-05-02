@@ -11,26 +11,37 @@ import java.sql.Time
 import java.time.LocalDate
 import java.time.LocalTime
 
-@Entity(foreignKeys =
-[ForeignKey
-    (entity = Category::class, parentColumns = arrayOf("categoryId"), childColumns = arrayOf("income_category_id"),
-    onUpdate = ForeignKey.CASCADE , onDelete = ForeignKey.RESTRICT) ,
-    ForeignKey
-        (entity = Wallet::class, parentColumns = arrayOf("walletId"), childColumns = arrayOf("income_wallet_id"),
-        onUpdate = ForeignKey.CASCADE, onDelete = ForeignKey.CASCADE
-    )])
+@Entity(
+    foreignKeys =
+    [ForeignKey
+        (
+        entity = Category::class,
+        parentColumns = arrayOf("categoryId"),
+        childColumns = arrayOf("income_category_id"),
+        onUpdate = ForeignKey.CASCADE,
+        onDelete = ForeignKey.RESTRICT
+    ),
+        ForeignKey
+            (
+            entity = Wallet::class,
+            parentColumns = arrayOf("walletId"),
+            childColumns = arrayOf("income_wallet_id"),
+            onUpdate = ForeignKey.CASCADE,
+            onDelete = ForeignKey.RESTRICT
+        )]
+)
 data class Income(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "income_id")
-    val incId:Int,
+    val incId: Int,
     @ColumnInfo(name = "income_time")
     val incTime: LocalTime,
     @ColumnInfo(name = "income_date")
-    val incDate:LocalDate,
+    val incDate: LocalDate,
     @ColumnInfo(name = "income_amount")
-    val incAmount:Float,
+    val incAmount: Float,
     @ColumnInfo(name = "income_description")
-    val incDescription:String?,
+    val incDescription: String?,
     @ColumnInfo(name = "income_category_id")
     val incCategory: Int,
     @ColumnInfo(name = "income_wallet_id")

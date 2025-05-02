@@ -24,48 +24,61 @@ import com.example.expensetracker.R
 fun TopBarWithBackArrow(navHostController: NavHostController, currentRoute: String?) {
     CenterAlignedTopAppBar(
         title = {
-            Text(text = currentRoute!! , fontWeight = FontWeight.Bold , style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = currentRoute!!,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleMedium
+            )
         },
         navigationIcon = {
-            Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.go_back)
-                , modifier = Modifier.clickable {
+            Icon(Icons.Default.ArrowBack,
+                contentDescription = stringResource(R.string.go_back),
+                modifier = Modifier.clickable {
                     navHostController.navigateUp()
                 })
         },
         actions = {
             Row {
-                Text(text = stringResource(R.string.save) , style = MaterialTheme.typography.titleMedium)
-                Icon(painter = painterResource(R.drawable.save_ic), contentDescription = stringResource(R.string.save))
+                Text(
+                    text = stringResource(R.string.save),
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Icon(
+                    painter = painterResource(R.drawable.save_ic),
+                    contentDescription = stringResource(R.string.save)
+                )
             }
         }
     )
 }
 
 @Composable
-fun AppTopBar(userName:String,currentRoute: String?,navHostController: NavHostController) {
-    if(currentRoute.equals(TopLevelDestination.expense.name)) {
-        TopBarWithBackArrow(navHostController,currentRoute)
+fun AppTopBar(userName: String, currentRoute: String?, navHostController: NavHostController) {
+    if (currentRoute.equals(TopLevelDestination.expense.name)) {
+        TopBarWithBackArrow(navHostController, currentRoute)
     }
-    if(currentRoute.equals(TopLevelDestination.transaction.name) ||
-        currentRoute.equals(TopLevelDestination.wallet.name)) {
-        TopBarWithoutbackArrow(userName,currentRoute)
+    if (currentRoute.equals(TopLevelDestination.transaction.name) ||
+        currentRoute.equals(TopLevelDestination.wallet.name)
+    ) {
+        TopBarWithoutbackArrow(userName, currentRoute)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBarWithoutbackArrow(userName: String,currentRoute: String?){
+fun TopBarWithoutbackArrow(userName: String, currentRoute: String?) {
     Column {
         TopAppBar(
             title = { Text(text = userName, fontWeight = FontWeight.Bold) },
             modifier = Modifier
         )
-        if(currentRoute.equals(TopLevelDestination.transaction.name)) {
-                AppSecondTopbar()
+        if (currentRoute.equals(TopLevelDestination.transaction.name)) {
+            AppSecondTopbar()
         }
     }
 }
+
 @Composable
 fun AppSecondTopbar() {
-    Text(text= "another title for date with condition")
+    Text(text = "another title for date with condition")
 }

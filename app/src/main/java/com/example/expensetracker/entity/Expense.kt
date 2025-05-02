@@ -9,28 +9,39 @@ import androidx.room.PrimaryKey
 import java.time.LocalDate
 import java.time.LocalTime
 
-@Entity(foreignKeys =
+@Entity(
+    foreignKeys =
     [ForeignKey
-    (entity = Category::class, parentColumns = arrayOf("categoryId"), childColumns = arrayOf("expense_category_id"),
-            onUpdate = ForeignKey.CASCADE , onDelete = ForeignKey.RESTRICT) ,
-    ForeignKey
-        (entity = Wallet::class, parentColumns = arrayOf("walletId"), childColumns = arrayOf("expense_wallet_id"),
-                onUpdate = ForeignKey.CASCADE, onDelete = ForeignKey.RESTRICT
-    )])
+        (
+        entity = Category::class,
+        parentColumns = arrayOf("categoryId"),
+        childColumns = arrayOf("expense_category_id"),
+        onUpdate = ForeignKey.CASCADE,
+        onDelete = ForeignKey.RESTRICT
+    ),
+        ForeignKey
+            (
+            entity = Wallet::class,
+            parentColumns = arrayOf("walletId"),
+            childColumns = arrayOf("expense_wallet_id"),
+            onUpdate = ForeignKey.CASCADE,
+            onDelete = ForeignKey.RESTRICT
+        )]
+)
 data class Expense(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "expense_id")
-    val expId:Int,
+    val expId: Int,
     @ColumnInfo(name = "expense_time")
     val expTime: LocalTime,
     @ColumnInfo(name = "expense_date")
     val expDate: LocalDate,
     @ColumnInfo(name = "expense_amount")
-    val expAmount:Float,
+    val expAmount: Float,
     @ColumnInfo(name = "expense_description")
-    val expDescription:String?,
+    val expDescription: String?,
     @ColumnInfo(name = "expense_category_id")
-     val expCategory: Int,
+    val expCategory: Int,
     @ColumnInfo(name = "expense_wallet_id")
-     val expWallet: Int
+    val expWallet: Int
 )

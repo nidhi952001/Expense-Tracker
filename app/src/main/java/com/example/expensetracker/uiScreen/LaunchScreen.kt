@@ -1,9 +1,6 @@
 package com.example.expensetracker.uiScreen
 
-import android.graphics.BitmapFactory
 import android.util.Log
-import android.widget.Space
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,18 +14,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -36,6 +31,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -43,62 +39,99 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.expensetracker.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 @Composable
-fun homeScreen(modifier: Modifier , onGetStarted: () -> Unit){
-    Column(modifier = modifier,horizontalAlignment = Alignment.CenterHorizontally) {
-        horizontalScroller(modifier = Modifier.weight(1f))
-        Spacer(modifier = Modifier.height(45.dp))
-        BottomScreen(onGetStarted = onGetStarted)
+fun homeScreen(modifier: Modifier, onGetStarted: () -> Unit) {
+    var pagerState = rememberPagerState { 2 }
+    val scope = rememberCoroutineScope()
+    Column(modifier = modifier , verticalArrangement = Arrangement.Center) {
+        horizontalScroller(pagerState, modifier = Modifier.weight(1f))
+        BottomScreen(
+            modifier = Modifier.padding(bottom = 10.dp),
+            onGetStarted = onGetStarted,
+            onNext = {
+                scope.launch {
+                val nextPage = (pagerState.currentPage + 1).coerceAtMost(pagerState.pageCount - 1)
+                pagerState.scrollToPage(nextPage)
+            }
+                     },
+            pagerState.currentPage
+        )
     }
+
 }
 @Composable
-fun horizontalScroller(modifier: Modifier){
-    val pagerState = rememberPagerState { 2 }
-    LaunchedEffect(pagerState) {
+fun horizontalScroller(pagerState: PagerState, modifier: Modifier) {
+    /*LaunchedEffect(pagerState) {
         // Collect from the a snapshotFlow reading the currentPage
         snapshotFlow { pagerState.currentPage }.collect { page ->
             // Do something with each page change, for example:
             // viewModel.sendPageSelectedEvent(page)
             Log.d("Page change", "Page changed to $page")
         }
-    }
-    HorizontalPager(state = pagerState , modifier = modifier){page->
+    }*/
+    HorizontalPager(state = pagerState, modifier = modifier) { page ->
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             when (page) {
                 1 -> {
-                    Image(painterResource(R.drawable.moeny_img), contentDescription = "Money", modifier = Modifier.size(300.dp).padding(top = 50.dp))
-                    Text(text = stringResource(R.string.money_category), fontWeight = FontWeight.Bold , style = MaterialTheme.typography.titleLarge)
+                    Image(
+                        painterResource(R.drawable.moeny_img),
+                        contentDescription = "Money",
+                        modifier = Modifier.size(300.dp).padding(top = 50.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.money_category),
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleLarge
+                    )
                     Spacer(modifier = Modifier.height(2.dp))
-                    Text(text = stringResource(R.string.money_detail),
+                    Text(
+                        text = stringResource(R.string.money_detail),
                         style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center)
+                        textAlign = TextAlign.Center
+                    )
 
                 }
-                else->{
-                        Image(painterResource(R.drawable.finance_img), contentDescription = "Finance", modifier = Modifier.size(300.dp).padding(top = 50.dp))
-                        Text(text = stringResource(R.string.financial_category), fontWeight = FontWeight.Bold , style = MaterialTheme.typography.titleLarge)
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(text = stringResource(R.string.financial_detail),
-                            style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.Center)
+
+                else -> {
+                    Image(
+                        painterResource(R.drawable.finance_img),
+                        contentDescription = "Finance",
+                        modifier = Modifier.size(300.dp).padding(top = 50.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.financial_category),
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = stringResource(R.string.financial_detail),
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center
+                    )
 
                 }
             }
-            Row(Modifier.padding(top = 30.dp),
-                verticalAlignment = Alignment.CenterVertically
+            Row(
+                Modifier.padding(top = 30.dp),
+                horizontalArrangement = Arrangement.Center
             ) {
                 repeat(pagerState.pageCount) { iteration ->
-                    val color = if (pagerState.currentPage == iteration) MaterialTheme.colorScheme.inverseSurface else MaterialTheme.colorScheme.inverseOnSurface
+                    val color =
+                        if (pagerState.currentPage == iteration) MaterialTheme.colorScheme.inverseSurface else MaterialTheme.colorScheme.inverseOnSurface
                     Box(
                         modifier = Modifier
                             .padding(2.dp)
@@ -112,15 +145,6 @@ fun horizontalScroller(modifier: Modifier){
     }
 }
 
-@Composable
-fun BottomScreen(onGetStarted:()->Unit){
-    Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.padding(bottom = 10.dp)) {
-        Button(onClick = {onGetStarted()} ,
-            modifier = Modifier.fillMaxWidth()){
-            Text(text = stringResource(R.string.get_started))
-        }
-    }
-}
 
 @Composable
 fun addNameScreen(modifier: Modifier,saveUserName:(String)->Unit){

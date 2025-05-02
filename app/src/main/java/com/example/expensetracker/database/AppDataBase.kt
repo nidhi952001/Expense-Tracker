@@ -16,17 +16,19 @@ import com.example.expensetracker.entity.Wallet
 import com.example.expensetracker.utils.TypeConvertor
 
 @Database
-    (entities =
-        [Income::class,
-            Expense::class,
-            Category::class,
-            Wallet::class],
-            version = 2,
-            exportSchema = false)
+    (
+    entities =
+    [Income::class,
+        Expense::class,
+        Category::class,
+        Wallet::class],
+    version = 2,
+    exportSchema = false
+)
 @TypeConverters(TypeConvertor::class)
-abstract class AppDataBase:RoomDatabase(){
-    abstract val categoryDao:CategoryDao
-    abstract val walletDao:WalletDao
-    abstract val incomeDao:IncomeDao
-    abstract val expenseDao:ExpenseDao
+abstract class AppDataBase : RoomDatabase() {
+    abstract val categoryDao: CategoryDao
+    abstract val walletDao: WalletDao
+    abstract val incomeDao: IncomeDao
+    abstract val expenseDao: ExpenseDao
 }
