@@ -10,6 +10,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -18,13 +19,24 @@ class DatastoreManager @Inject constructor(
     @ApplicationContext val context: Context
 ) {
     private val userNameKey = stringPreferencesKey("username")
+    private val initialAmountKey = stringPreferencesKey("not_decided")
 
     val savedUserName : Flow<String> = context.dataStore.data.map {dataStore->
         dataStore[userNameKey]?:"User"
     }
+
+    val getInitialAmount: Flow<String> = context.dataStore.data.map {
+        it[initialAmountKey]?:"not_decided"
+    }
     suspend fun saveUserName(name:String){
         context.dataStore.edit { dataStore->
             dataStore[userNameKey] = name
+        }
+    }
+
+    suspend fun saveInitialAmount(amount:String){
+        context.dataStore.edit {
+            it[initialAmountKey] = amount
         }
     }
 }

@@ -24,26 +24,21 @@ import com.example.compose.ExpenseTrackerTheme
 import com.example.expensetracker.uiScreen.AppNavigationScreen
 import com.example.expensetracker.viewModel.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    var userName = "User"
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
-       val homeViewModel by viewModels<HomeViewModel>()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        lifecycleScope.launch {
-            homeViewModel.savedUsername.collect {
-                userName = it
-                setContent {
-                    ExpenseTrackerTheme {
-                        AppNavigationScreen(userName)
-                    }
+            setContent {
+                ExpenseTrackerTheme {
+                    AppNavigationScreen()
                 }
-            }
         }
-
     }
 }
+

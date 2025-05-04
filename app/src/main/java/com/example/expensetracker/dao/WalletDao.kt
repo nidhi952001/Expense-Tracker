@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.expensetracker.entity.Wallet
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface WalletDao {
@@ -14,5 +15,5 @@ interface WalletDao {
     suspend fun addWallet(wallet: Wallet)
 
     @Query("select * from wallet")
-    fun showWallet():LiveData<List<Wallet>>
+    fun showWallet():Flow<List<Wallet>>
 }

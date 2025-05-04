@@ -1,5 +1,7 @@
 package com.example.expensetracker.entity
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -11,7 +13,8 @@ data class Wallet(
     val walletName: String,
     val walletType: TypeOfWallet,
     val initialAmount: Float,
-    val walletIcon: String
+    @DrawableRes val walletIcon: Int,
+    @StringRes val iconDes:Int
 )
 
 enum class TypeOfWallet {
