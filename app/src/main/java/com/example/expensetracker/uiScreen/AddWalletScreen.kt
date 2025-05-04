@@ -49,9 +49,10 @@ import com.example.expensetracker.utils.WalletStateData
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun addWallet(walletUiState: WalletStateData,
-              onValueChange:(String)-> Unit,
+              onNameChanged:(String)->Unit,
+              onValueChange:(Float)-> Unit,
               onSelectType: (String) -> Unit,
-              saveAmount: (Float?) -> Unit){
+              saveAmount: (String) -> Unit){
     val scrollableState = rememberScrollState()
     val isDropDownExpanded = remember {
         mutableStateOf(false)
@@ -70,14 +71,14 @@ fun addWallet(walletUiState: WalletStateData,
             placeholder = stringResource(R.string.wallet_name),
             trailingIconNeeded = false ,
             leadingIconNeeded = false,
-            onValueChange = {onValueChange(it)},
+            onValueChange = {onNameChanged(it)},
             isReadOnly = false ,
             isClickable = false)
         Label("Type")
         dropDown(isDropDownExpanded,itemPosition,listOfWallet, selectedWallet = {onSelectType(it)})
         Label("Amount")
         InputField(
-            value = walletUiState.initialAmount,
+            value = if(walletUiState.initialAmount.toString()=="0.0") "" else walletUiState.initialAmount.toString(),
             placeholder = "",
             onClick = {  } ,
             trailingIconNeeded = true ,
@@ -85,9 +86,11 @@ fun addWallet(walletUiState: WalletStateData,
             leadingIconNeeded = true,
             leadingIcon = R.drawable.currency_rupee_ui,
             isReadOnly = false ,
-            onValueChange = {},
+            onValueChange = {
+                onValueChange(it.toFloat())
+            },
             isClickable = true,
-            saveAmount = {saveAmount(it)})
+            saveAmount = {saveAmount(it.toString())})
         Label("Icon")
        /* InputField(
             value = walletUiState.walletIcon,

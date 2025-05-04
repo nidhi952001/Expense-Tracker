@@ -144,9 +144,10 @@ fun AppNavigationScreen() {
                 composable(route = TopLevelDestination.addWallet.name) {
                     addWallet(
                         walletUiState = walletUiState,
-                        onSelectType = {},
-                        saveAmount = {},
-                        onValueChange = {walletViewModel.updateWalletName(it)},
+                        onSelectType = { walletViewModel.updateWalletType(it) },
+                        onValueChange = { walletViewModel.updateWalletAmount(it!!) },
+                        onNameChanged = { walletViewModel.updateWalletName(it) },
+                        saveAmount = {  },
                     )
                 }
             }

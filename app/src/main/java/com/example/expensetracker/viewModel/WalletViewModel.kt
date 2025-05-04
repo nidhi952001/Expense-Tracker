@@ -64,4 +64,18 @@ class WalletViewModel @Inject constructor(
             )
         }
     }
+    fun updateWalletType(walletType:String){
+        _walletUiState.update {
+            it.copy(
+                selectType = walletType
+            )
+        }
+    }
+    fun updateWalletAmount(walletAmount: Float){
+        _walletUiState.update {
+            it.copy(
+                initialAmount = walletAmount
+            )
+        }
+    }
 }

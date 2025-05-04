@@ -17,7 +17,7 @@ data class UiStateData(
 data class WalletStateData(
     var walletName:String = "",
     var selectType :String="Select Category",
-    var initialAmount :String = "",
+    var initialAmount : Float = 0F,
     @DrawableRes
     var walletIcon:Int= R.drawable.account_wallet_ic
 )
