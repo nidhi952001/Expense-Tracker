@@ -27,6 +27,7 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -39,6 +40,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
@@ -223,7 +225,8 @@ fun InputField(
                 if (trailingIconNeeded) {
                     Image(
                         imageVector = trailingIcon!!,
-                        contentDescription = stringResource(R.string.currency)
+                        contentDescription = stringResource(R.string.arrow_down),
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
                     )
                 }
             },
@@ -246,7 +249,8 @@ fun InputField(
                 if (trailingIconNeeded) {
                     Image(
                         imageVector = trailingIcon!!,
-                        contentDescription = stringResource(R.string.currency)
+                        contentDescription = stringResource(R.string.currency),
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
                     )
                 }
             },
@@ -254,7 +258,8 @@ fun InputField(
                 if (leadingIconNeeded) {
                     Image(
                         painter = painterResource(leadingIcon!!),
-                        contentDescription = stringResource(R.string.currency)
+                        contentDescription = stringResource(R.string.arrow_down),
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
                     )
                 }
             },

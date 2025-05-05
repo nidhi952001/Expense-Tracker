@@ -16,6 +16,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import com.example.expensetracker.R
+import com.example.expensetracker.utils.TopLevelDestination
 
 data class BottomNavItem(
     val route:String,
@@ -23,7 +24,7 @@ data class BottomNavItem(
     val icon: ImageVector?,
     val label:Int
 )
-object listOfBottomButton  {
+object ListOfBottomButton  {
     val BottomNavItems = listOf(
         BottomNavItem(
             route = TopLevelDestination.transaction.name,
@@ -48,10 +49,11 @@ object listOfBottomButton  {
 
 }
 @Composable
-fun AppBottomBar(navHostController: NavHostController, currentRoute: String?){
-    if(currentRoute.equals(TopLevelDestination.transaction.name)) {
+fun appBottomBar(navHostController: NavHostController, currentRoute: String?){
+    if(currentRoute.equals(TopLevelDestination.transaction.name) ||
+        currentRoute.equals(TopLevelDestination.showWallet.name)) {
         NavigationBar {
-            listOfBottomButton.BottomNavItems.forEach{ items->
+            ListOfBottomButton.BottomNavItems.forEach{ items->
 
                 NavigationBarItem(
                     selected = currentRoute==items.route,
@@ -76,7 +78,7 @@ fun AppBottomBar(navHostController: NavHostController, currentRoute: String?){
 }
 
 @Composable
-fun WelcomeScreenBottom(modifier: Modifier, onGetStarted: () -> Unit, onNext:()->Unit, page: Int){
+fun welcomeScreenBottom(modifier: Modifier, onGetStarted: () -> Unit, onNext:()->Unit, page: Int){
         Row(modifier = modifier) {
                 when (page) {
                     1 ->

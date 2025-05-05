@@ -25,23 +25,21 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.expensetracker.R
-import com.example.expensetracker.utils.UiStateData
+import com.example.expensetracker.utils.HomeStateData
 import kotlinx.coroutines.launch
 
 @Composable
@@ -50,7 +48,7 @@ fun WelcomeScreen(modifier: Modifier, onGetStarted: () -> Unit) {
     val scope = rememberCoroutineScope()
     Column(modifier = modifier, verticalArrangement = Arrangement.Center) {
         horizontalScroller(pagerState, modifier = Modifier.weight(1f))
-        WelcomeScreenBottom(
+        welcomeScreenBottom(
             modifier = Modifier.padding(bottom = 10.dp),
             onGetStarted = onGetStarted,
             onNext = {
@@ -60,7 +58,7 @@ fun WelcomeScreen(modifier: Modifier, onGetStarted: () -> Unit) {
                     pagerState.scrollToPage(nextPage)
                 }
             },
-            pagerState.currentPage
+            page = pagerState.currentPage
         )
     }
 
@@ -68,55 +66,34 @@ fun WelcomeScreen(modifier: Modifier, onGetStarted: () -> Unit) {
 
 @Composable
 fun horizontalScroller(pagerState: PagerState, modifier: Modifier) {
-    /*LaunchedEffect(pagerState) {
-        // Collect from the a snapshotFlow reading the currentPage
-        snapshotFlow { pagerState.currentPage }.collect { page ->
-            // Do something with each page change, for example:
-            // viewModel.sendPageSelectedEvent(page)
-            Log.d("Page change", "Page changed to $page")
-        }
-    }*/
     HorizontalPager(state = pagerState, modifier = modifier) { page ->
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             when (page) {
                 1 -> {
-                    Image(
-                        painterResource(R.drawable.moeny_img),
-                        contentDescription = "Money",
-                        modifier = Modifier.size(300.dp).padding(top = 50.dp)
-                    )
-                    Text(
-                        text = stringResource(R.string.money_category),
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
+                    pagerContent(
+                        painter = painterResource(R.drawable.moeny_img),
+                        imageDec = stringResource(R.string.money_dec),
+                        modifier = Modifier.size(300.dp).padding(top = 50.dp),
+                        titleText = stringResource(R.string.money_category),
+                        titleFontWeight = FontWeight.Bold,
+                        titleStyle = MaterialTheme.typography.titleLarge,
                         text = stringResource(R.string.money_detail),
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center
                     )
-
                 }
-
                 else -> {
-                    Image(
-                        painterResource(R.drawable.finance_img),
-                        contentDescription = "Finance",
-                        modifier = Modifier.size(300.dp).padding(top = 50.dp)
-                    )
-                    Text(
-                        text = stringResource(R.string.financial_category),
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
+                    pagerContent(
+                        painter = painterResource(R.drawable.finance_img),
+                        imageDec = stringResource(R.string.finance_dec),
+                        modifier = Modifier.size(300.dp).padding(top = 50.dp),
+                        titleText = stringResource(R.string.financial_category),
+                        titleFontWeight = FontWeight.Bold,
+                        titleStyle = MaterialTheme.typography.titleLarge,
                         text = stringResource(R.string.financial_detail),
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center
                     )
-
                 }
             }
             Row(
@@ -139,11 +116,41 @@ fun horizontalScroller(pagerState: PagerState, modifier: Modifier) {
     }
 }
 
+@Composable
+fun pagerContent(
+    painter: Painter,
+    imageDec: String,
+    modifier: Modifier,
+    titleText: String,
+    titleFontWeight: FontWeight,
+    titleStyle: TextStyle,
+    text: String,
+    style: TextStyle,
+    textAlign: TextAlign
+) {
+    Image(
+        painter = painter,
+        contentDescription = imageDec,
+        modifier = modifier
+    )
+    Text(
+        text = titleText,
+        fontWeight = titleFontWeight,
+        style = titleStyle
+    )
+    Spacer(modifier = Modifier.height(2.dp))
+    Text(
+        text = text,
+        style = style,
+        textAlign = textAlign
+    )
+}
+
 
 @Composable
-fun addNameScreen(
-    uiState: UiStateData,
-    userNameChanged: (String) -> Unit,
+fun userNameScreen(
+    uiState: HomeStateData,
+    onUserNameChange: (String) -> Unit,
     saveUserName: (String) -> Unit,
     modifier: Modifier
 ) {
@@ -164,7 +171,7 @@ fun addNameScreen(
         Spacer(Modifier.height(5.dp))
         OutlinedTextField(
             value = uiState.userName,
-            onValueChange = { userNameChanged(it) },
+            onValueChange = { onUserNameChange(it) },
             label = { Text(text = "Name") },
             singleLine = true,
             modifier = Modifier.border(BorderStroke(1.dp, Color.Unspecified))
@@ -180,11 +187,11 @@ fun addNameScreen(
 }
 
 @Composable
-fun SaveInitalMoneyScreen(
+fun initialMoneyScreen(
     modifier: Modifier,
     saveInitialMoney: (String) -> Unit,
-    initialMoneyState: UiStateData,
-    updateInitialMoney:(String)->Unit
+    initialMoneyState: HomeStateData,
+    onInitialMoneyChange:(String)->Unit
     ) {
     Column(
         modifier = modifier.padding(top = 50.dp),
@@ -207,7 +214,7 @@ fun SaveInitalMoneyScreen(
             },
             value = initialMoneyState.initialMoney,
             onValueChange = {
-                updateInitialMoney(it)
+                onInitialMoneyChange(it)
             },
             singleLine = true,
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),

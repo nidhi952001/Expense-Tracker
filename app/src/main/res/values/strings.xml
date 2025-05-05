@@ -5,6 +5,8 @@
     <string name="home">Home</string>
     <string name="add_name">Add Name</string>
     <string name="numericInput">Numeric Input</string>
+    <string name="pickIcon">Pick Icon</string>
+
     <!--top bar -->
     <string name="go_back">GO Back</string>
     <string name="save">Save</string>
@@ -27,11 +29,24 @@
     <string name="currency">Indian Rupee</string>
     <string name="choose_name">Choose a name for your account.</string>
     <string name="next">Next</string>
+    <string name="money_dec">Money</string>
+    <string name="finance_dec">Finance</string>
 
     <!--wallet-->
-
+    <string name="account_balance">Account Balance</string>
     <string name="showWallet">Show Wallet</string>
     <string name="addWallet">Add Wallet</string>
-    <string name="bank_wallet">Bank Wallet</string>
     <string name="wallet_name">Wallet\'s name</string>
+    <string name="arrow_down">Arrow Down</string>
+
+    <!--wallet icon-->
+    <string name="bank">Bank</string>
+    <string name="credit_card">Credit Card</string>
+    <string name="bitcoin">Bitcoin</string>
+    <string name="share_market">Share Market</string>
+    <string name="cash">Cash</string>
+    <string name="money_bag">Money bag</string>
+    <string name="payment">Payment</string>
+    <string name="piggy_bank">Piggy bank</string>
+    <string name="upi_wallet">Upi Wallet</string>
 </resources>

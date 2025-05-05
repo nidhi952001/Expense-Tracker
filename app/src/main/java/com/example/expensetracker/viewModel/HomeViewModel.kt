@@ -3,7 +3,8 @@ package com.example.expensetracker.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.expensetracker.repository.HomeRepository
-import com.example.expensetracker.utils.UiStateData
+import com.example.expensetracker.utils.HomeStateData
+import com.example.expensetracker.utils.TopBarStateData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,21 +17,28 @@ class HomeViewModel @Inject constructor(
         val homeRepository: HomeRepository
 ) : ViewModel(){
 
-        //ui state
-        private val _uiState = MutableStateFlow<UiStateData>(UiStateData())
-        val uiStateData = _uiState.asStateFlow()
-
+        //data = store
         val savedUsername = homeRepository.savedUserName
+
+        //ui state for home
+        private val _homeUiState = MutableStateFlow(HomeStateData())
+        val homeUiStateData = _homeUiState.asStateFlow()
+
+        //ui state for top bar
+        private val _topBarUiState = MutableStateFlow(TopBarStateData())
+        val topBarUiState = _topBarUiState.asStateFlow()
 
         fun saveUserName(name: String) {
                 viewModelScope.launch {
-                        uiStateData.value.userName = name
+                        _homeUiState.update {
+                                it.copy(userName = name)
+                        }
                         homeRepository.saveUserName(name)
                 }
         }
 
         fun updateUserName(name: String){
-                _uiState.update { current->
+                _homeUiState.update { current->
                         current.copy(
                                 userName = name
                         )
@@ -38,7 +46,7 @@ class HomeViewModel @Inject constructor(
         }
 
         fun updateInitalMoney(amount:String){
-                _uiState.update {
+                _homeUiState.update {
                         it.copy(
                                 initialMoney = amount
                         )
@@ -46,8 +54,8 @@ class HomeViewModel @Inject constructor(
         }
 
         fun changeToNewRoute(newSelection:String){
-                _uiState.update {
-                        it.copy(selected = newSelection)
+                _topBarUiState.update {
+                        it.copy(selectedTopBar = newSelection)
                 }
         }
 

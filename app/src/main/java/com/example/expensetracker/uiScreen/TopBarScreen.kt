@@ -30,14 +30,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.expensetracker.R
+import com.example.expensetracker.utils.TopLevelDestination
+import com.example.expensetracker.utils.getScreenName
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBarWithBackArrow(navHostController: NavHostController, currentRoute: String?) {
+fun topBarWithBackArrow(navHostController: NavHostController, currentRoute: String?, onActionClick: () -> Unit) {
+    val currentScreenName = getScreenName(currentRoute!!)
     CenterAlignedTopAppBar(
         title = {
             Text(
-                text = currentRoute!!,
+                text = currentScreenName,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleMedium
             )
@@ -50,56 +53,72 @@ fun TopBarWithBackArrow(navHostController: NavHostController, currentRoute: Stri
                 })
         },
         actions = {
-                    Text(
-                        text = stringResource(R.string.save),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Icon(
-                        painter = painterResource(R.drawable.save_ic),
-                        contentDescription = stringResource(R.string.save)
-                    )
+                topBarTrailingIcon(currentRoute, onActionClick = onActionClick)
+
         }
     )
 
 }
 
 @Composable
-fun AppTopBar(userName: String, currentRoute: String?, navHostController: NavHostController,selected: String, newSelectedRoute:(String)-> Unit) {
-    if (currentRoute.equals(TopLevelDestination.expense.name)) {
+fun topBarTrailingIcon(currentRoute: String?, onActionClick:()->Unit){
+    if(!currentRoute!!.equals(TopLevelDestination.pickWalletIcon.name)) {
+            Text(
+                text = stringResource(R.string.save),
+                style = MaterialTheme.typography.titleMedium
+            )
+            Icon(
+                painter = painterResource(R.drawable.save_ic),
+                contentDescription = stringResource(R.string.save),
+                modifier = Modifier.clickable(onClick = { onActionClick() })
+            )
+        }
+}
+
+@Composable
+fun AppTopBar(
+    userName: String, currentRoute: String, navHostController: NavHostController,
+    selected: String, newSelectedRoute: (String) -> Unit,
+    onActionClick: () -> Unit) {
+    if (currentRoute.equals(TopLevelDestination.expense.name) ||
+        currentRoute.equals(TopLevelDestination.addWallet.name) ||
+        currentRoute.equals(TopLevelDestination.pickWalletIcon.name)) {
             Column {
-                TopBarWithBackArrow(navHostController, currentRoute)
-                categoryTopBar(
-                    modifier = Modifier.fillMaxWidth(),
-                    selected = selected,
-                    newSelectedRoute = { newSelectedRoute(it) })
+                topBarWithBackArrow(
+                    navHostController = navHostController,
+                    currentRoute = currentRoute ,
+                    onActionClick = onActionClick)
+                if(currentRoute.equals(TopLevelDestination.expense.name)) {
+                    categoryTopBar(
+                        modifier = Modifier.fillMaxWidth(),
+                        selected = selected,
+                        newSelectedRoute = { newSelectedRoute(it) })
+                }
             }
-    }
-    if(currentRoute.equals(TopLevelDestination.addWallet.name)){
-        TopBarWithBackArrow(navHostController, currentRoute)
     }
     if (currentRoute.equals(TopLevelDestination.transaction.name) ||
         currentRoute.equals(TopLevelDestination.showWallet.name)
     ) {
-        TopBarWithoutbackArrow(userName, currentRoute)
+        topBarWithoutBackArrow(userName, currentRoute)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBarWithoutbackArrow(userName: String, currentRoute: String?) {
+fun topBarWithoutBackArrow(userName: String, currentRoute: String?) {
     Column {
         TopAppBar(
             title = { Text(text = userName, fontWeight = FontWeight.Bold) },
             modifier = Modifier
         )
         if (currentRoute.equals(TopLevelDestination.transaction.name)) {
-            AppSecondTopbar()
+            secondTopBar()
         }
     }
 }
 
 @Composable
-fun AppSecondTopbar() {
+fun secondTopBar() {
     Text(text = "another title for date with condition")
 }
 
@@ -167,10 +186,3 @@ fun categoryTopBar(
     }
 }
 
-/*
-@Preview
-@Composable
-fun SeePreview(){
-    val navController = rememberNavController()
-    AppTopBar("Nidhi",TopLevelDestination.expense.name, navHostController = navController)
-}*/
