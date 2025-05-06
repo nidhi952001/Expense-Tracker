@@ -6,8 +6,8 @@ import com.example.expensetracker.R
 import com.example.expensetracker.entity.TypeOfWallet
 import com.example.expensetracker.entity.Wallet
 import com.example.expensetracker.repository.WalletRepository
-import com.example.expensetracker.utils.ListOfIcons
-import com.example.expensetracker.utils.WalletStateData
+import com.example.expensetracker.utils.DisplayUIState.WalletDisplayState
+import com.example.expensetracker.utils.InputUIState.WalletInputState
 import com.example.expensetracker.utils.listOfWalletIcon
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -27,8 +28,17 @@ class WalletViewModel @Inject constructor(
     val initialAmount = walletRepository.initialAmount
 
     //from database
-    val wallets: StateFlow<List<Wallet>> = walletRepository.showWallet()
+    val savedWallets: StateFlow<List<Wallet>> = walletRepository.showWallet()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(),emptyList())
+
+    val showBalance:StateFlow<Float> = walletRepository.totalBalance().stateIn(
+        viewModelScope,SharingStarted.WhileSubscribed(),0F
+    )
+
+    val persistedWalletState:StateFlow<WalletDisplayState> =
+        combine(savedWallets,showBalance){ wallet , balance ->
+            WalletDisplayState(wallet,balance)
+        }.stateIn(viewModelScope,SharingStarted.WhileSubscribed(), WalletDisplayState(emptyList(),0F))
 
 
     fun addWallet(wallet: Wallet){
@@ -56,25 +66,39 @@ class WalletViewModel @Inject constructor(
     }
 
     //for the Ui state
-    private val _walletUiState = MutableStateFlow(WalletStateData())
-    val walletUiState = _walletUiState.asStateFlow()
+    private val _tempWalletState = MutableStateFlow(WalletInputState())
+    val tempWalletState = _tempWalletState.asStateFlow()
 
     fun updateWalletName(newWalletName:String){
-        _walletUiState.update {
+        if(!newWalletName.isNullOrEmpty() || newWalletName.isNotBlank()){
+            _tempWalletState.update {
+                it.copy(
+                    isWalletNameValid = true
+                )
+            }
+        }
+        _tempWalletState.update {
             it.copy(
                 walletName = newWalletName
             )
         }
     }
     fun updateWalletType(walletType:TypeOfWallet){
-        _walletUiState.update {
+        _tempWalletState.update {
             it.copy(
                 selectType = walletType
             )
         }
     }
     fun updateWalletAmount(walletAmount: String){
-        _walletUiState.update {
+        if(!walletAmount.isNullOrEmpty() || walletAmount.isNotBlank()){
+            _tempWalletState.update {
+                it.copy(
+                    isWalletAmountValid = true
+                )
+            }
+        }
+        _tempWalletState.update {
             it.copy(
                 walletAmount = walletAmount
             )
@@ -82,21 +106,35 @@ class WalletViewModel @Inject constructor(
     }
 
     fun updateSelectedIcon(selectedIcon: Int) {
-        _walletUiState.update {
+        _tempWalletState.update {
             it.copy(selectedIcon = selectedIcon)
         }
     }
 
     fun resetWalletUiState() {
-        _walletUiState.update {
+        _tempWalletState.update {
             it.copy(
                 walletName = "",
-                 selectType = walletUiState.value.selectType,
+                 selectType = tempWalletState.value.selectType,
                  walletAmount = "",
-                 walletIconName =  walletUiState.value.walletIconName,
+                 walletIconName =  tempWalletState.value.walletIconName,
                  listOfIcon = listOfWalletIcon.iconData,
-                 selectedIcon = walletUiState.value.selectedIcon
+                 selectedIcon = tempWalletState.value.selectedIcon,
+                isWalletNameValid = false
             )
         }
+    }
+
+
+    fun saveIntoWallet(walletUiState: WalletInputState) {
+        val newWallet = Wallet(
+            walletId = 0,
+            walletName = walletUiState.walletName,
+            walletType = walletUiState.selectType,
+            walletAmount = walletUiState.walletAmount.toFloat(),
+            walletIcon = walletUiState.selectedIcon,
+            walletIconDes = walletUiState.walletIconName)
+        addWallet(newWallet)
+        resetWalletUiState()
     }
 }

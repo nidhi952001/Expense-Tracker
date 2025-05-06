@@ -21,8 +21,11 @@ class WalletRepository @Inject constructor(
     fun showWallet(): Flow<List<Wallet>>{
         return walletDao.showWallet()
     }
-
     suspend fun saveInitialAmount(amount:String){
         datastoreManager.saveInitialAmount(amount)
     }
+
+     fun totalBalance():Flow<Float> {
+         return walletDao.totalBalance()
+     }
 }

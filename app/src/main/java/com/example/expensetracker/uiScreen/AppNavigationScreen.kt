@@ -19,6 +19,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.expensetracker.utils.InputUIState.WalletInputState
 import com.example.expensetracker.utils.TopLevelDestination
 import com.example.expensetracker.utils.topBarAction
 import com.example.expensetracker.viewModel.ExpenseViewModel
@@ -42,8 +43,8 @@ fun AppNavigationScreen() {
 
     //uiState
     val homeUiState by homeViewModel.homeUiStateData.collectAsState()
-    val walletDatabaseState by walletViewModel.wallets.collectAsState()
-    val walletUiState by walletViewModel.walletUiState.collectAsState()
+    val walletDatabaseState by walletViewModel.persistedWalletState.collectAsState()
+    val inputWalletState by walletViewModel.tempWalletState.collectAsState()
     val topBarUiState by homeViewModel.topBarUiState.collectAsState()
 
     var userName by rememberSaveable { mutableStateOf("User") }
@@ -68,8 +69,9 @@ fun AppNavigationScreen() {
         Scaffold(topBar = {
                 AppTopBar(
                     userName = userName,
-                    currentRoute = currentRoute!!, //todo need to rewrite this logic , it can crash the app
+                    currentRoute = currentRoute, //todo need to rewrite this logic , it can crash the app
                     navHostController = navController,
+                    localWallet = inputWalletState,
                     selected = topBarUiState.selectedTopBar,
                     newSelectedRoute = {
                         homeViewModel.changeToNewRoute(it)
@@ -79,7 +81,7 @@ fun AppNavigationScreen() {
                         topBarAction(
                             currentRoute = currentRoute,
                             walletViewModel = walletViewModel,
-                            walletUiState = walletUiState,
+                            walletUiState = inputWalletState,
                             navController = navController
                             )
                     }
@@ -129,16 +131,19 @@ fun AppNavigationScreen() {
                     ExpenseScreen(expenseViewModel = expViewModel , onClick = {
                     })
                 } //todo need to do code review
+                composable(route = TopLevelDestination.income.name){
+                    incomeScreen()
+                }
                 composable(route = TopLevelDestination.showWallet.name) {
                     viewWalletWithBalance(
                         modifier = Modifier.fillMaxSize(),
-                        listOfWallet = walletDatabaseState,
+                        walletDatabaseState = walletDatabaseState,
                         addWallet = {navController.navigate(TopLevelDestination.addWallet.name)}
                     )
                 }
                 composable(route = TopLevelDestination.addWallet.name) {
                     addWallet(
-                        walletUiState = walletUiState,
+                        walletUiState = inputWalletState,
                         onSelectType = { walletViewModel.updateWalletType(it) },
                         onValueChange = { walletViewModel.updateWalletAmount(it) },
                         onNameChanged = { walletViewModel.updateWalletName(it) },
@@ -148,7 +153,7 @@ fun AppNavigationScreen() {
                     )
                 }
                 composable(route = TopLevelDestination.pickWalletIcon.name){
-                        showIcon(walletUiState = walletUiState,
+                        showIcon(walletUiState = inputWalletState,
                             modifier = Modifier.fillMaxSize(),
                             onSelectedIcon = {
                                 walletViewModel.updateSelectedIcon(it)

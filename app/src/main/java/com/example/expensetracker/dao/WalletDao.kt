@@ -16,4 +16,7 @@ interface WalletDao {
 
     @Query("select * from wallet")
     fun showWallet():Flow<List<Wallet>>
+
+    @Query("select SUM(walletAmount) from wallet")
+    fun totalBalance():Flow<Float>
 }

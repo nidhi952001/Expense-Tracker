@@ -30,12 +30,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.expensetracker.R
+import com.example.expensetracker.utils.InputUIState.WalletInputState
 import com.example.expensetracker.utils.TopLevelDestination
 import com.example.expensetracker.utils.getScreenName
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun topBarWithBackArrow(navHostController: NavHostController, currentRoute: String?, onActionClick: () -> Unit) {
+fun topBarWithBackArrow(
+    navHostController: NavHostController,
+    currentRoute: String?,
+    localWallet: WalletInputState,
+    onActionClick: () -> Unit) {
     val currentScreenName = getScreenName(currentRoute!!)
     CenterAlignedTopAppBar(
         title = {
@@ -53,7 +58,10 @@ fun topBarWithBackArrow(navHostController: NavHostController, currentRoute: Stri
                 })
         },
         actions = {
-                topBarTrailingIcon(currentRoute, onActionClick = onActionClick)
+                topBarTrailingIcon(
+                    currentRoute= currentRoute,
+                    localWallet = localWallet,
+                    onActionClick = onActionClick)
 
         }
     )
@@ -61,8 +69,8 @@ fun topBarWithBackArrow(navHostController: NavHostController, currentRoute: Stri
 }
 
 @Composable
-fun topBarTrailingIcon(currentRoute: String?, onActionClick:()->Unit){
-    if(!currentRoute!!.equals(TopLevelDestination.pickWalletIcon.name)) {
+fun topBarTrailingIcon(currentRoute: String?, localWallet:WalletInputState,onActionClick:()->Unit){
+    if(currentRoute!!.equals(TopLevelDestination.addWallet.name)) {
             Text(
                 text = stringResource(R.string.save),
                 style = MaterialTheme.typography.titleMedium
@@ -70,25 +78,34 @@ fun topBarTrailingIcon(currentRoute: String?, onActionClick:()->Unit){
             Icon(
                 painter = painterResource(R.drawable.save_ic),
                 contentDescription = stringResource(R.string.save),
-                modifier = Modifier.clickable(onClick = { onActionClick() })
+                modifier = Modifier.clickable(
+                    enabled = if(localWallet.isWalletNameValid && localWallet.isWalletAmountValid) true else false,
+                    onClick = { onActionClick() }
+                )
             )
         }
 }
 
 @Composable
 fun AppTopBar(
-    userName: String, currentRoute: String, navHostController: NavHostController,
-    selected: String, newSelectedRoute: (String) -> Unit,
+    userName: String, currentRoute: String?,
+    navHostController: NavHostController,
+    selected: String,
+    localWallet: WalletInputState,
+    newSelectedRoute: (String) -> Unit,
     onActionClick: () -> Unit) {
     if (currentRoute.equals(TopLevelDestination.expense.name) ||
         currentRoute.equals(TopLevelDestination.addWallet.name) ||
-        currentRoute.equals(TopLevelDestination.pickWalletIcon.name)) {
+        currentRoute.equals(TopLevelDestination.pickWalletIcon.name) ||
+        currentRoute.equals(TopLevelDestination.income.name)) {
             Column {
                 topBarWithBackArrow(
                     navHostController = navHostController,
                     currentRoute = currentRoute ,
+                    localWallet = localWallet,
                     onActionClick = onActionClick)
-                if(currentRoute.equals(TopLevelDestination.expense.name)) {
+                if(currentRoute.equals(TopLevelDestination.expense.name) ||
+                    currentRoute.equals(TopLevelDestination.income.name)) {
                     categoryTopBar(
                         modifier = Modifier.fillMaxWidth(),
                         selected = selected,
@@ -108,7 +125,11 @@ fun AppTopBar(
 fun topBarWithoutBackArrow(userName: String, currentRoute: String?) {
     Column {
         TopAppBar(
-            title = { Text(text = userName, fontWeight = FontWeight.Bold) },
+            title = {
+                Text(
+                text = userName,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold) },
             modifier = Modifier
         )
         if (currentRoute.equals(TopLevelDestination.transaction.name)) {
@@ -142,17 +163,11 @@ fun categoryTopBar(
         ) {
             Button(
                 onClick = { newSelectedRoute(TopLevelDestination.income.name) },
-                modifier = Modifier.weight(1f)
-                    .background(
-                        color =
-                            if (selected.equals(TopLevelDestination.income.name)) Color.Blue.copy(
-                                alpha = 0.5f
-                            )
-                            else Color.Unspecified
-                    ).padding(2.dp),
+                modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Unspecified,
-                    contentColor = if (selected.equals(TopLevelDestination.income.name)) Color.White else Color.Black
+                    containerColor = if (selected.equals(TopLevelDestination.income.name)) MaterialTheme.colorScheme.primaryContainer
+                    else MaterialTheme.colorScheme.surface,
+                    contentColor = if (selected.equals(TopLevelDestination.income.name)) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
                 ),
                 shape = RectangleShape,
             ) {
@@ -163,17 +178,11 @@ fun categoryTopBar(
             }
             Button(
                 onClick = { newSelectedRoute(TopLevelDestination.expense.name) },
-                modifier = Modifier.weight(1f)
-                    .background(
-                        color =
-                            if (selected.equals(TopLevelDestination.expense.name)) Color.Red.copy(
-                                alpha = 0.5f
-                            )
-                            else Color.Unspecified
-                    ).padding(2.dp),
+                modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Unspecified,
-                    contentColor = if (selected.equals(TopLevelDestination.expense.name)) Color.White else Color.Black
+                    containerColor = if (selected.equals(TopLevelDestination.expense.name)) MaterialTheme.colorScheme.errorContainer
+                    else MaterialTheme.colorScheme.surface,
+                    contentColor = if (selected.equals(TopLevelDestination.expense.name)) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSurface
                 ),
                 shape = RectangleShape
             ) {

@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import com.example.expensetracker.R
-import com.example.expensetracker.entity.Wallet
+import com.example.expensetracker.utils.InputUIState.WalletInputState
 import com.example.expensetracker.viewModel.WalletViewModel
 
 enum class TopLevelDestination(@StringRes val route: Int) {
@@ -41,23 +41,15 @@ fun getScreenName(currentRoute: String):String {
 
 
 fun topBarAction(
-    currentRoute: String,
+    currentRoute: String?,
     walletViewModel: WalletViewModel,
-    walletUiState: WalletStateData,
+    walletUiState: WalletInputState,
     navController: NavController
 ) {
     when(currentRoute){
         TopLevelDestination.addWallet.name->{
-            val newWallet = Wallet(
-                walletId = 0,
-                walletName = walletUiState.walletName,
-                walletType = walletUiState.selectType,
-                walletAmount = walletUiState.walletAmount.toFloat(),
-                walletIcon = walletUiState.selectedIcon,
-                walletIconDes = walletUiState.walletIconName)
-            walletViewModel.addWallet(newWallet)
+            walletViewModel.saveIntoWallet(walletUiState)
             navController.navigateUp()
-            walletViewModel.resetWalletUiState()
         }
     }
 }

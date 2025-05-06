@@ -6,6 +6,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
@@ -67,7 +68,9 @@ fun appBottomBar(navHostController: NavHostController, currentRoute: String?){
                             Icon(imageVector = items.icon, contentDescription = stringResource( items.label))
                     },
                     label = {
-                        Text(text = stringResource(items.label))
+                        Text(
+                            text = stringResource(items.label),
+                        )
                     }
                 )
             }

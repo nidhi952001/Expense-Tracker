@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
-import com.example.compose.ExpenseTrackerTheme
+import com.example.expensetracker.ui.theme.ExpenseTrackerTheme
 import com.example.expensetracker.uiScreen.AppNavigationScreen
 import com.example.expensetracker.viewModel.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
