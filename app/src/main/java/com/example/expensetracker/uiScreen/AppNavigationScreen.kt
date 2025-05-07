@@ -2,8 +2,11 @@ package com.example.expensetracker.uiScreen
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -13,6 +16,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
@@ -96,7 +100,7 @@ fun AppNavigationScreen() {
                         TopLevelDestination.home.name
                     else
                         TopLevelDestination.transaction.name,
-                modifier = Modifier.padding(padding)
+                modifier = Modifier.padding(padding).background(color = MaterialTheme.colorScheme.surfaceVariant)
             ) {
                 composable(route = TopLevelDestination.home.name) {
                     WelcomeScreen(
@@ -128,7 +132,10 @@ fun AppNavigationScreen() {
                     TransactionScreen()
                 }
                 composable(route = TopLevelDestination.expense.name) {
-                    ExpenseScreen(expenseViewModel = expViewModel , onClick = {
+                    ExpenseScreen(
+                        modifier = Modifier.fillMaxSize(),
+                        expenseViewModel = expViewModel,
+                        onClick = {
                     })
                 } //todo need to do code review
                 composable(route = TopLevelDestination.income.name){

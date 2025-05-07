@@ -1,20 +1,30 @@
 package com.example.expensetracker.uiScreen
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -22,10 +32,12 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -40,9 +52,11 @@ fun topBarWithBackArrow(
     navHostController: NavHostController,
     currentRoute: String?,
     localWallet: WalletInputState,
-    onActionClick: () -> Unit) {
+    onActionClick: () -> Unit
+) {
     val currentScreenName = getScreenName(currentRoute!!)
     CenterAlignedTopAppBar(
+        modifier = Modifier.background(color = Color.Transparent),
         title = {
             Text(
                 text = currentScreenName,
@@ -58,10 +72,11 @@ fun topBarWithBackArrow(
                 })
         },
         actions = {
-                topBarTrailingIcon(
-                    currentRoute= currentRoute,
-                    localWallet = localWallet,
-                    onActionClick = onActionClick)
+            topBarTrailingIcon(
+                currentRoute = currentRoute,
+                localWallet = localWallet,
+                onActionClick = onActionClick
+            )
 
         }
     )
@@ -69,21 +84,27 @@ fun topBarWithBackArrow(
 }
 
 @Composable
-fun topBarTrailingIcon(currentRoute: String?, localWallet:WalletInputState,onActionClick:()->Unit){
-    if(currentRoute!!.equals(TopLevelDestination.addWallet.name)) {
+fun topBarTrailingIcon(
+    currentRoute: String?,
+    localWallet: WalletInputState,
+    onActionClick: () -> Unit
+) {
+    if (currentRoute!! == TopLevelDestination.addWallet.name) {
+        IconButton(
+            onClick = { onActionClick() },
+            enabled = localWallet.isWalletNameValid && localWallet.isWalletAmountValid,
+            colors = IconButtonDefaults.iconButtonColors(
+                disabledContentColor = MaterialTheme.colorScheme.outlineVariant,
+                contentColor = MaterialTheme.colorScheme.onSurface
+            )
+            ) {
             Text(
                 text = stringResource(R.string.save),
-                style = MaterialTheme.typography.titleMedium
-            )
-            Icon(
-                painter = painterResource(R.drawable.save_ic),
-                contentDescription = stringResource(R.string.save),
-                modifier = Modifier.clickable(
-                    enabled = if(localWallet.isWalletNameValid && localWallet.isWalletAmountValid) true else false,
-                    onClick = { onActionClick() }
-                )
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold
             )
         }
+    }
 }
 
 @Composable
@@ -93,30 +114,43 @@ fun AppTopBar(
     selected: String,
     localWallet: WalletInputState,
     newSelectedRoute: (String) -> Unit,
-    onActionClick: () -> Unit) {
-    if (currentRoute.equals(TopLevelDestination.expense.name) ||
-        currentRoute.equals(TopLevelDestination.addWallet.name) ||
-        currentRoute.equals(TopLevelDestination.pickWalletIcon.name) ||
-        currentRoute.equals(TopLevelDestination.income.name)) {
-            Column {
-                topBarWithBackArrow(
-                    navHostController = navHostController,
-                    currentRoute = currentRoute ,
-                    localWallet = localWallet,
-                    onActionClick = onActionClick)
-                if(currentRoute.equals(TopLevelDestination.expense.name) ||
-                    currentRoute.equals(TopLevelDestination.income.name)) {
-                    categoryTopBar(
-                        modifier = Modifier.fillMaxWidth(),
-                        selected = selected,
-                        newSelectedRoute = { newSelectedRoute(it) })
+    onActionClick: () -> Unit
+) {
+    when (currentRoute) {
+        TopLevelDestination.expense.name,
+        TopLevelDestination.addWallet.name,
+        TopLevelDestination.pickWalletIcon.name,
+        TopLevelDestination.income.name -> {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RectangleShape,
+                shadowElevation = 5.dp,
+                color = MaterialTheme.colorScheme.surface
+            ) {
+                Column {
+                    topBarWithBackArrow(
+                        navHostController = navHostController,
+                        currentRoute = currentRoute,
+                        localWallet = localWallet,
+                        onActionClick = onActionClick
+                    )
+                    if (currentRoute == TopLevelDestination.expense.name ||
+                        currentRoute == TopLevelDestination.income.name
+                    ) {
+                        categoryTopBar(
+                            modifier = Modifier.fillMaxWidth(),
+                            selected = selected,
+                            newSelectedRoute = { newSelectedRoute(it) })
+                    }
                 }
             }
-    }
-    if (currentRoute.equals(TopLevelDestination.transaction.name) ||
-        currentRoute.equals(TopLevelDestination.showWallet.name)
-    ) {
-        topBarWithoutBackArrow(userName, currentRoute)
+        }
+
+        TopLevelDestination.transaction.name,
+        TopLevelDestination.showWallet.name -> {
+            topBarWithoutBackArrow(userName, currentRoute)
+
+        }
     }
 }
 
@@ -127,9 +161,11 @@ fun topBarWithoutBackArrow(userName: String, currentRoute: String?) {
         TopAppBar(
             title = {
                 Text(
-                text = userName,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold) },
+                    text = userName,
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            },
             modifier = Modifier
         )
         if (currentRoute.equals(TopLevelDestination.transaction.name)) {
@@ -149,48 +185,46 @@ fun categoryTopBar(
     modifier: Modifier,
     selected: String,
     newSelectedRoute: (String) -> Unit
-){
-    Surface(
-        shadowElevation = 1.dp,
-        shape = RoundedCornerShape(bottomStart = 0.dp, bottomEnd = 0.dp)
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = modifier.background(
-                color = MaterialTheme.colorScheme.surface
+        Button(
+            onClick = { newSelectedRoute(TopLevelDestination.income.name) },
+            modifier = Modifier.weight(1f),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (selected.equals(TopLevelDestination.income.name)) MaterialTheme.colorScheme.primaryContainer
+                else MaterialTheme.colorScheme.surface,
+                contentColor = if (selected.equals(TopLevelDestination.income.name)) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
             ),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+            shape = RectangleShape,
         ) {
-            Button(
-                onClick = { newSelectedRoute(TopLevelDestination.income.name) },
-                modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (selected.equals(TopLevelDestination.income.name)) MaterialTheme.colorScheme.primaryContainer
-                    else MaterialTheme.colorScheme.surface,
-                    contentColor = if (selected.equals(TopLevelDestination.income.name)) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
-                ),
-                shape = RectangleShape,
-            ) {
-                Text(
-                    text = stringResource(R.string.income),
-                    style = MaterialTheme.typography.titleLarge
-                )
-            }
-            Button(
-                onClick = { newSelectedRoute(TopLevelDestination.expense.name) },
-                modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (selected.equals(TopLevelDestination.expense.name)) MaterialTheme.colorScheme.errorContainer
-                    else MaterialTheme.colorScheme.surface,
-                    contentColor = if (selected.equals(TopLevelDestination.expense.name)) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSurface
-                ),
-                shape = RectangleShape
-            ) {
-                Text(
-                    text = stringResource(R.string.expense),
-                    style = MaterialTheme.typography.titleLarge
-                )
-            }
+            Text(
+                text = stringResource(R.string.income),
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        Button(
+            onClick = { newSelectedRoute(TopLevelDestination.expense.name) },
+            modifier = Modifier.weight(1f),
+            colors = ButtonDefaults.buttonColors(
+                containerColor =
+                if (selected == TopLevelDestination.expense.name) MaterialTheme.colorScheme.error.copy(alpha = 0.8F)
+                else MaterialTheme.colorScheme.surface,
+                contentColor =
+                if (selected == TopLevelDestination.expense.name) MaterialTheme.colorScheme.onError
+                else MaterialTheme.colorScheme.onSurface
+            ),
+            shape = RectangleShape
+        ) {
+            Text(
+                text = stringResource(R.string.expense),
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }

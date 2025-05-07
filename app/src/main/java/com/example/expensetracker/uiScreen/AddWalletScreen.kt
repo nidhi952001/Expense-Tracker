@@ -196,13 +196,14 @@ fun showWallets(modifier: Modifier, listOfWallet: List<Wallet>, addWallet: () ->
 
 @Composable
 fun wallet(wallet: Wallet) {
+    println("wallet data "+wallet.walletIconDes)
         Card(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.secondaryContainer).padding(vertical = 10.dp),
                 verticalArrangement = Arrangement.SpaceEvenly ,
                 horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                Icon(painter = painterResource(wallet.walletIcon), contentDescription = stringResource(wallet.walletIconDes))
+                Icon(painter = painterResource(wallet.walletIcon), contentDescription = null)
                 Text(text = wallet.walletName)
                 Text(text = wallet.walletAmount.toString())
             }
