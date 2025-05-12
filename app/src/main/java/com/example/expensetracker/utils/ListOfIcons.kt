@@ -1,5 +1,8 @@
 package com.example.expensetracker.utils
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import com.example.expensetracker.R
 
 data class ListOfIcons(
@@ -18,5 +21,20 @@ object listOfWalletIcon{
         ListOfIcons(R.drawable.payment_wallet_ic,R.string.payment),
         ListOfIcons(R.drawable.piggy_bank_wallet_ic,R.string.bank),
         ListOfIcons(R.drawable.upi_wallet_ic,R.string.bank)
+    )
+}
+
+data class ListOfColors(
+    val colors: Color
+)
+
+object listOfColor  {
+    val listOfColors = listOf(
+        ListOfColors(Color.Black.copy(alpha = 0.5f)),
+        ListOfColors(Color.Blue.copy(alpha = 0.5f)),
+        ListOfColors(Color.Green.copy(alpha = 0.5f)),
+        ListOfColors(Color.Red.copy(alpha = 0.5f)),
+        ListOfColors(Color.Magenta.copy(alpha = 0.5f)),
+        ListOfColors(Color.DarkGray.copy(alpha = 0.5f))
     )
 }

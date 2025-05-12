@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,9 +17,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -34,9 +36,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -51,6 +56,7 @@ import com.example.expensetracker.entity.TypeOfWallet
 import com.example.expensetracker.entity.Wallet
 import com.example.expensetracker.utils.DisplayUIState.WalletDisplayState
 import com.example.expensetracker.utils.InputUIState.WalletInputState
+import com.example.expensetracker.utils.ListOfColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,7 +64,9 @@ fun addWallet(walletUiState: WalletInputState,
               onNameChanged:(String)->Unit,
               onValueChange:(String)-> Unit,
               onSelectType: (TypeOfWallet) -> Unit,
-              onIconClick:()->Unit){
+              onIconClick:()->Unit,
+              onClickColorPicker:(Boolean)->Unit,
+              onSelectedColor: (Color) -> Unit){
     val scrollableState = rememberScrollState()
     val isDropDownExpanded = remember {
         mutableStateOf(false)
@@ -101,9 +109,16 @@ fun addWallet(walletUiState: WalletInputState,
             },
             isClickable = true
         )
-        Row(modifier = Modifier.weight(1f)) {
-            Column() {
-               // Label("Color")
+        Row() {
+            Column(Modifier.weight(1f)) {
+                Label("Color")
+               walletColor(
+                   showColorPicker = walletUiState.showColorPicker,
+                   listOfColors = walletUiState.showListOfColor,
+                   selectedColor = walletUiState.selectedColors,
+                   onClickColorPicker = onClickColorPicker,
+                   onSelectedColor = onSelectedColor,
+               )
             }
             Spacer(modifier = Modifier.width(5.dp))
             Column {
@@ -126,12 +141,13 @@ fun addWallet(walletUiState: WalletInputState,
 @Composable
 fun viewWalletWithBalance(modifier: Modifier, walletDatabaseState: WalletDisplayState, addWallet: () -> Unit){
     Column(modifier = modifier){
+        Spacer(modifier = Modifier.height(5.dp))
         showBalance(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().background(color =  MaterialTheme.colorScheme.surface),
             totalBalance = walletDatabaseState.totalBalance
             )
         Spacer(Modifier.height(10.dp))
-        showWallets(modifier = Modifier.fillMaxWidth(),
+        showWallets(modifier = Modifier.fillMaxWidth().background(color =  MaterialTheme.colorScheme.surface),
             listOfWallet = walletDatabaseState.savedWallets,
             addWallet = addWallet)
     }
@@ -139,7 +155,7 @@ fun viewWalletWithBalance(modifier: Modifier, walletDatabaseState: WalletDisplay
 
 @Composable
 fun showBalance(modifier: Modifier,totalBalance:Float){
-    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(modifier = modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = stringResource(R.string.account_balance),
             color = MaterialTheme.colorScheme.secondary
@@ -163,7 +179,7 @@ fun showBalance(modifier: Modifier,totalBalance:Float){
 
 @Composable
 fun showWallets(modifier: Modifier, listOfWallet: List<Wallet>, addWallet: () -> Unit){
-    Column(modifier = modifier.padding(horizontal = 25.dp)) {
+    Column(modifier = modifier.padding(horizontal = 25.dp, vertical = 20.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
                 text = "Wallet",
@@ -199,13 +215,25 @@ fun wallet(wallet: Wallet) {
     println("wallet data "+wallet.walletIconDes)
         Card(modifier = Modifier.fillMaxSize()) {
             Column(
-                modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.secondaryContainer).padding(vertical = 10.dp),
+                modifier = Modifier.fillMaxSize().background(color = wallet.walletColor).padding(vertical = 10.dp),
                 verticalArrangement = Arrangement.SpaceEvenly ,
                 horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                 Icon(painter = painterResource(wallet.walletIcon), contentDescription = null)
-                Text(text = wallet.walletName)
-                Text(text = wallet.walletAmount.toString())
+                Text(
+                    text = wallet.walletName,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Row(horizontalArrangement = Arrangement.Center) {
+                    Icon(
+                        painter = painterResource(R.drawable.currency_rupee_ui),
+                        contentDescription = stringResource(R.string.currency),
+                        tint = MaterialTheme.colorScheme.inverseSurface,
+                        modifier = Modifier.size(15.dp)
+                    )
+                    Text(text = wallet.walletAmount.toString())
+                }
             }
         }
 }
@@ -299,6 +327,42 @@ fun showIcon(walletUiState: WalletInputState, modifier: Modifier, onSelectedIcon
                     tint = MaterialTheme.colorScheme.onSurface,
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun walletColor(showColorPicker:Boolean,onClickColorPicker:(Boolean)->Unit, listOfColors: List<ListOfColors>, selectedColor:Color , onSelectedColor: (Color) -> Unit){
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(50.dp)
+            .background(color = selectedColor, shape = MaterialTheme.shapes.large)
+            .clickable(onClick = { onClickColorPicker(true) })
+    )
+    if(showColorPicker){
+        colorPicker(
+            listOfColors = listOfColors,
+            onSelectedColor = onSelectedColor,
+        )
+    }
+}
+
+@Composable
+fun colorPicker(listOfColors: List<ListOfColors>,onSelectedColor:(Color)->Unit) {
+    Column(modifier = Modifier) {
+        listOfColors.forEach {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 10.dp)
+                    .height(50.dp)
+                    .background(color = it.colors, shape = MaterialTheme.shapes.large)
+                    .clickable(onClick = {
+                        onSelectedColor(it.colors)
+                    }
+                    )
+            )
         }
     }
 }

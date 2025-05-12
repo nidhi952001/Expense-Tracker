@@ -174,7 +174,7 @@ fun userNameScreen(
             onValueChange = { onUserNameChange(it) },
             label = { Text(text = "Name") },
             singleLine = true,
-            modifier = Modifier.border(BorderStroke(1.dp, Color.Unspecified))
+            modifier = Modifier.padding(start = 20.dp, end = 20.dp).fillMaxWidth().border(BorderStroke(1.dp, Color.Unspecified))
         )
         Spacer(Modifier.height(5.dp))
         Button(onClick = { saveUserName(uiState.userName) },

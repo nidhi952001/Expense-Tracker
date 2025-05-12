@@ -1,5 +1,6 @@
 package com.example.expensetracker.viewModel
 
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.expensetracker.R
@@ -59,7 +60,8 @@ class WalletViewModel @Inject constructor(
                 walletType = TypeOfWallet.GENERAL,
                 walletAmount = amountFloat,
                 walletIcon = R.drawable.account_wallet_ic,
-                walletIconDes = R.string.bank)
+                walletIconDes = R.string.bank,
+                walletColor = Color.Blue.copy(alpha = 0.5f))
             addWallet(initialWallet)
         }
 
@@ -111,6 +113,17 @@ class WalletViewModel @Inject constructor(
         }
     }
 
+    fun updateSelectedColor(selectedColor: Color){
+        _tempWalletState.update {
+            it.copy(selectedColors = selectedColor, showColorPicker = false)
+        }
+    }
+
+    fun updateColorPicker(colorPicker: Boolean) {
+        _tempWalletState.update {
+            it.copy(showColorPicker = colorPicker)
+        }
+    }
     fun resetWalletUiState() {
         _tempWalletState.update {
             it.copy(
@@ -133,7 +146,8 @@ class WalletViewModel @Inject constructor(
             walletType = walletUiState.selectType,
             walletAmount = walletUiState.walletAmount.toFloat(),
             walletIcon = walletUiState.selectedIcon,
-            walletIconDes = walletUiState.walletIconName)
+            walletIconDes = walletUiState.walletIconName,
+            walletColor = walletUiState.selectedColors)
         addWallet(newWallet)
         resetWalletUiState()
     }

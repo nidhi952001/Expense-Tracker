@@ -3,9 +3,15 @@ package com.example.expensetracker.uiScreen
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -54,6 +60,7 @@ fun AppNavigationScreen() {
     var userName by rememberSaveable { mutableStateOf("User") }
     var initialAmount by rememberSaveable { mutableStateOf("not_decided") }
     var isLoading by rememberSaveable { mutableStateOf(true) }
+    var walletScrollableState = rememberScrollState()
 
     //todo can add this into data class
     LaunchedEffect(Unit) {
@@ -100,7 +107,7 @@ fun AppNavigationScreen() {
                         TopLevelDestination.home.name
                     else
                         TopLevelDestination.transaction.name,
-                modifier = Modifier.padding(padding).background(color = MaterialTheme.colorScheme.surfaceVariant)
+                modifier = Modifier.padding(padding).background(color =  MaterialTheme.colorScheme.surface)
             ) {
                 composable(route = TopLevelDestination.home.name) {
                     WelcomeScreen(
@@ -143,7 +150,7 @@ fun AppNavigationScreen() {
                 }
                 composable(route = TopLevelDestination.showWallet.name) {
                     viewWalletWithBalance(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.scrollable(state = walletScrollableState, orientation = Orientation.Vertical).fillMaxSize().background(color =  MaterialTheme.colorScheme.surfaceVariant),
                         walletDatabaseState = walletDatabaseState,
                         addWallet = {navController.navigate(TopLevelDestination.addWallet.name)}
                     )
@@ -156,7 +163,9 @@ fun AppNavigationScreen() {
                         onNameChanged = { walletViewModel.updateWalletName(it) },
                         onIconClick = {
                             navController.navigate(TopLevelDestination.pickWalletIcon.name)
-                        }
+                        },
+                        onClickColorPicker= {walletViewModel.updateColorPicker(it)},
+                        onSelectedColor = {walletViewModel.updateSelectedColor(it)}
                     )
                 }
                 composable(route = TopLevelDestination.pickWalletIcon.name){
