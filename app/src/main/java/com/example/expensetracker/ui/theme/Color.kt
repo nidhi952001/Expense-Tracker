@@ -1,4 +1,6 @@
 package com.example.expensetracker.ui.theme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 
@@ -62,5 +64,48 @@ val inverseOnSurfaceDark = Color(0xFF2E3036)
 val inversePrimaryDark = Color(0xFF415F91)
 
 
+object AppColors {
+    val surface: Color
+        @Composable get() = MaterialTheme.colorScheme.surface
+
+    val onSurface: Color
+        @Composable get() = MaterialTheme.colorScheme.onSurface
+
+    val surfaceVariant: Color
+        @Composable get() = MaterialTheme.colorScheme.surfaceVariant
+
+    val inverseSurface: Color
+        @Composable get() = MaterialTheme.colorScheme.inverseSurface
+
+    val inverseOnSurface: Color
+        @Composable get() = MaterialTheme.colorScheme.inverseOnSurface
+
+    val outlineVariant: Color
+        @Composable get() = MaterialTheme.colorScheme.outlineVariant
+
+    val onBackground: Color
+        @Composable get() = MaterialTheme.colorScheme.onBackground
+
+    val inversePrimary: Color
+        @Composable get() = MaterialTheme.colorScheme.inversePrimary
+
+    val primaryContainer: Color
+        @Composable get() = MaterialTheme.colorScheme.primaryContainer
+
+    val onPrimaryContainer: Color
+        @Composable get() = MaterialTheme.colorScheme.onPrimaryContainer
+
+    val secondaryContainer: Color
+        @Composable get() = MaterialTheme.colorScheme.secondaryContainer
+
+    val secondary: Color
+        @Composable get() = MaterialTheme.colorScheme.secondary
+
+    val errorColor: Color
+        @Composable get() = MaterialTheme.colorScheme.error
+
+    val onError: Color
+        @Composable get() = MaterialTheme.colorScheme.onError
+}
 
 

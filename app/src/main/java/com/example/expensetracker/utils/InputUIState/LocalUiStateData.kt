@@ -1,5 +1,7 @@
 package com.example.expensetracker.utils.InputUIState
 
+import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
 import com.example.expensetracker.R

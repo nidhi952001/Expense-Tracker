@@ -39,6 +39,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.expensetracker.R
+import com.example.expensetracker.ui.theme.*
+import com.example.expensetracker.ui.theme.AppColors.inverseOnSurface
+import com.example.expensetracker.ui.theme.AppColors.inverseSurface
 import com.example.expensetracker.utils.InputUIState.HomeStateData
 import kotlinx.coroutines.launch
 
@@ -102,7 +105,7 @@ fun horizontalScroller(pagerState: PagerState, modifier: Modifier) {
             ) {
                 repeat(pagerState.pageCount) { iteration ->
                     val color =
-                        if (pagerState.currentPage == iteration) MaterialTheme.colorScheme.inverseSurface else MaterialTheme.colorScheme.inverseOnSurface
+                        if (pagerState.currentPage == iteration) inverseSurface else inverseOnSurface
                     Box(
                         modifier = Modifier
                             .padding(2.dp)

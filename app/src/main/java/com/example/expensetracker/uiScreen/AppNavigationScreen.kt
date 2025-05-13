@@ -4,12 +4,8 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
@@ -22,16 +18,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.expensetracker.utils.InputUIState.WalletInputState
+import com.example.expensetracker.ui.theme.AppColors.inverseOnSurface
+import com.example.expensetracker.ui.theme.AppColors.surface
+import com.example.expensetracker.ui.theme.AppColors.surfaceVariant
 import com.example.expensetracker.utils.TopLevelDestination
 import com.example.expensetracker.utils.topBarAction
+import com.example.expensetracker.utils.topBarBackAction
 import com.example.expensetracker.viewModel.ExpenseViewModel
 import com.example.expensetracker.viewModel.HomeViewModel
 import com.example.expensetracker.viewModel.WalletViewModel
@@ -95,6 +93,13 @@ fun AppNavigationScreen() {
                             walletUiState = inputWalletState,
                             navController = navController
                             )
+                    },
+                    onBackClick = {
+                        topBarBackAction(
+                            currentRoute = currentRoute,
+                            walletViewModel = walletViewModel,
+                            navController = navController
+                        )
                     }
                 )
         }, bottomBar = {
@@ -107,7 +112,7 @@ fun AppNavigationScreen() {
                         TopLevelDestination.home.name
                     else
                         TopLevelDestination.transaction.name,
-                modifier = Modifier.padding(padding).background(color =  MaterialTheme.colorScheme.surface)
+                modifier = Modifier.padding(padding).background(color =  surface)
             ) {
                 composable(route = TopLevelDestination.home.name) {
                     WelcomeScreen(
@@ -150,7 +155,7 @@ fun AppNavigationScreen() {
                 }
                 composable(route = TopLevelDestination.showWallet.name) {
                     viewWalletWithBalance(
-                        modifier = Modifier.scrollable(state = walletScrollableState, orientation = Orientation.Vertical).fillMaxSize().background(color =  MaterialTheme.colorScheme.surfaceVariant),
+                        modifier = Modifier.scrollable(state = walletScrollableState, orientation = Orientation.Vertical).fillMaxSize().background(color =  inverseOnSurface),
                         walletDatabaseState = walletDatabaseState,
                         addWallet = {navController.navigate(TopLevelDestination.addWallet.name)}
                     )
@@ -165,7 +170,11 @@ fun AppNavigationScreen() {
                             navController.navigate(TopLevelDestination.pickWalletIcon.name)
                         },
                         onClickColorPicker= {walletViewModel.updateColorPicker(it)},
-                        onSelectedColor = {walletViewModel.updateSelectedColor(it)}
+                        onSelectedColor = {walletViewModel.updateSelectedColor(it)},
+                        onBackClick = {
+                            navController.navigateUp()
+                            walletViewModel.resetWalletUiState()
+                        }
                     )
                 }
                 composable(route = TopLevelDestination.pickWalletIcon.name){

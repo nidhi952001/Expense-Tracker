@@ -72,6 +72,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.expensetracker.R
+import com.example.expensetracker.ui.theme.*
+import com.example.expensetracker.ui.theme.AppColors.inverseOnSurface
+import com.example.expensetracker.ui.theme.AppColors.inverseSurface
+import com.example.expensetracker.ui.theme.AppColors.onBackground
+import com.example.expensetracker.ui.theme.AppColors.onSurface
+import com.example.expensetracker.ui.theme.AppColors.outlineVariant
+import com.example.expensetracker.ui.theme.AppColors.surface
 import com.example.expensetracker.viewModel.ExpenseViewModel
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -94,10 +101,10 @@ fun ExpenseScreen(
     var selectedDate by remember { mutableStateOf<Long?>(null) }
     var description by rememberSaveable { mutableStateOf("") }
     Box(
-        modifier = modifier.padding(top = 20.dp)
+        modifier = modifier.background(color = inverseOnSurface).padding(top = 20.dp)
             .verticalScroll(scrollableState)
     ) {
-        Column(modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.surface).padding(horizontal = 30.dp).padding(bottom = 20.dp)) {
+        Column(modifier = Modifier.fillMaxSize().background(color = surface).padding(horizontal = 30.dp).padding(bottom = 20.dp)) {
             //Date
             Label("Date")
             Row(
@@ -105,7 +112,7 @@ fun ExpenseScreen(
                     .fillMaxWidth()
                     .height(46.dp)
                     .clip(RoundedCornerShape(5.dp))
-                    .background(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                    .background(color = outlineVariant.copy(alpha = 0.4f))
             ) {
                 Button(
                     onClick = { showDateDialogUI = true },
@@ -117,7 +124,7 @@ fun ExpenseScreen(
                 ) {
                     Text(
                         text = convertMillisToDate(selectedDate ?: System.currentTimeMillis()),
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = onSurface,
                         fontSize = MaterialTheme.typography.labelLarge.fontSize
                     )
                     print("today's date ${System.currentTimeMillis()}")
@@ -130,7 +137,7 @@ fun ExpenseScreen(
                     shape = RoundedCornerShape(5.dp)){
                     Text(
                         text = Calendar.getInstance().get(Calendar.HOUR_OF_DAY).toString() +""+Calendar.getInstance().get(Calendar.MINUTE).toString(),
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = onSurface,
                         fontSize = MaterialTheme.typography.labelLarge.fontSize
                     )
                 }
@@ -225,7 +232,7 @@ fun Label(label: String) {
         text = label,
         modifier = Modifier.padding(top = 20.dp, bottom = 10.dp),
         fontWeight = FontWeight.ExtraBold,
-        color = MaterialTheme.colorScheme.onSurface,
+        color = onSurface,
         style = MaterialTheme.typography.titleSmall,
         fontSize = MaterialTheme.typography.titleSmall.fontSize
     )
@@ -260,13 +267,13 @@ fun InputField(
             placeholder = {
                 Text(
                     text = placeholder,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = onSurface,
                     fontSize = MaterialTheme.typography.titleSmall.fontSize,
                     fontStyle = MaterialTheme.typography.titleSmall.fontStyle
                 )
             },
             textStyle = TextStyle.Default.copy(
-                color = MaterialTheme.colorScheme.onSurface,
+                color = onSurface,
                 fontWeight = FontWeight.Normal,
                 fontSize = MaterialTheme.typography.titleSmall.fontSize,
                 fontStyle = MaterialTheme.typography.titleSmall.fontStyle
@@ -281,9 +288,9 @@ fun InputField(
             shape = RoundedCornerShape(5.dp),
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = Color.Transparent,
-                unfocusedContainerColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                unfocusedContainerColor = outlineVariant.copy(alpha = 0.4f),
                 unfocusedIndicatorColor = Color.Transparent,
-                focusedContainerColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                focusedContainerColor = outlineVariant.copy(alpha = 0.4f)
             ),
             enabled = !isClickable, // if value is false then only it is clickable
         )
@@ -295,13 +302,13 @@ fun InputField(
             placeholder = {
                 Text(
                     text = placeholder,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = onSurface,
                     fontSize = MaterialTheme.typography.titleSmall.fontSize,
                     fontStyle = MaterialTheme.typography.titleSmall.fontStyle
                 )
             },
             textStyle = TextStyle.Default.copy(
-                color = MaterialTheme.colorScheme.onSurface,
+                color = onSurface,
                 fontWeight = FontWeight.Bold,
                 fontSize = MaterialTheme.typography.titleSmall.fontSize,
                 fontStyle = MaterialTheme.typography.titleSmall.fontStyle
@@ -311,7 +318,7 @@ fun InputField(
                     Image(
                         imageVector = trailingIcon!!,
                         contentDescription = stringResource(R.string.arrow_down),
-                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
+                        colorFilter = ColorFilter.tint(onBackground)
                     )
                 }
             },
@@ -325,9 +332,9 @@ fun InputField(
             shape = RoundedCornerShape(5.dp),
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = Color.Transparent,
-                unfocusedContainerColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                unfocusedContainerColor = outlineVariant.copy(alpha = 0.4f),
                 unfocusedIndicatorColor = Color.Transparent,
-                focusedContainerColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                focusedContainerColor = outlineVariant.copy(alpha = 0.4f)
             ),
             enabled = !isClickable, // if value is false then only it is clickable
         )
@@ -339,13 +346,13 @@ fun InputField(
             placeholder = {
                 Text(
                     text = placeholder,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = onSurface,
                     fontSize = MaterialTheme.typography.titleSmall.fontSize,
                     fontStyle = MaterialTheme.typography.titleSmall.fontStyle
                 )
             },
             textStyle = TextStyle.Default.copy(
-                color = MaterialTheme.colorScheme.onSurface,
+                color = onSurface,
                 fontWeight = FontWeight.Bold,
                 fontSize = MaterialTheme.typography.titleSmall.fontSize,
                 fontStyle = MaterialTheme.typography.titleSmall.fontStyle
@@ -355,7 +362,7 @@ fun InputField(
                     Image(
                         imageVector = trailingIcon!!,
                         contentDescription = stringResource(R.string.currency),
-                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
+                        colorFilter = ColorFilter.tint(onBackground)
                     )
                 }
             },
@@ -375,9 +382,9 @@ fun InputField(
             shape = RoundedCornerShape(5.dp),
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = Color.Transparent,
-                unfocusedContainerColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                unfocusedContainerColor = outlineVariant.copy(alpha = 0.4f),
                 unfocusedIndicatorColor = Color.Transparent,
-                focusedContainerColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                focusedContainerColor = outlineVariant.copy(alpha = 0.4f)
             )
             ,
             keyboardOptions = KeyboardOptions.Default.copy(

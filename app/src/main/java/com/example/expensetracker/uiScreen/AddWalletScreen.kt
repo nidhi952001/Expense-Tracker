@@ -1,9 +1,12 @@
 package com.example.expensetracker.uiScreen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,11 +20,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -36,15 +40,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -54,6 +56,14 @@ import androidx.compose.ui.util.fastForEachIndexed
 import com.example.expensetracker.R
 import com.example.expensetracker.entity.TypeOfWallet
 import com.example.expensetracker.entity.Wallet
+import com.example.expensetracker.ui.theme.*
+import com.example.expensetracker.ui.theme.AppColors.inverseOnSurface
+import com.example.expensetracker.ui.theme.AppColors.inversePrimary
+import com.example.expensetracker.ui.theme.AppColors.inverseSurface
+import com.example.expensetracker.ui.theme.AppColors.onSurface
+import com.example.expensetracker.ui.theme.AppColors.secondary
+import com.example.expensetracker.ui.theme.AppColors.secondaryContainer
+import com.example.expensetracker.ui.theme.AppColors.surface
 import com.example.expensetracker.utils.DisplayUIState.WalletDisplayState
 import com.example.expensetracker.utils.InputUIState.WalletInputState
 import com.example.expensetracker.utils.ListOfColors
@@ -66,7 +76,11 @@ fun addWallet(walletUiState: WalletInputState,
               onSelectType: (TypeOfWallet) -> Unit,
               onIconClick:()->Unit,
               onClickColorPicker:(Boolean)->Unit,
-              onSelectedColor: (Color) -> Unit){
+              onSelectedColor: (Color) -> Unit,
+              onBackClick:()->Unit
+              ){
+
+    BackHandler(enabled = true, onBack = onBackClick)
     val scrollableState = rememberScrollState()
     val isDropDownExpanded = remember {
         mutableStateOf(false)
@@ -77,7 +91,7 @@ fun addWallet(walletUiState: WalletInputState,
     val listOfWallet = listOf(TypeOfWallet.GENERAL,
         TypeOfWallet.CREDITCARD
     ) //todo do state hoisting
-    Column( modifier = Modifier.fillMaxSize().padding(start = 30.dp, end = 30.dp)
+    Column( modifier = Modifier.background(color = inverseOnSurface).fillMaxSize().padding(top = 5.dp).background(color = surface).padding(start = 30.dp, end = 30.dp)
         .verticalScroll(scrollableState)) {
         Label("Name")
         InputField(
@@ -109,7 +123,7 @@ fun addWallet(walletUiState: WalletInputState,
             },
             isClickable = true
         )
-        Row() {
+        Row {
             Column(Modifier.weight(1f)) {
                 Label("Color")
                walletColor(
@@ -127,10 +141,11 @@ fun addWallet(walletUiState: WalletInputState,
                     painter = painterResource(walletUiState.selectedIcon),
                     contentDescription = stringResource(walletUiState.walletIconName),
                     modifier = Modifier
-                        .border(width = 1.dp, color = Color.Black, shape = RectangleShape)
+                        .border(width = 1.dp, color = onSurface, shape = RectangleShape)
                         .width(80.dp)
                         .padding(15.dp)
-                        .clickable(onClick = { onIconClick() })
+                        .clickable(onClick = { onIconClick() }),
+                    colorFilter = ColorFilter.tint(color = onSurface)
                 )
             }
         }
@@ -139,17 +154,27 @@ fun addWallet(walletUiState: WalletInputState,
 }
 
 @Composable
-fun viewWalletWithBalance(modifier: Modifier, walletDatabaseState: WalletDisplayState, addWallet: () -> Unit){
-    Column(modifier = modifier){
-        Spacer(modifier = Modifier.height(5.dp))
-        showBalance(
-            modifier = Modifier.fillMaxWidth().background(color =  MaterialTheme.colorScheme.surface),
-            totalBalance = walletDatabaseState.totalBalance
+fun viewWalletWithBalance(
+    modifier: Modifier,
+    walletDatabaseState: WalletDisplayState,
+    addWallet: () -> Unit
+){
+    LazyColumn(modifier) {
+        item {
+            Spacer(modifier = Modifier.height(5.dp))
+            showBalance(
+                modifier = Modifier.fillMaxWidth()
+                    .background(color = surface),
+                totalBalance = walletDatabaseState.totalBalance
             )
-        Spacer(Modifier.height(10.dp))
-        showWallets(modifier = Modifier.fillMaxWidth().background(color =  MaterialTheme.colorScheme.surface),
-            listOfWallet = walletDatabaseState.savedWallets,
-            addWallet = addWallet)
+            Spacer(Modifier.height(10.dp))
+            showWallets(
+                modifier = Modifier.fillMaxWidth()
+                    .background(color = surface),
+                listOfWallet = walletDatabaseState.savedWallets,
+                addWallet = addWallet
+            )
+        }
     }
 }
 
@@ -158,7 +183,7 @@ fun showBalance(modifier: Modifier,totalBalance:Float){
     Column(modifier = modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = stringResource(R.string.account_balance),
-            color = MaterialTheme.colorScheme.secondary
+            color = secondary
         )
         Row(
             horizontalArrangement = Arrangement.spacedBy(2.dp,Alignment.CenterHorizontally) ,
@@ -166,12 +191,12 @@ fun showBalance(modifier: Modifier,totalBalance:Float){
             Icon(
                 painter = painterResource(R.drawable.currency_rupee_ui),
                 contentDescription = stringResource(R.string.currency),
-                tint = MaterialTheme.colorScheme.inverseSurface
+                tint = inverseSurface
             )
             Text(
                 text = totalBalance.toString(),
                 style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.inverseSurface
+                color = inverseSurface
             )
         }
     }
@@ -185,12 +210,12 @@ fun showWallets(modifier: Modifier, listOfWallet: List<Wallet>, addWallet: () ->
                 text = "Wallet",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.inverseSurface
+                color = inverseSurface
             )
             Text(
                 text = "Manage (${listOfWallet.size})",
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.inverseSurface
+                color = inverseSurface
             )
         }
         Spacer(modifier= Modifier.padding(vertical = 10.dp))
@@ -198,7 +223,8 @@ fun showWallets(modifier: Modifier, listOfWallet: List<Wallet>, addWallet: () ->
                 columns = GridCells.Fixed(2),
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().height(((listOfWallet.size/2)*150).dp),
+                userScrollEnabled = false
             ) {
                 items(items = listOfWallet) { wallet->
                     wallet(wallet)
@@ -229,7 +255,7 @@ fun wallet(wallet: Wallet) {
                     Icon(
                         painter = painterResource(R.drawable.currency_rupee_ui),
                         contentDescription = stringResource(R.string.currency),
-                        tint = MaterialTheme.colorScheme.inverseSurface,
+                        tint = inverseSurface,
                         modifier = Modifier.size(15.dp)
                     )
                     Text(text = wallet.walletAmount.toString())
@@ -243,7 +269,7 @@ fun addWallet(addWallet: () -> Unit){
     Card(modifier = Modifier.fillMaxWidth().clickable(enabled = true, onClick = addWallet)
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.secondaryContainer).padding(vertical = 35.dp),
+            modifier = Modifier.fillMaxSize().background(color = secondaryContainer).padding(vertical = 35.dp),
             verticalArrangement = Arrangement.SpaceEvenly ,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -266,7 +292,7 @@ fun dropDown(
         .clickable {
             isDropDownExpanded.value = true
         }
-        .border(1.dp, MaterialTheme.colorScheme.inverseSurface , RectangleShape)
+        .border(1.dp, inverseSurface , RectangleShape)
         .height(56.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -318,13 +344,13 @@ fun showIcon(walletUiState: WalletInputState, modifier: Modifier, onSelectedIcon
                     contentDescription = stringResource(it.iconName),
                     modifier = Modifier.size(50.dp).background(
                         color = if(walletUiState.selectedIcon.equals(it.icon))
-                            MaterialTheme.colorScheme.inversePrimary
+                            inversePrimary
                                     else
-                            MaterialTheme.colorScheme.inverseOnSurface,
+                            inverseOnSurface,
                         shape = CircleShape
                     ).padding(10.dp)
                         .clickable(onClick = { onSelectedIcon(it.icon) }),
-                    tint = MaterialTheme.colorScheme.onSurface,
+                    tint = inverseSurface,
                 )
             }
         }
@@ -360,8 +386,7 @@ fun colorPicker(listOfColors: List<ListOfColors>,onSelectedColor:(Color)->Unit) 
                     .background(color = it.colors, shape = MaterialTheme.shapes.large)
                     .clickable(onClick = {
                         onSelectedColor(it.colors)
-                    }
-                    )
+                    })
             )
         }
     }

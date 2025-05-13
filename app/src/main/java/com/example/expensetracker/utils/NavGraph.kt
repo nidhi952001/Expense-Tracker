@@ -53,3 +53,20 @@ fun topBarAction(
         }
     }
 }
+
+
+fun topBarBackAction(
+    currentRoute: String?,
+    walletViewModel: WalletViewModel,
+    navController: NavController
+){
+    when(currentRoute){
+        TopLevelDestination.addWallet.name->{
+            walletViewModel.resetWalletUiState()
+            navController.navigateUp()
+        }
+        else->{
+            navController.navigateUp()
+        }
+    }
+}
