@@ -239,9 +239,9 @@ fun showWallets(modifier: Modifier, listOfWallet: List<Wallet>, addWallet: () ->
 @Composable
 fun wallet(wallet: Wallet) {
     println("wallet data "+wallet.walletIconDes)
-        Card(modifier = Modifier.fillMaxSize()) {
+        Card(modifier = Modifier.size(100.dp)) {
             Column(
-                modifier = Modifier.fillMaxSize().background(color = wallet.walletColor).padding(vertical = 10.dp),
+                modifier = Modifier.fillMaxSize().background(color = wallet.walletColor),
                 verticalArrangement = Arrangement.SpaceEvenly ,
                 horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -266,7 +266,7 @@ fun wallet(wallet: Wallet) {
 
 @Composable
 fun addWallet(addWallet: () -> Unit){
-    Card(modifier = Modifier.fillMaxWidth().clickable(enabled = true, onClick = addWallet)
+    Card(modifier = Modifier.size(100.dp).clickable(enabled = true, onClick = addWallet)
     ) {
         Column(
             modifier = Modifier.fillMaxSize().background(color = secondaryContainer).padding(vertical = 35.dp),
