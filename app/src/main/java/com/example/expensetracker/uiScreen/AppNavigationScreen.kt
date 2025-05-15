@@ -157,7 +157,10 @@ fun AppNavigationScreen() {
                     viewWalletWithBalance(
                         modifier = Modifier.scrollable(state = walletScrollableState, orientation = Orientation.Vertical).fillMaxSize().background(color =  inverseOnSurface),
                         walletDatabaseState = walletDatabaseState,
-                        addWallet = {navController.navigate(TopLevelDestination.addWallet.name)}
+                        addWallet = {navController.navigate(TopLevelDestination.addWallet.name)},
+                        onViewWalletDetail = {wallet->
+                            navController.navigate(TopLevelDestination.showDetailOfWallet.name+"/${wallet}")
+                        }
                     )
                 }
                 composable(route = TopLevelDestination.addWallet.name) {
@@ -184,6 +187,10 @@ fun AppNavigationScreen() {
                                 walletViewModel.updateSelectedIcon(it)
                                 navController.navigateUp()
                             })
+                }
+                composable(route = TopLevelDestination.showDetailOfWallet.name+"/{walletId}"){
+                        val walletId = it.arguments?.getString("walletId")?.toIntOrNull()
+
                 }
             }
         }

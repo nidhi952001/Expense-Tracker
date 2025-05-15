@@ -75,7 +75,7 @@ fun topBarWithBackArrow(
         navigationIcon = {
             Icon(Icons.Default.ArrowBack,
                 contentDescription = stringResource(R.string.go_back),
-                modifier = Modifier.clickable(onClick = onBackClick))
+                modifier = Modifier.padding(15.dp).clickable(onClick = onBackClick))
         },
         actions = {
             topBarTrailingIcon(

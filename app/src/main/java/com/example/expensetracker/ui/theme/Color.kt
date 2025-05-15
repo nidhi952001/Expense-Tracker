@@ -95,6 +95,9 @@ object AppColors {
     val onPrimaryContainer: Color
         @Composable get() = MaterialTheme.colorScheme.onPrimaryContainer
 
+    val onPrimary:Color
+        @Composable get() = MaterialTheme.colorScheme.onPrimary
+
     val secondaryContainer: Color
         @Composable get() = MaterialTheme.colorScheme.secondaryContainer
 

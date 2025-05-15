@@ -9,7 +9,7 @@
 
     <!--top bar -->
     <string name="go_back">GO Back</string>
-    <string name="save">Save</string>
+    <string name="save">SAVE</string>
    <!-- bottom bar-->
     <string name="transaction">Transaction</string>
     <string name="calendar">Calendar</string>
@@ -38,6 +38,7 @@
     <string name="addWallet">Add Wallet</string>
     <string name="wallet_name">Wallet\'s name</string>
     <string name="arrow_down">Arrow Down</string>
+    <string name="show_detail_of_wallet">Show Detail Of Wallet</string>
 
     <!--wallet icon-->
     <string name="bank">Bank</string>

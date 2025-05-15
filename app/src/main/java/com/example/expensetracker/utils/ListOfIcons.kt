@@ -24,17 +24,26 @@ object listOfWalletIcon{
     )
 }
 
-data class ListOfColors(
-    val colors: Color
-)
-
 object listOfColor  {
-    val listOfColors = listOf(
-        ListOfColors(Color.Black.copy(alpha = 0.5f)),
-        ListOfColors(Color.Blue.copy(alpha = 0.5f)),
-        ListOfColors(Color.Green.copy(alpha = 0.5f)),
-        ListOfColors(Color.Red.copy(alpha = 0.5f)),
-        ListOfColors(Color.Magenta.copy(alpha = 0.5f)),
-        ListOfColors(Color.DarkGray.copy(alpha = 0.5f))
+    val coloCodeToColor = mapOf<String,Color>(
+        "sky_blue" to Color(0xFF00BFFF),
+        "doger_blue" to Color(0xFF1E90FF),
+        "royal_blue" to Color(0xFF4169E1),
+        "cubs_blue" to Color(0xFF0E3386),
+        "teal" to Color(0xFF008080),
+        "robin_egg_blue" to Color(0xFF00CCCC),
+        "emerald" to Color(0xFF50C878),
+        "sgbus_green" to Color(0xFF55DD33),
+        "gold" to Color(0xFFFFD700),
+        "macd_yellow" to Color(0xFFFFC72C),
+        "real_madrid_gold" to Color(0xFFFEBE10),
+        "purple" to Color(0XFF800080),
+        "yahoo_purple" to Color(0XFF720e9e),
+        "roku_purple" to Color(0XFF662d91),
+        "plum" to Color(0XFFDDA0DD),
+        "lyft_pink" to Color(0XFFFF00BF),
+        "persin_rose" to Color(0xFFFE28A2),
+        "crimson" to Color(0XFF841617),
+        "feldguru" to Color(0XFF4D5D53)
     )
 }

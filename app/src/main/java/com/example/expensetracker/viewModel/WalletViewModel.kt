@@ -9,6 +9,7 @@ import com.example.expensetracker.entity.Wallet
 import com.example.expensetracker.repository.WalletRepository
 import com.example.expensetracker.utils.DisplayUIState.WalletDisplayState
 import com.example.expensetracker.utils.InputUIState.WalletInputState
+import com.example.expensetracker.utils.listOfColor.coloCodeToColor
 import com.example.expensetracker.utils.listOfWalletIcon
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -54,6 +55,7 @@ class WalletViewModel @Inject constructor(
             //saved in datastore
             walletRepository.saveInitialAmount(amount)
             //saved in database
+            print("wallet color "+ coloCodeToColor.getValue("sky_blue"))
             val initialWallet = Wallet(
                 walletId = 0,
                 walletName = "Cash",
@@ -61,7 +63,7 @@ class WalletViewModel @Inject constructor(
                 walletAmount = amountFloat,
                 walletIcon = R.drawable.account_wallet_ic,
                 walletIconDes = R.string.bank,
-                walletColor = Color.Blue.copy(alpha = 0.5f))
+                walletColor = coloCodeToColor.getValue("sky_blue"))
             addWallet(initialWallet)
         }
 

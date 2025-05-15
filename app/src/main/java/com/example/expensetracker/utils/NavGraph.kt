@@ -17,7 +17,8 @@ enum class TopLevelDestination(@StringRes val route: Int) {
     expense(route = R.string.expense),
     showWallet(route = R.string.showWallet),
     addWallet(route = R.string.addWallet),
-    pickWalletIcon(route =R.string.pickIcon)
+    pickWalletIcon(route =R.string.pickIcon),
+    showDetailOfWallet(route = R.string.show_detail_of_wallet)
 }
 
 val screenTitle = mapOf(
