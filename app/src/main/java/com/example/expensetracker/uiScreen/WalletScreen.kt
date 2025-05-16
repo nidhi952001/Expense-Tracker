@@ -1,7 +1,6 @@
 package com.example.expensetracker.uiScreen
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.paddingFrom
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -36,24 +34,15 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -62,115 +51,33 @@ import androidx.compose.ui.util.fastForEachIndexed
 import com.example.expensetracker.R
 import com.example.expensetracker.entity.TypeOfWallet
 import com.example.expensetracker.entity.Wallet
-import com.example.expensetracker.ui.theme.*
+import com.example.expensetracker.ui.theme.AppColors.inputFieldBackgroundColors
+import com.example.expensetracker.ui.theme.AppColors.inputFieldShape
+import com.example.expensetracker.ui.theme.AppColors.inputTextSize
+import com.example.expensetracker.ui.theme.AppColors.inputTextStyle
+import com.example.expensetracker.ui.theme.AppColors.inputTextWeight
 import com.example.expensetracker.ui.theme.AppColors.inverseOnSurface
-import com.example.expensetracker.ui.theme.AppColors.inversePrimary
 import com.example.expensetracker.ui.theme.AppColors.inverseSurface
 import com.example.expensetracker.ui.theme.AppColors.onPrimary
-import com.example.expensetracker.ui.theme.AppColors.onPrimaryContainer
 import com.example.expensetracker.ui.theme.AppColors.onSurface
-import com.example.expensetracker.ui.theme.AppColors.outlineVariant
 import com.example.expensetracker.ui.theme.AppColors.secondary
 import com.example.expensetracker.ui.theme.AppColors.secondaryContainer
 import com.example.expensetracker.ui.theme.AppColors.surface
 import com.example.expensetracker.utils.DisplayUIState.WalletDisplayState
 import com.example.expensetracker.utils.InputUIState.WalletInputState
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun addWallet(walletUiState: WalletInputState,
-              onNameChanged:(String)->Unit,
-              onValueChange:(String)-> Unit,
-              onSelectType: (TypeOfWallet) -> Unit,
-              onIconClick:()->Unit,
-              onClickColorPicker:(Boolean)->Unit,
-              onSelectedColor: (Color) -> Unit,
-              onBackClick:()->Unit
-              ){
-
-    BackHandler(enabled = true, onBack = onBackClick)
-    val scrollableState = rememberScrollState()
-    val isDropDownExpanded = remember {
-        mutableStateOf(false)
-    }
-    val itemPosition = remember {
-        mutableIntStateOf(0)
-    }
-    val listOfWallet = listOf(TypeOfWallet.GENERAL,
-        TypeOfWallet.CREDITCARD
-    ) //todo do state hoisting
-    Column( modifier = Modifier.background(color = inverseOnSurface).
-    fillMaxSize().padding(top = 15.dp).background(color = surface).padding(start = 30.dp, end = 30.dp)
-        .verticalScroll(scrollableState)) {
-        Label("Name")
-        InputField(
-            value = walletUiState.walletName,
-            placeholder = stringResource(R.string.wallet_name),
-            trailingIconNeeded = false ,
-            leadingIconNeeded = false,
-            onValueChange = {onNameChanged(it)},
-            isReadOnly = false ,
-            isClickable = false)
-        Label("Type")
-        dropDown(isDropDownExpanded = isDropDownExpanded,
-            itemPosition = itemPosition,
-            listOfWallet = listOfWallet,
-            selectedWallet = walletUiState.selectType,
-            onSelectWallet = {onSelectType(it)})
-        Label("Amount")
-        InputField(
-            value = walletUiState.walletAmount,
-            placeholder = "",
-            onClick = {  } ,
-            trailingIconNeeded = true ,
-            trailingIcon = Icons.Default.ArrowDropDown,
-            leadingIconNeeded = true,
-            leadingIcon = R.drawable.currency_rupee_ui,
-            isReadOnly = false ,
-            onValueChange = {
-                onValueChange(it)
-            },
-            isClickable = true
-        )
-        Row(verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxHeight()) {
-            Column(Modifier.weight(1f)) {
-                Label("Color")
-               walletColor(
-                   showColorPicker = walletUiState.showColorPicker,
-                   listOfColors = walletUiState.showListOfColor.entries.toList(),
-                   selectedColor = walletUiState.selectedColors,
-                   onClickColorPicker = onClickColorPicker,
-                   onSelectedColor = onSelectedColor,
-               )
-            }
-            Spacer(modifier = Modifier.width(10.dp))
-            Column(modifier = Modifier) {
-                Label("Icon")
-                Image(
-                    painter = painterResource(walletUiState.selectedIcon),
-                    contentDescription = stringResource(walletUiState.walletIconName),
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(5.dp))
-                        .border(width = 1.dp, color = Color.Unspecified)
-                        .background(color = outlineVariant.copy(alpha = 0.4f))
-                        .padding(17.dp)
-                        .clickable(onClick = { onIconClick() }),
-                    colorFilter = ColorFilter.tint(color = onSurface)
-                )
-            }
-        }
-    }
-
-}
+val listOfWallet = listOf(
+    TypeOfWallet.General,
+    TypeOfWallet.CreditCard
+)
 
 @Composable
 fun viewWalletWithBalance(
     modifier: Modifier,
     walletDatabaseState: WalletDisplayState,
     addWallet: () -> Unit,
-    onViewWalletDetail:(Int)->Unit
-){
+    onViewWalletDetail: (Int) -> Unit
+) {
     LazyColumn(modifier) {
         item {
             Spacer(modifier = Modifier.height(15.dp))
@@ -192,15 +99,16 @@ fun viewWalletWithBalance(
 }
 
 @Composable
-fun showBalance(modifier: Modifier,totalBalance:Float){
+fun showBalance(modifier: Modifier, totalBalance: Float) {
     Column(modifier = modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = stringResource(R.string.account_balance),
             color = secondary
         )
         Row(
-            horizontalArrangement = Arrangement.spacedBy(2.dp,Alignment.CenterHorizontally) ,
-            verticalAlignment = Alignment.CenterVertically) {
+            horizontalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Icon(
                 painter = painterResource(R.drawable.currency_rupee_ui),
                 contentDescription = stringResource(R.string.currency),
@@ -220,7 +128,8 @@ fun showWallets(
     modifier: Modifier,
     listOfWallet: List<Wallet>,
     addWallet: () -> Unit,
-    onViewWalletDetail:(Int)->Unit){
+    onViewWalletDetail: (Int) -> Unit
+) {
     Column(modifier = modifier.padding(horizontal = 10.dp, vertical = 10.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
@@ -235,36 +144,38 @@ fun showWallets(
                 color = inverseSurface
             )
         }
-        Spacer(modifier= Modifier.padding(vertical = 10.dp))
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.fillMaxWidth().
-                height(
-                    if(listOfWallet.size<=2)
-                        (listOfWallet.size*120).dp
-                    else
-                        ((listOfWallet.size/2)*250).dp
-                ),
-                userScrollEnabled = false
-            ) {
-                items(items = listOfWallet) { wallet->
-                    wallet(wallet = wallet , onViewWalletDetail = onViewWalletDetail)
-                }
-                item {
-                    addWallet(addWallet = addWallet)
-                }
+        Spacer(modifier = Modifier.padding(vertical = 10.dp))
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier.fillMaxWidth().height(
+                if (listOfWallet.size <= 2)
+                    (listOfWallet.size * 120).dp
+                else
+                    ((listOfWallet.size / 2) * 250).dp
+            ),
+            userScrollEnabled = false
+        ) {
+            items(items = listOfWallet) { wallet ->
+                wallet(wallet = wallet, onViewWalletDetail = onViewWalletDetail)
             }
+            item {
+                addWalletUi(addWallet = addWallet)
+            }
+        }
     }
 }
 
 @Composable
-fun wallet(wallet: Wallet,onViewWalletDetail:(Int)->Unit) {
-    Card(modifier = Modifier.size(100.dp).clickable(onClick = {onViewWalletDetail(wallet.walletId)}) ) {
+fun wallet(wallet: Wallet, onViewWalletDetail: (Int) -> Unit) {
+    Card(
+        modifier = Modifier.size(100.dp)
+            .clickable(onClick = { onViewWalletDetail(wallet.walletId) })
+    ) {
         Column(
             modifier = Modifier.background(color = wallet.walletColor).padding(5.dp).fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceEvenly ,
+            verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Icon(
@@ -275,14 +186,18 @@ fun wallet(wallet: Wallet,onViewWalletDetail:(Int)->Unit) {
                         color = Color.White.copy(alpha = 0.2F),
                         shape = RoundedCornerShape(10.dp)
                     ).padding(8.dp),
-                tint = Color.White)
+                tint = Color.White
+            )
             Text(
                 text = wallet.walletName,
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.ExtraBold,
                 color = Color.White.copy(alpha = 0.7F)
             )
-            Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Icon(
                     painter = painterResource(R.drawable.currency_rupee_ui),
                     contentDescription = stringResource(R.string.currency),
@@ -299,35 +214,95 @@ fun wallet(wallet: Wallet,onViewWalletDetail:(Int)->Unit) {
 }
 
 @Composable
-fun addWallet(addWallet: () -> Unit){
-    Card(modifier = Modifier.size(100.dp).clickable(enabled = true, onClick = addWallet)
+fun addWalletUi(addWallet: () -> Unit) {
+    Card(
+        modifier = Modifier.size(100.dp).clickable(enabled = true, onClick = addWallet)
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().background(color = secondaryContainer).padding(vertical = 35.dp),
-            verticalArrangement = Arrangement.SpaceEvenly ,
+            modifier = Modifier.fillMaxSize().background(color = secondaryContainer)
+                .padding(vertical = 35.dp),
+            verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Icon(
                 painter = painterResource(R.drawable.add_ic),
-                contentDescription = stringResource(R.string.addWallet))
+                contentDescription = stringResource(R.string.addWallet)
+            )
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun dropDown(
-    isDropDownExpanded: MutableState<Boolean>,
-    itemPosition: MutableState<Int>,
+fun addWallet(
+    walletUiState: WalletInputState,
+    onNameChanged: (String) -> Unit,
+    onWalletAmountChanged: (String) -> Unit,
+    onSelectType: (TypeOfWallet) -> Unit,
+    expandDropDown: (Boolean) -> Unit,
+    onIconClick: () -> Unit,
+    onClickColorPicker: (Boolean) -> Unit,
+    onSelectedColor: (Color) -> Unit,
+    onBackClick: () -> Unit
+) {
+
+    BackHandler(enabled = true, onBack = onBackClick)
+    val scrollableState = rememberScrollState()
+
+    Column(
+        modifier = Modifier.background(color = inverseOnSurface).fillMaxSize().padding(top = 15.dp)
+            .background(color = surface).padding(start = 30.dp, end = 30.dp)
+            .verticalScroll(scrollableState)
+    ) {
+        walletName(walletUiState, onNameChanged)
+        walletType(listOfWallet, expandDropDown , walletUiState, onSelectType)
+        walletAmount(walletUiState, onWalletAmountChanged)
+        walletColorWithIcon(walletUiState, onClickColorPicker, onSelectedColor, onIconClick)
+    }
+
+}
+
+@Composable
+private fun walletName(
+    walletUiState: WalletInputState,
+    onNameChanged: (String) -> Unit
+) {
+    label("Name")
+    inputWithNoIcon(
+        value = walletUiState.walletName,
+        placeholder = stringResource(R.string.wallet_name),
+        onValueChange = { onNameChanged(it) },
+        isReadOnly = false,
+    )
+}
+
+@Composable
+private fun walletType(
     listOfWallet: List<TypeOfWallet>,
-    selectedWallet:TypeOfWallet,
-    onSelectWallet:(TypeOfWallet)->Unit
+    expandDropDown: (Boolean) -> Unit,
+    walletUiState: WalletInputState,
+    onSelectType: (TypeOfWallet) -> Unit
+) {
+    label("Type")
+    walletTypeDropDown(isDropDownExpanded = walletUiState.isWalletTypeExpanded,
+        expandDropDown = {expandDropDown(it)},
+        listOfWallet = listOfWallet,
+        selectedWallet = walletUiState.selectType,
+        onSelectWallet = { onSelectType(it) })
+}
+
+@Composable
+fun walletTypeDropDown(
+    isDropDownExpanded: Boolean,
+    expandDropDown:(Boolean)->Unit,
+    listOfWallet: List<TypeOfWallet>,
+    selectedWallet: TypeOfWallet,
+    onSelectWallet: (TypeOfWallet) -> Unit
 ) {
     Box(modifier = Modifier
-        .clickable {
-            isDropDownExpanded.value = true
-        }
-        .border(1.dp, Color.Unspecified , RoundedCornerShape(5.dp))
-        .background(AppColors.outlineVariant.copy(alpha = 0.4f))
+        .clickable(enabled = true, onClick = {expandDropDown(true)})
+        .clip(inputFieldShape)
+        .background(inputFieldBackgroundColors)
         .height(56.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -335,7 +310,12 @@ fun dropDown(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = selectedWallet.name)
+            Text(
+                text = selectedWallet.name,
+                fontWeight = inputTextWeight,
+                fontSize = inputTextSize,
+                fontStyle = inputTextStyle
+            )
             Image(
                 painter = painterResource(id = R.drawable.arrow_drop_down_ic),
                 contentDescription = stringResource(R.string.arrow_down),
@@ -343,19 +323,23 @@ fun dropDown(
             )
         }
         DropdownMenu(
-            expanded = isDropDownExpanded.value,
-            onDismissRequest = { isDropDownExpanded.value = false },
-            modifier = Modifier.widthIn(min = 250.dp , max = 300.dp).background(color = surface)
+            expanded = isDropDownExpanded,
+            onDismissRequest = { expandDropDown(false) },
+            modifier = Modifier.widthIn(min = 250.dp, max = 300.dp).background(color = surface)
         ) {
             listOfWallet.fastForEachIndexed { index, list ->
                 DropdownMenuItem(
                     text = {
-                        Text(text = list.name, color = inverseSurface)
+                        Text(
+                            text = list.name,
+                            color = inverseSurface,
+                            fontWeight = inputTextWeight,
+                            fontSize = inputTextSize,
+                            fontStyle = inputTextStyle)
                     },
                     onClick = {
-                        isDropDownExpanded.value = false
-                        itemPosition.value = index
-                        onSelectWallet(listOfWallet[itemPosition.value])
+                        expandDropDown(false)
+                        onSelectWallet(listOfWallet[index])
                     }
                 )
             }
@@ -364,40 +348,61 @@ fun dropDown(
 }
 
 @Composable
-fun showIcon(walletUiState: WalletInputState, modifier: Modifier, onSelectedIcon:(Int)->Unit){
-    Column(modifier = modifier) {
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 50.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(26.dp),
-            verticalArrangement = Arrangement.spacedBy(26.dp)
-        ){
-            items(walletUiState.listOfIcon){
-                Icon(
-                    painter = painterResource(it.icon),
-                    contentDescription = stringResource(it.iconName),
-                    modifier = Modifier.background(
-                        color = if(walletUiState.selectedIcon.equals(it.icon))
-                            walletUiState.selectedColors
-                                    else
-                            inverseOnSurface,
-                        shape = CircleShape
-                    )
-                        .padding(20.dp)
-                        .clickable(onClick = { onSelectedIcon(it.icon) }),
-                    tint = if(walletUiState.selectedIcon.equals(it.icon))
-                        onPrimary
-                    else
-                        inverseSurface
-                )
-            }
+private fun walletAmount(
+    walletUiState: WalletInputState,
+    onWalletAmountChanged: (String) -> Unit
+) {
+    label("Amount")
+    inputWithLeadingIcon(
+        value = walletUiState.walletAmount,
+        placeholder = "",
+        leadingIcon = R.drawable.currency_rupee_ui,
+        isReadOnly = false,
+        onValueChange = {
+            onWalletAmountChanged(it)
+        }
+    )
+}
+
+@Composable
+private fun walletColorWithIcon(
+    walletUiState: WalletInputState,
+    onClickColorPicker: (Boolean) -> Unit,
+    onSelectedColor: (Color) -> Unit,
+    onIconClick: () -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxHeight()
+    ) {
+        Column(Modifier.weight(1f)) {
+            label("Color")
+            walletColor(
+                showColorPicker = walletUiState.showColorPicker,
+                listOfColors = walletUiState.showListOfColor.entries.toList(),
+                selectedColor = walletUiState.selectedColors,
+                onClickColorPicker = onClickColorPicker,
+                onSelectedColor = onSelectedColor,
+            )
+        }
+        Spacer(modifier = Modifier.width(10.dp))
+        Column(modifier = Modifier) {
+            label("Icon")
+            Image(
+                painter = painterResource(walletUiState.selectedIcon),
+                contentDescription = stringResource(walletUiState.walletIconName),
+                modifier = Modifier
+                    .clip(inputFieldShape)
+                    .border(width = 1.dp, color = Color.Unspecified)
+                    .background(color = inputFieldBackgroundColors)
+                    .padding(17.dp)
+                    .clickable(onClick = { onIconClick() }),
+                colorFilter = ColorFilter.tint(color = onSurface)
+            )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun walletColor(
     showColorPicker: Boolean,
@@ -405,35 +410,36 @@ fun walletColor(
     selectedColor: Color,
     onSelectedColor: (Color) -> Unit,
     listOfColors: List<Map.Entry<String, Color>>
-){
-        Row(verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .clip(RoundedCornerShape(5.dp))
-                .background(outlineVariant.copy(alpha = 0.4f))
-                .clickable(onClick = { onClickColorPicker(true) })
-                .padding(5.dp)
-        ) {
-            Button(
-                enabled = true, onClick = {onClickColorPicker(true)},
-                shape = MaterialTheme.shapes.large,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = selectedColor
-                ),
-                modifier = Modifier.weight(1f)
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .clip(inputFieldShape)
+            .background(inputFieldBackgroundColors)
+            .clickable(onClick = { onClickColorPicker(true) })
+            .padding(5.dp)
+    ) {
+        Button(
+            enabled = true, onClick = { onClickColorPicker(true) },
+            shape = MaterialTheme.shapes.large,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = selectedColor
+            ),
+            modifier = Modifier.weight(1f)
 
-            ) {}
-            Spacer(modifier = Modifier.width(10.dp))
-            Image(
-                imageVector = Icons.Default.ArrowDropDown,
-                contentDescription = stringResource(R.string.arrow_down),
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground),
-                modifier = Modifier.clickable(onClick = { onClickColorPicker(true) })
-            )
-        }
+        ) {}
+        Spacer(modifier = Modifier.width(10.dp))
+        Image(
+            imageVector = Icons.Default.ArrowDropDown,
+            contentDescription = stringResource(R.string.arrow_down),
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground),
+            modifier = Modifier.clickable(onClick = { onClickColorPicker(true) })
+        )
+    }
     DropdownMenu(
         modifier = Modifier.fillMaxWidth(0.5f).height(250.dp),
         expanded = showColorPicker,
-        onDismissRequest = {onClickColorPicker(false)}){
+        onDismissRequest = { onClickColorPicker(false) }) {
         colorPicker(
             listOfColors = listOfColors,
             onSelectedColor = onSelectedColor,
@@ -443,17 +449,53 @@ fun walletColor(
 
 @Composable
 fun colorPicker(onSelectedColor: (Color) -> Unit, listOfColors: List<Map.Entry<String, Color>>) {
-        listOfColors.forEach {
-            DropdownMenuItem(
-                text = {},
-                modifier = Modifier
-                    .padding(vertical = 10.dp, horizontal = 10.dp)
-                    .fillMaxWidth()
-                    .height(30.dp)
-                    .background(color = it.value, shape = RoundedCornerShape(5.dp)),
-                onClick = {
-                    onSelectedColor(it.value)
-                }
-            )
-        }
+    listOfColors.forEach {
+        DropdownMenuItem(
+            text = {},
+            modifier = Modifier
+                .padding(vertical = 10.dp, horizontal = 10.dp)
+                .fillMaxWidth()
+                .height(30.dp)
+                .background(color = it.value, shape = RoundedCornerShape(5.dp)),
+            onClick = {
+                onSelectedColor(it.value)
+            }
+        )
+    }
 }
+
+@Composable
+fun showIcon(walletUiState: WalletInputState, modifier: Modifier, onSelectedIcon: (Int) -> Unit) {
+    Column(modifier = modifier) {
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(minSize = 50.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(26.dp),
+            verticalArrangement = Arrangement.spacedBy(26.dp)
+        ) {
+            items(walletUiState.listOfIcon) {
+                Icon(
+                    painter = painterResource(it.icon),
+                    contentDescription = stringResource(it.iconName),
+                    modifier = Modifier.background(
+                        color = if (walletUiState.selectedIcon.equals(it.icon))
+                            walletUiState.selectedColors
+                        else
+                            inverseOnSurface,
+                        shape = CircleShape
+                    )
+                        .padding(20.dp)
+                        .clickable(onClick = { onSelectedIcon(it.icon) }),
+                    tint = if (walletUiState.selectedIcon.equals(it.icon))
+                        onPrimary
+                    else
+                        inverseSurface
+                )
+            }
+        }
+    }
+}
+
+

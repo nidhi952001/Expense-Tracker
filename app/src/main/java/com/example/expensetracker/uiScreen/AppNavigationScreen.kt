@@ -8,7 +8,6 @@ import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,7 +25,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.expensetracker.ui.theme.AppColors.inverseOnSurface
 import com.example.expensetracker.ui.theme.AppColors.surface
-import com.example.expensetracker.ui.theme.AppColors.surfaceVariant
 import com.example.expensetracker.utils.TopLevelDestination
 import com.example.expensetracker.utils.topBarAction
 import com.example.expensetracker.utils.topBarBackAction
@@ -54,6 +52,7 @@ fun AppNavigationScreen() {
     val walletDatabaseState by walletViewModel.persistedWalletState.collectAsState()
     val inputWalletState by walletViewModel.tempWalletState.collectAsState()
     val topBarUiState by homeViewModel.topBarUiState.collectAsState()
+    val expenseUiState by expViewModel.expenseTempState.collectAsState()
 
     var userName by rememberSaveable { mutableStateOf("User") }
     var initialAmount by rememberSaveable { mutableStateOf("not_decided") }
@@ -146,9 +145,13 @@ fun AppNavigationScreen() {
                 composable(route = TopLevelDestination.expense.name) {
                     ExpenseScreen(
                         modifier = Modifier.fillMaxSize(),
-                        expenseViewModel = expViewModel,
-                        onClick = {
-                    })
+                        expenseUiState = expenseUiState,
+                        showDateDialogUI = {expViewModel.updateDateDialogState(it)},
+                        showTimeDialogUI = {expViewModel.updateTimeDialogState(it)},
+                        onDateSelected = {expViewModel.updateSelectedDate(it)},
+                        onExpenseAmountChanged = {expViewModel.updateExpenseAmount(it)},
+                        onDescriptionChanged = {expViewModel.updateExpenseDes(it)}
+                    )
                 } //todo need to do code review
                 composable(route = TopLevelDestination.income.name){
                     incomeScreen()
@@ -167,13 +170,14 @@ fun AppNavigationScreen() {
                     addWallet(
                         walletUiState = inputWalletState,
                         onSelectType = { walletViewModel.updateWalletType(it) },
-                        onValueChange = { walletViewModel.updateWalletAmount(it) },
+                        onWalletAmountChanged = { walletViewModel.updateWalletAmount(it) },
                         onNameChanged = { walletViewModel.updateWalletName(it) },
                         onIconClick = {
                             navController.navigate(TopLevelDestination.pickWalletIcon.name)
                         },
                         onClickColorPicker= {walletViewModel.updateColorPicker(it)},
                         onSelectedColor = {walletViewModel.updateSelectedColor(it)},
+                        expandDropDown = {walletViewModel.updateDropDown(it)},
                         onBackClick = {
                             navController.navigateUp()
                             walletViewModel.resetWalletUiState()

@@ -9,6 +9,8 @@ import com.example.expensetracker.entity.Wallet
 import com.example.expensetracker.repository.WalletRepository
 import com.example.expensetracker.utils.DisplayUIState.WalletDisplayState
 import com.example.expensetracker.utils.InputUIState.WalletInputState
+import com.example.expensetracker.utils.ListOfIcons
+import com.example.expensetracker.utils.listOfColor
 import com.example.expensetracker.utils.listOfColor.coloCodeToColor
 import com.example.expensetracker.utils.listOfWalletIcon
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,24 +28,28 @@ import javax.inject.Inject
 @HiltViewModel
 class WalletViewModel @Inject constructor(
     private val walletRepository: WalletRepository,
-):ViewModel() {
+) : ViewModel() {
     val initialAmount = walletRepository.initialAmount
 
     //from database
     val savedWallets: StateFlow<List<Wallet>> = walletRepository.showWallet()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(),emptyList())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    val showBalance:StateFlow<Float> = walletRepository.totalBalance().stateIn(
-        viewModelScope,SharingStarted.WhileSubscribed(),0F
+    val showBalance: StateFlow<Float> = walletRepository.totalBalance().stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(), 0F
     )
 
-    val persistedWalletState:StateFlow<WalletDisplayState> =
-        combine(savedWallets,showBalance){ wallet , balance ->
-            WalletDisplayState(wallet,balance)
-        }.stateIn(viewModelScope,SharingStarted.WhileSubscribed(), WalletDisplayState(emptyList(),0F))
+    val persistedWalletState: StateFlow<WalletDisplayState> =
+        combine(savedWallets, showBalance) { wallet, balance ->
+            WalletDisplayState(wallet, balance)
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(),
+            WalletDisplayState(emptyList(), 0F)
+        )
 
 
-    fun addWallet(wallet: Wallet){
+    fun addWallet(wallet: Wallet) {
         viewModelScope.launch(Dispatchers.IO) {
             walletRepository.addWallet(wallet)
         }
@@ -55,15 +61,16 @@ class WalletViewModel @Inject constructor(
             //saved in datastore
             walletRepository.saveInitialAmount(amount)
             //saved in database
-            print("wallet color "+ coloCodeToColor.getValue("sky_blue"))
+            print("wallet color " + coloCodeToColor.getValue("sky_blue"))
             val initialWallet = Wallet(
                 walletId = 0,
                 walletName = "Cash",
-                walletType = TypeOfWallet.GENERAL,
+                walletType = TypeOfWallet.General,
                 walletAmount = amountFloat,
                 walletIcon = R.drawable.account_wallet_ic,
                 walletIconDes = R.string.bank,
-                walletColor = coloCodeToColor.getValue("sky_blue"))
+                walletColor = coloCodeToColor.getValue("sky_blue")
+            )
             addWallet(initialWallet)
         }
 
@@ -73,8 +80,8 @@ class WalletViewModel @Inject constructor(
     private val _tempWalletState = MutableStateFlow(WalletInputState())
     val tempWalletState = _tempWalletState.asStateFlow()
 
-    fun updateWalletName(newWalletName:String){
-        if(!newWalletName.isNullOrEmpty() || newWalletName.isNotBlank()){
+    fun updateWalletName(newWalletName: String) {
+        if (!newWalletName.isNullOrEmpty() || newWalletName.isNotBlank()) {
             _tempWalletState.update {
                 it.copy(
                     isWalletNameValid = true
@@ -87,15 +94,17 @@ class WalletViewModel @Inject constructor(
             )
         }
     }
-    fun updateWalletType(walletType:TypeOfWallet){
+
+    fun updateWalletType(walletType: TypeOfWallet) {
         _tempWalletState.update {
             it.copy(
                 selectType = walletType
             )
         }
     }
-    fun updateWalletAmount(walletAmount: String){
-        if(!walletAmount.isNullOrEmpty() || walletAmount.isNotBlank()){
+
+    fun updateWalletAmount(walletAmount: String) {
+        if (!walletAmount.isNullOrEmpty() || walletAmount.isNotBlank()) {
             _tempWalletState.update {
                 it.copy(
                     isWalletAmountValid = true
@@ -115,7 +124,7 @@ class WalletViewModel @Inject constructor(
         }
     }
 
-    fun updateSelectedColor(selectedColor: Color){
+    fun updateSelectedColor(selectedColor: Color) {
         _tempWalletState.update {
             it.copy(selectedColors = selectedColor, showColorPicker = false)
         }
@@ -126,16 +135,22 @@ class WalletViewModel @Inject constructor(
             it.copy(showColorPicker = colorPicker)
         }
     }
+
     fun resetWalletUiState() {
         _tempWalletState.update {
             it.copy(
                 walletName = "",
-                 selectType = tempWalletState.value.selectType,
-                 walletAmount = "",
-                 walletIconName =  tempWalletState.value.walletIconName,
-                 listOfIcon = listOfWalletIcon.iconData,
-                 selectedIcon = tempWalletState.value.selectedIcon,
-                isWalletNameValid = false
+                isWalletNameValid = false,
+                selectType = TypeOfWallet.General,
+                isWalletTypeExpanded = false,
+                walletAmount = "",
+                isWalletAmountValid = false,
+                walletIconName = R.string.bank,
+                listOfIcon = listOfWalletIcon.iconData,
+                selectedIcon = R.drawable.account_wallet_ic,
+                showListOfColor = coloCodeToColor,
+                selectedColors = coloCodeToColor.getValue("sky_blue"),
+                showColorPicker = false
             )
         }
     }
@@ -149,8 +164,16 @@ class WalletViewModel @Inject constructor(
             walletAmount = walletUiState.walletAmount.toFloat(),
             walletIcon = walletUiState.selectedIcon,
             walletIconDes = walletUiState.walletIconName,
-            walletColor = walletUiState.selectedColors)
+            walletColor = walletUiState.selectedColors
+        )
         addWallet(newWallet)
         resetWalletUiState()
+    }
+
+    fun updateDropDown(dropDownState: Boolean) {
+        _tempWalletState.update {
+            it.copy(isWalletTypeExpanded = dropDownState)
+        }
+
     }
 }

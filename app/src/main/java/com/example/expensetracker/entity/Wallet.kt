@@ -18,5 +18,5 @@ data class Wallet(
 )
 
 enum class TypeOfWallet {
-    GENERAL, CREDITCARD
+    General, CreditCard
 }

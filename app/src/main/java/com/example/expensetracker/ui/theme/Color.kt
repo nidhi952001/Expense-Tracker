@@ -1,7 +1,12 @@
 package com.example.expensetracker.ui.theme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
 
 
 val primaryLight = Color(0xFF415F91)
@@ -109,6 +114,21 @@ object AppColors {
 
     val onError: Color
         @Composable get() = MaterialTheme.colorScheme.onError
+
+    val inputFieldShape:RoundedCornerShape
+        @Composable get() = RoundedCornerShape(10.dp)
+
+    val inputFieldBackgroundColors:Color
+        @Composable get() = outlineVariant.copy(alpha = 0.4f)
+
+    val inputTextWeight:FontWeight
+        @Composable get() = FontWeight.Normal
+
+    val inputTextSize:TextUnit
+        @Composable get() = MaterialTheme.typography.titleSmall.fontSize
+
+    val inputTextStyle: FontStyle?
+        @Composable get() = MaterialTheme.typography.titleSmall.fontStyle
 }
 
 
