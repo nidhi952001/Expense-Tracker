@@ -4,15 +4,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.expensetracker.R
-import com.example.expensetracker.entity.TypeOfWallet
 import com.example.expensetracker.entity.Wallet
 import com.example.expensetracker.repository.WalletRepository
 import com.example.expensetracker.utils.DisplayUIState.WalletDisplayState
 import com.example.expensetracker.utils.InputUIState.WalletInputState
-import com.example.expensetracker.utils.ListOfIcons
-import com.example.expensetracker.utils.listOfColor
-import com.example.expensetracker.utils.listOfColor.coloCodeToColor
-import com.example.expensetracker.utils.listOfWalletIcon
+import com.example.expensetracker.utils.StaticData.TypeOfWallet
+import com.example.expensetracker.utils.StaticData.listOfWalletColor.coloCodeToColor
+import com.example.expensetracker.utils.StaticData.listOfWalletIcon
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,6 +18,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -175,5 +176,17 @@ class WalletViewModel @Inject constructor(
             it.copy(isWalletTypeExpanded = dropDownState)
         }
 
+    }
+
+    fun updateSelectedExpWallet(walletId: Int) {
+        _tempWalletState.update {
+            it.copy(selectedExpWallet = walletId)
+        }
+    }
+
+    val selectedWallet = _tempWalletState.map {
+        it.selectedExpWallet
+    }.distinctUntilChanged().flatMapLatest {
+        walletRepository.getWalletDataById(it)
     }
 }

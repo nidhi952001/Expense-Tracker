@@ -1,6 +1,7 @@
 package com.example.expensetracker.uiScreen
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,12 +23,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -46,10 +49,10 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachIndexed
 import com.example.expensetracker.R
-import com.example.expensetracker.entity.TypeOfWallet
 import com.example.expensetracker.entity.Wallet
 import com.example.expensetracker.ui.theme.AppColors.inputFieldBackgroundColors
 import com.example.expensetracker.ui.theme.AppColors.inputFieldShape
@@ -65,6 +68,8 @@ import com.example.expensetracker.ui.theme.AppColors.secondaryContainer
 import com.example.expensetracker.ui.theme.AppColors.surface
 import com.example.expensetracker.utils.DisplayUIState.WalletDisplayState
 import com.example.expensetracker.utils.InputUIState.WalletInputState
+import com.example.expensetracker.utils.StaticData.TypeOfWallet
+import com.example.expensetracker.utils.StaticData.listOfWalletColor
 
 val listOfWallet = listOf(
     TypeOfWallet.General,
@@ -255,7 +260,7 @@ fun addWallet(
             .verticalScroll(scrollableState)
     ) {
         walletName(walletUiState, onNameChanged)
-        walletType(listOfWallet, expandDropDown , walletUiState, onSelectType)
+        walletType(listOfWallet, expandDropDown, walletUiState, onSelectType)
         walletAmount(walletUiState, onWalletAmountChanged)
         walletColorWithIcon(walletUiState, onClickColorPicker, onSelectedColor, onIconClick)
     }
@@ -285,7 +290,7 @@ private fun walletType(
 ) {
     label("Type")
     walletTypeDropDown(isDropDownExpanded = walletUiState.isWalletTypeExpanded,
-        expandDropDown = {expandDropDown(it)},
+        expandDropDown = { expandDropDown(it) },
         listOfWallet = listOfWallet,
         selectedWallet = walletUiState.selectType,
         onSelectWallet = { onSelectType(it) })
@@ -294,16 +299,17 @@ private fun walletType(
 @Composable
 fun walletTypeDropDown(
     isDropDownExpanded: Boolean,
-    expandDropDown:(Boolean)->Unit,
+    expandDropDown: (Boolean) -> Unit,
     listOfWallet: List<TypeOfWallet>,
     selectedWallet: TypeOfWallet,
     onSelectWallet: (TypeOfWallet) -> Unit
 ) {
-    Box(modifier = Modifier
-        .clickable(enabled = true, onClick = {expandDropDown(true)})
-        .clip(inputFieldShape)
-        .background(inputFieldBackgroundColors)
-        .height(56.dp),
+    Box(
+        modifier = Modifier
+            .clickable(enabled = true, onClick = { expandDropDown(true) })
+            .clip(inputFieldShape)
+            .background(inputFieldBackgroundColors)
+            .height(56.dp),
         contentAlignment = Alignment.Center
     ) {
         Row(
@@ -335,7 +341,8 @@ fun walletTypeDropDown(
                             color = inverseSurface,
                             fontWeight = inputTextWeight,
                             fontSize = inputTextSize,
-                            fontStyle = inputTextStyle)
+                            fontStyle = inputTextStyle
+                        )
                     },
                     onClick = {
                         expandDropDown(false)
@@ -495,6 +502,113 @@ fun showIcon(walletUiState: WalletInputState, modifier: Modifier, onSelectedIcon
                 )
             }
         }
+    }
+}
+
+
+//show list of wallet for income and expense screen
+@Composable
+fun SelectWallet(walletDatabaseState: WalletDisplayState, selectedWallet: Wallet?,onSelectWallet:(Int)->Unit) {
+    LazyColumn(modifier = Modifier.background(color = inverseOnSurface).padding(top = 20.dp)) {
+        items(walletDatabaseState.savedWallets) { wallet ->
+            showListOfWallet(wallet,selectedWallet,onSelectWallet)
+        }
+    }
+}
+
+@Composable
+fun showListOfWallet(wallet: Wallet, selectedWallet: Wallet?, onSelectWallet: (Int) -> Unit) {
+
+    val borderStroke =
+        if(selectedWallet?.walletId!=wallet.walletId) BorderStroke(1.dp,Color.Black)
+    else BorderStroke(0.dp,Color.Transparent)
+    Row(
+        modifier = Modifier
+            .background(color = surface).padding(top = 10.dp).padding(horizontal = 30.dp).clickable(
+                enabled = true, onClick = {onSelectWallet(wallet.walletId)}
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                Icon(
+                    painter = painterResource(wallet.walletIcon),
+                    contentDescription = stringResource(wallet.walletIconDes),
+                    tint = Color.White,
+                    modifier = Modifier.clip(CircleShape).background(wallet.walletColor)
+                        .padding(10.dp)
+                )
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(
+                        text = wallet.walletName,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(R.drawable.currency_rupee_ui),
+                            contentDescription = stringResource(R.string.currency),
+                            tint = MaterialTheme.colorScheme.outline,
+                            modifier = Modifier.size(12.dp)
+                        )
+                        Text(
+                            text = wallet.walletAmount.toString(),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Light
+                        )
+                    }
+                }
+            }
+        }
+        Box(
+            modifier = Modifier
+                .size(30.dp)
+                .padding(5.dp)
+                .clip(CircleShape)
+                .background(
+                    if(selectedWallet?.walletId == wallet.walletId) {
+                        Color.Blue.copy(alpha = 0.6F)
+                    }else{
+                        Color.Unspecified
+                    }
+                )
+                .border(borderStroke, CircleShape)
+            ,
+            contentAlignment = Alignment.Center
+        ) {
+            if(selectedWallet?.walletId==wallet.walletId) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = "",
+                    tint = Color.White,
+                    modifier = Modifier.padding(3.dp)
+                )
+            }
+        }
+
+    }
+
+}
+
+
+@Preview
+@Composable
+fun Check() {
+    Box(
+        modifier = Modifier
+            .size(30.dp)
+            .padding(5.dp).clip(CircleShape)
+            .border(1.dp, color = MaterialTheme.colorScheme.outline, shape = CircleShape),
+        contentAlignment = Alignment.Center
+    ) {
+        /*Icon(
+            imageVector = Icons.Default.Check,
+            contentDescription = "",
+            tint = Color.White,
+            modifier = Modifier.padding(3.dp))*/
     }
 }
 

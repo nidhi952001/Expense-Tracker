@@ -2,13 +2,12 @@ package com.example.expensetracker.utils.InputUIState
 
 import androidx.compose.ui.graphics.Color
 import com.example.expensetracker.R
-import com.example.expensetracker.entity.TypeOfWallet
 import com.example.expensetracker.entity.Wallet
-import com.example.expensetracker.utils.DisplayUIState.WalletDisplayState
-import com.example.expensetracker.utils.ListOfIcons
+import com.example.expensetracker.utils.StaticData.ListOfIcons
 import com.example.expensetracker.utils.TopLevelDestination
-import com.example.expensetracker.utils.listOfColor
-import com.example.expensetracker.utils.listOfWalletIcon
+import com.example.expensetracker.utils.StaticData.TypeOfWallet
+import com.example.expensetracker.utils.StaticData.listOfWalletColor
+import com.example.expensetracker.utils.StaticData.listOfWalletIcon
 
 data class HomeStateData(
     val userName: String = "",
@@ -27,18 +26,20 @@ data class WalletInputState(
     val selectType: TypeOfWallet = TypeOfWallet.General,
     val walletAmount: String = "",
     val isWalletAmountValid: Boolean = false,
-    val showListOfColor: Map<String, Color> = listOfColor.coloCodeToColor,
-    val selectedColors: Color = listOfColor.coloCodeToColor.getValue("sky_blue"),
+    val showListOfColor: Map<String, Color> = listOfWalletColor.coloCodeToColor,
+    val selectedColors: Color = listOfWalletColor.coloCodeToColor.getValue("sky_blue"),
     val showColorPicker: Boolean = false,
     val walletIconName: Int = R.string.bank,
     val listOfIcon: List<ListOfIcons> = listOfWalletIcon.iconData,
     val selectedIcon: Int = R.drawable.account_wallet_ic,
+
+    //wallet exp
+    val selectedExpWallet:Int=1
 )
 
 data class ExpenseInputState(
     val showDateDialogUI: Boolean = false,
     val selectedDate: Long? = System.currentTimeMillis(),
-    val showTimeDialogUI:Boolean = false,
     val expDescription: String = "",
     val expAmount:String = "",
     val expSelectedCategory:String="",

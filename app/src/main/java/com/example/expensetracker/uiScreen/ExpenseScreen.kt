@@ -1,6 +1,7 @@
 package com.example.expensetracker.uiScreen
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -8,15 +9,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -25,7 +25,6 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DatePickerState
@@ -36,10 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TimeInput
-import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,8 +49,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import com.example.expensetracker.R
+import com.example.expensetracker.entity.Wallet
 import com.example.expensetracker.ui.theme.AppColors.inputFieldBackgroundColors
 import com.example.expensetracker.ui.theme.AppColors.inputFieldShape
 import com.example.expensetracker.ui.theme.AppColors.inputTextSize
@@ -77,20 +73,26 @@ fun ExpenseScreen(
     modifier: Modifier,
     showDateDialogUI: (Boolean) -> Unit,
     onDateSelected: (Long?) -> Unit,
-    showTimeDialogUI: (Boolean) -> Unit,
     expenseUiState: ExpenseInputState,
     onExpenseAmountChanged: (String) -> Unit,
-    onDescriptionChanged: (String) -> Unit
+    onDescriptionChanged: (String) -> Unit,
+    onClickListOfWallet: () -> Unit,
+    selectedExpWallet: Wallet?
 ) {
 
     val scrollableState = rememberScrollState()
     val datePickerState = rememberDatePickerState()
+    val currentTime = Calendar.getInstance()
+    var formattedTime:String = ""
 
     Box(
         modifier = modifier.background(color = inverseOnSurface).padding(top = 20.dp)
             .verticalScroll(scrollableState)
     ) {
-        Column(modifier = Modifier.fillMaxSize().background(color = surface).padding(horizontal = 30.dp).padding(bottom = 20.dp)) {
+        Column(
+            modifier = Modifier.fillMaxSize().background(color = surface)
+                .padding(horizontal = 30.dp).padding(bottom = 20.dp)
+        ) {
             //Date
             label("Date")
             Row(
@@ -100,32 +102,43 @@ fun ExpenseScreen(
                     .clip(inputFieldShape)
                     .background(color = inputFieldBackgroundColors)
             ) {
-                dateUi(showDateDialogUI = {showDateDialogUI(it)}, expenseUiState.selectedDate)
-                timeUi(showTimeDialogUI = {showTimeDialogUI(it)})
+                dateUi(
+                    showDateDialogUI = { showDateDialogUI(it) },
+                    selectedDate = expenseUiState.selectedDate
+                )
+                /*timeUi(
+                    showTimeDialogUI = { showTimeDialogUI(it) },
+                    selectedTime = expenseUiState.selectedTime
+                )*/
             }
             if (expenseUiState.showDateDialogUI) {
-                showDateDialog(datePickerState,
+                showDateDialog(
+                    state = datePickerState,
                     onDateSelected = { onDateSelected(it) },
                     onDismiss = { showDateDialogUI(false) })
             }
-            if(expenseUiState.showTimeDialogUI){
-                showTimeDialog()
-            }
-            expenseAmount(expenseAmount = expenseUiState.expAmount, onExpenseValueChange = {onExpenseAmountChanged(it)})
-            expenseDescription(description = expenseUiState.expDescription, onDescriptionChanged = {onDescriptionChanged(it)})
+            expenseAmount(
+                expenseAmount = expenseUiState.expAmount,
+                onExpenseValueChange = { onExpenseAmountChanged(it) })
+            expenseDescription(
+                description = expenseUiState.expDescription,
+                onDescriptionChanged = { onDescriptionChanged(it) })
             expenseCategory(expSelectedCat = expenseUiState.expSelectedCategory)
-            expenseWallet(expSelectedWallet = "")
+            expenseWallet(
+                expSelectedWallet = selectedExpWallet,
+                onClickListOfWallet = onClickListOfWallet)
         }
     }
 
 }
+
 @Composable
-private fun dateUi(showDateDialogUI: (Boolean)->Unit, selectedDate: Long?) {
+private fun dateUi(showDateDialogUI: (Boolean) -> Unit, selectedDate: Long?) {
     Button(
         onClick = { showDateDialogUI(true) },
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Transparent,
-            contentColor = Color.Black
+            contentColor = onSurface
         ),
         shape = inputFieldShape
     ) {
@@ -138,25 +151,7 @@ private fun dateUi(showDateDialogUI: (Boolean)->Unit, selectedDate: Long?) {
         print("today's date ${System.currentTimeMillis()}")
     }
 }
-@Composable
-private fun timeUi(showTimeDialogUI: (Boolean) -> Unit) {
-    Button(
-        onClick = { showTimeDialogUI(true)},
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color.Transparent,
-            contentColor = Color.Black
-        ),
-        shape = inputFieldShape
-    ) {
-        Text(
-            text = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
-                .toString() + "" + Calendar.getInstance().get(Calendar.MINUTE).toString(),
-            color = onSurface,
-            fontWeight = inputTextWeight,
-            fontSize = MaterialTheme.typography.labelLarge.fontSize
-        )
-    }
-}
+
 @Composable
 private fun expenseAmount(expenseAmount: String, onExpenseValueChange: (String) -> Unit) {
     label("Amount")
@@ -165,11 +160,12 @@ private fun expenseAmount(expenseAmount: String, onExpenseValueChange: (String) 
         placeholder = "0",
         leadingIcon = R.drawable.currency_rupee_ui,
         isReadOnly = false,
-        onValueChange = {onExpenseValueChange(it)},
+        onValueChange = { onExpenseValueChange(it) },
     )
 }
+
 @Composable
-private fun expenseDescription(description: String,onDescriptionChanged:(String)->Unit) {
+private fun expenseDescription(description: String, onDescriptionChanged: (String) -> Unit) {
     label("Description")
     inputWithNoIcon(
         value = description,
@@ -178,6 +174,7 @@ private fun expenseDescription(description: String,onDescriptionChanged:(String)
         isReadOnly = false,
     )
 }
+
 @Composable
 private fun expenseCategory(expSelectedCat: String) {
     label("Category")
@@ -186,26 +183,23 @@ private fun expenseCategory(expSelectedCat: String) {
         placeholder = "Select Category",
         trailingIcon = Icons.Default.ArrowDropDown,
         isReadOnly = true,
-        isClickable = false,
+        isEnabled = false,
+        onClick = {}
     )
 }
+
 @Composable
-private fun expenseWallet(expSelectedWallet: String) {
+private fun expenseWallet(expSelectedWallet: Wallet?,onClickListOfWallet:()->Unit) {
     label("Wallet")
     inputWithTrailingIcon(
-        value = expSelectedWallet,
+        value = expSelectedWallet?.walletName +" "+ expSelectedWallet?.walletAmount,
         placeholder = "Wallet",
         trailingIcon = Icons.Default.ArrowDropDown,
         isReadOnly = true,
-        isClickable = true,
+        isEnabled = false,
+        onClick =  onClickListOfWallet
     )
 }
-
-
-
-
-
-
 
 
 fun convertMillisToDate(millis: Long): String {
@@ -221,7 +215,7 @@ fun showDateDialog(state: DatePickerState, onDismiss: () -> Unit, onDateSelected
         confirmButton = {
             TextButton(onClick = {
                 onDateSelected(
-                    state.selectedDateMillis?:System.currentTimeMillis()
+                    state.selectedDateMillis ?: System.currentTimeMillis()
                 )
                 onDismiss()
             }) {
@@ -240,19 +234,17 @@ fun showDateDialog(state: DatePickerState, onDismiss: () -> Unit, onDateSelected
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun showTimeDialog(){
-    Dialog(onDismissRequest = {  }) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-        ) {
-            TimeInput(
-                state = rememberTimePickerState(0, 0, is24Hour = false),
-            )
-        }
+fun showTimeDialog(currentTime: Calendar, onTimeSelected: (String) -> Unit) {
+    Card(
+        modifier = Modifier
+            .background(color = Color.White)
+            .wrapContentWidth()
+            .wrapContentHeight()
+    ) {
+
     }
 }
+
 //shared UI across different screen
 @Composable
 fun label(label: String) {
@@ -275,7 +267,7 @@ fun inputWithLeadingIcon(
     leadingIcon: Int,
     isReadOnly: Boolean,
     saveAmount: (Float?) -> Unit = {}
-){
+) {
     TextField(
         value = value,
         onValueChange = { onValueChange(it) },
@@ -304,16 +296,14 @@ fun inputWithLeadingIcon(
             )
         },
         modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(),
+            .fillMaxWidth(),
         shape = inputFieldShape,
         colors = TextFieldDefaults.colors(
             focusedIndicatorColor = Color.Transparent,
             unfocusedContainerColor = inputFieldBackgroundColors,
             unfocusedIndicatorColor = Color.Transparent,
             focusedContainerColor = inputFieldBackgroundColors
-        )
-        ,
+        ),
         keyboardOptions = KeyboardOptions.Default.copy(
             keyboardType = KeyboardType.Number
         ),
@@ -331,8 +321,10 @@ fun inputWithTrailingIcon(
     placeholder: String,
     trailingIcon: ImageVector? = null,
     isReadOnly: Boolean,
-    isClickable: Boolean,
-){
+    isEnabled: Boolean,
+    onClick:()->Unit
+) {
+
     TextField(
         value = value,
         onValueChange = {},  // No update needed as it's read-only
@@ -353,21 +345,27 @@ fun inputWithTrailingIcon(
             fontStyle = inputTextStyle
         ),
         trailingIcon = {
-                Image(
-                    imageVector = trailingIcon!!,
-                    contentDescription = stringResource(R.string.arrow_down),
-                    colorFilter = ColorFilter.tint(onBackground)
-                )
+            Image(
+                imageVector = trailingIcon!!,
+                contentDescription = stringResource(R.string.arrow_down),
+                colorFilter = ColorFilter.tint(onBackground)
+            )
         },
         modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight().clickable(enabled = isClickable, onClick = {}),
+            .fillMaxWidth().clickable(
+                onClick = {
+                    Log.d("click ","click is true")
+                    onClick()
+                }
+            ),
+        enabled = isEnabled,
         shape = inputFieldShape,
         colors = TextFieldDefaults.colors(
             focusedIndicatorColor = Color.Transparent,
             unfocusedContainerColor = inputFieldBackgroundColors,
             unfocusedIndicatorColor = Color.Transparent,
-            focusedContainerColor = inputFieldBackgroundColors
+            focusedContainerColor = inputFieldBackgroundColors,
+            disabledIndicatorColor = Color.Transparent
         ),
         keyboardOptions = KeyboardOptions.Default.copy(
             capitalization = KeyboardCapitalization.Words,
@@ -381,40 +379,39 @@ fun inputWithNoIcon(
     onValueChange: (String) -> Unit,
     isReadOnly: Boolean,
 ) {
-        TextField(
-            value = value,
-            onValueChange = {
-                onValueChange(it)
-            },
-            readOnly = isReadOnly,
-            placeholder = {
-                Text(
-                    text = placeholder,
-                    color = onSurface,
-                    fontWeight = inputTextWeight,
-                    fontSize = inputTextSize,
-                    fontStyle = inputTextStyle
-                )
-            },
-            textStyle = TextStyle.Default.copy(
+    TextField(
+        value = value,
+        onValueChange = {
+            onValueChange(it)
+        },
+        readOnly = isReadOnly,
+        placeholder = {
+            Text(
+                text = placeholder,
                 color = onSurface,
                 fontWeight = inputTextWeight,
                 fontSize = inputTextSize,
                 fontStyle = inputTextStyle
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(),
-            shape = inputFieldShape,
-            colors = TextFieldDefaults.colors(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedContainerColor = inputFieldBackgroundColors,
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedContainerColor = inputFieldBackgroundColors
-            ), // if value is false then only it is clickable
-            keyboardOptions = KeyboardOptions.Default.copy(
-                capitalization = KeyboardCapitalization.Words,
             )
+        },
+        textStyle = TextStyle.Default.copy(
+            color = onSurface,
+            fontWeight = inputTextWeight,
+            fontSize = inputTextSize,
+            fontStyle = inputTextStyle
+        ),
+        modifier = Modifier
+            .fillMaxWidth(),
+        shape = inputFieldShape,
+        colors = TextFieldDefaults.colors(
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedContainerColor = inputFieldBackgroundColors,
+            unfocusedIndicatorColor = Color.Transparent,
+            focusedContainerColor = inputFieldBackgroundColors
+        ), // if value is false then only it is clickable
+        keyboardOptions = KeyboardOptions.Default.copy(
+            capitalization = KeyboardCapitalization.Words,
         )
+    )
 }
 
