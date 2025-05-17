@@ -3,6 +3,7 @@ package com.example.expensetracker.utils
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import com.example.expensetracker.R
 import com.example.expensetracker.utils.InputUIState.WalletInputState
@@ -18,21 +19,18 @@ enum class TopLevelDestination(@StringRes val route: Int) {
     showWallet(route = R.string.showWallet),
     addWallet(route = R.string.addWallet),
     pickWalletIcon(route =R.string.pickIcon),
-    showDetailOfWallet(route = R.string.show_detail_of_wallet)
+    showDetailOfWallet(route = R.string.show_detail_of_wallet),
+    selectWallet(route = R.string.select_wallet)
 }
 
 val screenTitle = mapOf(
-    "expense" to R.string.expense,
-    "income" to R.string.income,
-    "transaction" to R.string.transaction,
-    "add" to R.string.add,
-    "showWallet" to R.string.showWallet,
-    "addWallet" to R.string.addWallet,
-    "home" to R.string.home,
     "addName" to R.string.add_name,
     "addInitialAmount" to R.string.initial_amount,
-    "numericInput" to R.string.numericInput,
-    "showWalletIcon" to R.string.pickIcon
+    "expense" to R.string.expense,
+    "income" to R.string.income,
+    "addWallet" to R.string.addWallet,
+    "pickWalletIcon" to R.string.pickIcon,
+    "selectWallet" to R.string.select_wallet
 )
 @Composable
 fun getScreenName(currentRoute: String):String {

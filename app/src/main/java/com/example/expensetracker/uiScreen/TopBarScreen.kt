@@ -125,6 +125,7 @@ fun AppTopBar(
 ) {
     when (currentRoute) {
         TopLevelDestination.expense.name,
+        TopLevelDestination.selectWallet.name,
         TopLevelDestination.addWallet.name,
         TopLevelDestination.pickWalletIcon.name,
         TopLevelDestination.income.name -> {

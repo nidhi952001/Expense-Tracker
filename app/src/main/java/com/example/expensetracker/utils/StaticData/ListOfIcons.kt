@@ -1,9 +1,11 @@
-package com.example.expensetracker.utils
+package com.example.expensetracker.utils.StaticData
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import com.example.expensetracker.R
+
+enum class TypeOfWallet {
+    General, CreditCard
+}
 
 data class ListOfIcons(
     val icon:Int,
@@ -24,8 +26,8 @@ object listOfWalletIcon{
     )
 }
 
-object listOfColor  {
-    val coloCodeToColor = mapOf<String,Color>(
+object listOfWalletColor  {
+    val coloCodeToColor = mapOf(
         "sky_blue" to Color(0xFF00BFFF),
         "doger_blue" to Color(0xFF1E90FF),
         "royal_blue" to Color(0xFF4169E1),

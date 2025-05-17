@@ -24,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -35,6 +36,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -172,12 +174,28 @@ fun userNameScreen(
             style = MaterialTheme.typography.bodyMedium
         )
         Spacer(Modifier.height(5.dp))
-        OutlinedTextField(
+        TextField(
             value = uiState.userName,
             onValueChange = { onUserNameChange(it) },
-            label = { Text(text = "Name") },
+            placeholder = { Text(text = stringResource(R.string.name)) },
             singleLine = true,
-            modifier = Modifier.padding(start = 20.dp, end = 20.dp).fillMaxWidth().border(BorderStroke(1.dp, Color.Unspecified))
+            modifier = Modifier.padding(start = 20.dp, end = 20.dp).fillMaxWidth().border(BorderStroke(1.dp, Color.Unspecified)),
+            textStyle = TextStyle.Default.copy(
+                color = AppColors.onSurface,
+                fontWeight = AppColors.inputTextWeight,
+                fontSize = AppColors.inputTextSize,
+                fontStyle = AppColors.inputTextStyle
+            ),
+            shape = AppColors.inputFieldShape,
+            colors = TextFieldDefaults.colors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedContainerColor = AppColors.inputFieldBackgroundColors,
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedContainerColor = AppColors.inputFieldBackgroundColors
+            ), // if value is false then only it is clickable
+            keyboardOptions = KeyboardOptions.Default.copy(
+                capitalization = KeyboardCapitalization.Words,
+            )
         )
         Spacer(Modifier.height(5.dp))
         Button(onClick = { saveUserName(uiState.userName) },
@@ -213,7 +231,7 @@ fun initialMoneyScreen(
         Spacer(Modifier.height(5.dp))
         TextField(
             placeholder = {
-                Text(text = "0")
+                Text(text = stringResource(R.string.zero))
             },
             value = initialMoneyState.initialMoney,
             onValueChange = {

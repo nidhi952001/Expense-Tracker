@@ -6,6 +6,7 @@
     <string name="add_name">Add Name</string>
     <string name="numericInput">Numeric Input</string>
     <string name="pickIcon">Pick Icon</string>
+    <string name="select_wallet">Select wallet</string>
 
     <!--top bar -->
     <string name="go_back">GO Back</string>
@@ -28,6 +29,8 @@
     <string name="clear">Clear</string>
     <string name="currency">Indian Rupee</string>
     <string name="choose_name">Choose a name for your account.</string>
+    <string name="name">Name</string>
+    <string name="zero">0</string>
     <string name="next">Next</string>
     <string name="money_dec">Money</string>
     <string name="finance_dec">Finance</string>

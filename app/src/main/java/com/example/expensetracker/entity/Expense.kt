@@ -35,7 +35,7 @@ data class Expense(
     @ColumnInfo(name = "expense_time")
     val expTime: LocalTime,
     @ColumnInfo(name = "expense_date")
-    val expDate: LocalDate,
+    val expDate: String,
     @ColumnInfo(name = "expense_amount")
     val expAmount: Float,
     @ColumnInfo(name = "expense_description")

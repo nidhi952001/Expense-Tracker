@@ -1,15 +1,20 @@
 package com.example.expensetracker.viewModel
 
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.expensetracker.entity.Expense
-import com.example.expensetracker.entity.listOfCategory
+import com.example.expensetracker.entity.Wallet
 import com.example.expensetracker.repository.ExpenseRepository
 import com.example.expensetracker.utils.InputUIState.ExpenseInputState
+import com.example.expensetracker.utils.StaticData.listOfCategory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -62,10 +67,4 @@ class ExpenseViewModel @Inject constructor(
 
     }
 
-    fun updateTimeDialogState(timeDialog: Boolean) {
-        _expenseTempState.update {
-            it.copy(showTimeDialogUI = true)
-        }
-
-    }
 }

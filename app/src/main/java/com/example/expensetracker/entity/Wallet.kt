@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.compose.ui.graphics.Color
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.expensetracker.utils.StaticData.TypeOfWallet
 
 @Entity
 data class Wallet(
@@ -17,6 +18,3 @@ data class Wallet(
     val walletColor:Color
 )
 
-enum class TypeOfWallet {
-    General, CreditCard
-}

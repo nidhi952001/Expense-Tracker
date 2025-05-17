@@ -37,7 +37,7 @@ data class Income(
     @ColumnInfo(name = "income_time")
     val incTime: LocalTime,
     @ColumnInfo(name = "income_date")
-    val incDate: LocalDate,
+    val incDate: String,
     @ColumnInfo(name = "income_amount")
     val incAmount: Float,
     @ColumnInfo(name = "income_description")

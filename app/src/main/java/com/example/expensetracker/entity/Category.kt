@@ -18,12 +18,3 @@ data class Category (
 enum class CategoryType{
     INCOME , EXPENSE
 }
-
-object listOfCategory {
-    fun fetchCategory(): MutableList<Category> {
-        return  mutableListOf(
-            Category(1,"Food",Icons.Default.Favorite.hashCode(),CategoryType.INCOME),
-            Category(2,"Food",Icons.Default.List.hashCode(),CategoryType.EXPENSE)
-            )
-    }
-}

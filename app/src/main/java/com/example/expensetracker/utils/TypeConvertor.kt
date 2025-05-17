@@ -11,15 +11,6 @@ import java.time.LocalTime
 class TypeConvertor {
 
     @TypeConverter
-    fun fromLocalDate(localDate: LocalDate):String{
-        return localDate.toString()
-    }
-    @TypeConverter
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun toLocalDate(str:String):LocalDate{
-        return LocalDate.parse(str)
-    }
-    @TypeConverter
     fun fromLocalTime(time: LocalTime):String{
         return time.toString()
     }
