@@ -7,6 +7,7 @@
     <string name="numericInput">Numeric Input</string>
     <string name="pickIcon">Pick Icon</string>
     <string name="select_wallet">Select wallet</string>
+    <string name="selectCategory">Select Category</string>
 
     <!--top bar -->
     <string name="go_back">GO Back</string>
@@ -53,4 +54,21 @@
     <string name="payment">Payment</string>
     <string name="piggy_bank">Piggy bank</string>
     <string name="upi_wallet">Upi Wallet</string>
+
+    <!--category-->
+    <string name="bills">Bills</string>
+    <string name="clothing">Clothing</string>
+    <string name="education">Education</string>
+    <string name="entertainment">Entertainment</string>
+    <string name="fitness">Fitness</string>
+    <string name="food">Food</string>
+    <string name="gifts">Gifts</string>
+    <string name="health">Health</string>
+    <string name="furniture">Furniture</string>
+    <string name="pet">Pet</string>
+    <string name="shopping">Shopping</string>
+    <string name="transportation">Transportation</string>
+    <string name="travel">Travel</string>
+    <string name="others">Others</string>
+    <string name="setting">Setting</string>
 </resources>

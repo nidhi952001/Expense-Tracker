@@ -23,12 +23,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.expensetracker.entity.Wallet
 import com.example.expensetracker.ui.theme.AppColors.inverseOnSurface
 import com.example.expensetracker.ui.theme.AppColors.surface
 import com.example.expensetracker.utils.TopLevelDestination
 import com.example.expensetracker.utils.topBarAction
 import com.example.expensetracker.utils.topBarBackAction
+import com.example.expensetracker.viewModel.CategoryViewModel
 import com.example.expensetracker.viewModel.ExpenseViewModel
 import com.example.expensetracker.viewModel.HomeViewModel
 import com.example.expensetracker.viewModel.WalletViewModel
@@ -46,16 +46,20 @@ fun AppNavigationScreen() {
     val expViewModel: ExpenseViewModel = hiltViewModel()
     val walletViewModel: WalletViewModel = hiltViewModel()
     val homeViewModel: HomeViewModel = hiltViewModel()
+    val categoryViewModel:CategoryViewModel = hiltViewModel()
 
     //uiState
     val homeUiState by homeViewModel.homeUiStateData.collectAsState()
     val walletDatabaseState by walletViewModel.persistedWalletState.collectAsState()
     val inputWalletState by walletViewModel.tempWalletState.collectAsState()
     val topBarUiState by homeViewModel.topBarUiState.collectAsState()
-    val expenseUiState by expViewModel.expenseTempState.collectAsState()
+    val inputExpenseState by expViewModel.tempExpenseState.collectAsState()
     val selectedExpenseWallet by walletViewModel.selectedWallet.collectAsState(
             initial = null
     )
+    val listOfExpCategory by categoryViewModel.listOfCategory.collectAsState()
+    val inputCategoryState by categoryViewModel.tempCategoryState.collectAsState()
+    val selectedExpCategory by categoryViewModel.currentExpCategory.collectAsState(initial = null)
 
     var userName by rememberSaveable { mutableStateOf("User") }
     var initialAmount by rememberSaveable { mutableStateOf("not_decided") }
@@ -83,6 +87,8 @@ fun AppNavigationScreen() {
                     currentRoute = currentRoute, //todo need to rewrite this logic , it can crash the app
                     navHostController = navController,
                     localWallet = inputWalletState,
+                    localExp = inputExpenseState,
+                    localCat = inputCategoryState,
                     selected = topBarUiState.selectedTopBar,
                     newSelectedRoute = {
                         homeViewModel.changeToNewRoute(it)
@@ -93,6 +99,7 @@ fun AppNavigationScreen() {
                             currentRoute = currentRoute,
                             walletViewModel = walletViewModel,
                             walletUiState = inputWalletState,
+                            expViewModel = expViewModel,
                             navController = navController
                             )
                     },
@@ -148,13 +155,15 @@ fun AppNavigationScreen() {
                 composable(route = TopLevelDestination.expense.name) {
                     ExpenseScreen(
                         modifier = Modifier.fillMaxSize(),
-                        expenseUiState = expenseUiState,
+                        expenseUiState = inputExpenseState,
                         showDateDialogUI = {expViewModel.updateDateDialogState(it)},
                         onDateSelected = {expViewModel.updateSelectedDate(it)},
                         onExpenseAmountChanged = {expViewModel.updateExpenseAmount(it)},
                         onDescriptionChanged = {expViewModel.updateExpenseDes(it)},
                         selectedExpWallet = selectedExpenseWallet,
-                        onClickListOfWallet = {navController.navigate(TopLevelDestination.selectWallet.name)}
+                        onClickListOfWallet = {navController.navigate(TopLevelDestination.selectWallet.name)},
+                        selectedExpCategory = selectedExpCategory,
+                        onClickListOfCategory = {navController.navigate(TopLevelDestination.selectCategory.name)}
                     )
                 } //todo need to do code review
                 composable(route = TopLevelDestination.selectWallet.name){
@@ -163,6 +172,16 @@ fun AppNavigationScreen() {
                         selectedWallet = selectedExpenseWallet,
                         onSelectWallet = {wallet->
                             walletViewModel.updateSelectedExpWallet(wallet)
+                            navController.navigateUp()
+                        }
+                    )
+                }
+                composable(route = TopLevelDestination.selectCategory.name){
+                    ShowCategoryList(
+                        listOfExpCategory = listOfExpCategory,
+                        selectedCategory = inputCategoryState,
+                        onSelectCategory = {
+                            categoryViewModel.updateSelectedCategory(it)
                             navController.navigateUp()
                         }
                     )

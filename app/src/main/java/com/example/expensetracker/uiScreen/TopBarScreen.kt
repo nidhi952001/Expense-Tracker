@@ -1,29 +1,21 @@
 package com.example.expensetracker.uiScreen
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -32,12 +24,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -49,6 +39,8 @@ import com.example.expensetracker.ui.theme.AppColors.onSurface
 import com.example.expensetracker.ui.theme.AppColors.outlineVariant
 import com.example.expensetracker.ui.theme.AppColors.primaryContainer
 import com.example.expensetracker.ui.theme.AppColors.surface
+import com.example.expensetracker.utils.InputUIState.CategoryInputState
+import com.example.expensetracker.utils.InputUIState.ExpenseInputState
 import com.example.expensetracker.utils.InputUIState.WalletInputState
 import com.example.expensetracker.utils.TopLevelDestination
 import com.example.expensetracker.utils.getScreenName
@@ -60,7 +52,9 @@ fun topBarWithBackArrow(
     currentRoute: String?,
     localWallet: WalletInputState,
     onActionClick: () -> Unit,
-    onBackClick:()->Unit,
+    onBackClick: () -> Unit,
+    localExp: ExpenseInputState,
+    localCat: CategoryInputState,
 ) {
     val currentScreenName = getScreenName(currentRoute!!)
     CenterAlignedTopAppBar(
@@ -81,6 +75,8 @@ fun topBarWithBackArrow(
             topBarTrailingIcon(
                 currentRoute = currentRoute,
                 localWallet = localWallet,
+                localExp = localExp,
+                localCategory = localCat,
                 onActionClick = onActionClick
             )
 
@@ -93,7 +89,10 @@ fun topBarWithBackArrow(
 fun topBarTrailingIcon(
     currentRoute: String?,
     localWallet: WalletInputState,
-    onActionClick: () -> Unit
+
+    onActionClick: () -> Unit,
+    localExp: ExpenseInputState,
+    localCategory: CategoryInputState
 ) {
     if (currentRoute!! == TopLevelDestination.addWallet.name) {
         IconButton(
@@ -111,6 +110,30 @@ fun topBarTrailingIcon(
             )
         }
     }
+    if(currentRoute== TopLevelDestination.selectCategory.name){
+        Icon(
+            painter = painterResource(R.drawable.setting_ic),
+            contentDescription = stringResource(R.string.setting),
+            tint = onSurface,
+            modifier = Modifier.size(30.dp).padding(15.dp)
+        )
+    }
+    if(currentRoute == TopLevelDestination.expense.name){
+        IconButton(
+            onClick = { onActionClick() },
+            enabled = localExp.validExpAmount && localCategory.validExpCategory,
+            colors = IconButtonDefaults.iconButtonColors(
+                disabledContentColor = outlineVariant,
+                contentColor = onSurface
+            )
+        ) {
+            Text(
+                text = stringResource(R.string.save),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+    }
 }
 
 @Composable
@@ -121,11 +144,14 @@ fun AppTopBar(
     localWallet: WalletInputState,
     newSelectedRoute: (String) -> Unit,
     onActionClick: () -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    localExp: ExpenseInputState,
+    localCat: CategoryInputState
 ) {
     when (currentRoute) {
         TopLevelDestination.expense.name,
         TopLevelDestination.selectWallet.name,
+        TopLevelDestination.selectCategory.name,
         TopLevelDestination.addWallet.name,
         TopLevelDestination.pickWalletIcon.name,
         TopLevelDestination.income.name -> {
@@ -140,6 +166,8 @@ fun AppTopBar(
                         navHostController = navHostController,
                         currentRoute = currentRoute,
                         localWallet = localWallet,
+                        localExp = localExp,
+                        localCat = localCat,
                         onActionClick = onActionClick,
                         onBackClick = onBackClick
                     )

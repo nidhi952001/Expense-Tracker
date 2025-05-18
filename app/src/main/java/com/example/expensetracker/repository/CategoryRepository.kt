@@ -12,7 +12,11 @@ class CategoryRepository @Inject constructor(
         categoryDao.addCategory(category)
     }
 
-     fun showCategory() {
-        categoryDao.showCategory()
+     fun showCategory():Flow<List<Category>> {
+        return categoryDao.showCategory()
+    }
+
+    fun getCategoryById(categoryId: Int): Flow<Category?> {
+        return categoryDao.getCategoryById(categoryId)
     }
 }

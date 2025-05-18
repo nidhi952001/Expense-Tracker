@@ -17,8 +17,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -44,12 +46,17 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.expensetracker.R
+import com.example.expensetracker.entity.Category
 import com.example.expensetracker.entity.Wallet
 import com.example.expensetracker.ui.theme.AppColors.inputFieldBackgroundColors
 import com.example.expensetracker.ui.theme.AppColors.inputFieldShape
@@ -77,7 +84,9 @@ fun ExpenseScreen(
     onExpenseAmountChanged: (String) -> Unit,
     onDescriptionChanged: (String) -> Unit,
     onClickListOfWallet: () -> Unit,
-    selectedExpWallet: Wallet?
+    selectedExpWallet: Wallet?,
+    onClickListOfCategory: () -> Unit,
+    selectedExpCategory: Category?
 ) {
 
     val scrollableState = rememberScrollState()
@@ -123,7 +132,9 @@ fun ExpenseScreen(
             expenseDescription(
                 description = expenseUiState.expDescription,
                 onDescriptionChanged = { onDescriptionChanged(it) })
-            expenseCategory(expSelectedCat = expenseUiState.expSelectedCategory)
+            expenseCategory(
+                expSelectedCat = selectedExpCategory,
+                onClickListOfCategory = onClickListOfCategory)
             expenseWallet(
                 expSelectedWallet = selectedExpWallet,
                 onClickListOfWallet = onClickListOfWallet)
@@ -176,23 +187,37 @@ private fun expenseDescription(description: String, onDescriptionChanged: (Strin
 }
 
 @Composable
-private fun expenseCategory(expSelectedCat: String) {
+private fun expenseCategory(expSelectedCat: Category?,onClickListOfCategory:()->Unit) {
+    val value = if(expSelectedCat!=null)stringResource( expSelectedCat.categoryName) else ""
     label("Category")
     inputWithTrailingIcon(
-        value = expSelectedCat,
+        value = value,
         placeholder = "Select Category",
         trailingIcon = Icons.Default.ArrowDropDown,
         isReadOnly = true,
         isEnabled = false,
-        onClick = {}
+        onClick = onClickListOfCategory
     )
 }
 
 @Composable
 private fun expenseWallet(expSelectedWallet: Wallet?,onClickListOfWallet:()->Unit) {
+    val icon = "iconId"
+    val iconId = mapOf(
+        icon to InlineTextContent(
+            Placeholder(width = 20.sp, height = 20.sp, placeholderVerticalAlign = PlaceholderVerticalAlign.AboveBaseline)
+        ){
+            Icon(painter = painterResource( R.drawable.currency_rupee_ui), contentDescription = "")
+        }
+    )
+    val annotedString = buildAnnotatedString {
+        append(expSelectedWallet?.walletName)
+        //appendInlineContent(icon,"currency")
+        append(expSelectedWallet?.walletAmount.toString())
+    }
     label("Wallet")
     inputWithTrailingIcon(
-        value = expSelectedWallet?.walletName +" "+ expSelectedWallet?.walletAmount,
+        value = annotedString.text,
         placeholder = "Wallet",
         trailingIcon = Icons.Default.ArrowDropDown,
         isReadOnly = true,

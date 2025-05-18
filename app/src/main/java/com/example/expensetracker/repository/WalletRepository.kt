@@ -29,7 +29,7 @@ class WalletRepository @Inject constructor(
          return walletDao.totalBalance()
      }
 
-     fun getWalletDataById(walletID: Int): Flow<Wallet> {
+     fun getWalletDataById(walletID: Int): Flow<Wallet?> {
         return walletDao.getWalletDataById(walletID)
     }
 }

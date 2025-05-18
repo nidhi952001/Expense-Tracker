@@ -34,7 +34,10 @@ class WalletViewModel @Inject constructor(
 
     //from database
     val savedWallets: StateFlow<List<Wallet>> = walletRepository.showWallet()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+        .stateIn(viewModelScope,
+            SharingStarted.WhileSubscribed(),
+            emptyList()
+        )
 
     val showBalance: StateFlow<Float> = walletRepository.totalBalance().stateIn(
         viewModelScope, SharingStarted.WhileSubscribed(), 0F
@@ -180,12 +183,12 @@ class WalletViewModel @Inject constructor(
 
     fun updateSelectedExpWallet(walletId: Int) {
         _tempWalletState.update {
-            it.copy(selectedExpWallet = walletId)
+            it.copy(selectedExpWalletId = walletId)
         }
     }
 
     val selectedWallet = _tempWalletState.map {
-        it.selectedExpWallet
+        it.selectedExpWalletId
     }.distinctUntilChanged().flatMapLatest {
         walletRepository.getWalletDataById(it)
     }

@@ -509,7 +509,7 @@ fun showIcon(walletUiState: WalletInputState, modifier: Modifier, onSelectedIcon
 //show list of wallet for income and expense screen
 @Composable
 fun SelectWallet(walletDatabaseState: WalletDisplayState, selectedWallet: Wallet?,onSelectWallet:(Int)->Unit) {
-    LazyColumn(modifier = Modifier.background(color = inverseOnSurface).padding(top = 20.dp)) {
+    LazyColumn(modifier = Modifier.fillMaxSize().background(color = inverseOnSurface).padding(top = 20.dp).background(color = surface)) {
         items(walletDatabaseState.savedWallets) { wallet ->
             showListOfWallet(wallet,selectedWallet,onSelectWallet)
         }
@@ -523,8 +523,7 @@ fun showListOfWallet(wallet: Wallet, selectedWallet: Wallet?, onSelectWallet: (I
         if(selectedWallet?.walletId!=wallet.walletId) BorderStroke(1.dp,Color.Black)
     else BorderStroke(0.dp,Color.Transparent)
     Row(
-        modifier = Modifier
-            .background(color = surface).padding(top = 10.dp).padding(horizontal = 30.dp).clickable(
+        modifier = Modifier.padding(top = 10.dp).padding(horizontal = 30.dp).clickable(
                 enabled = true, onClick = {onSelectWallet(wallet.walletId)}
             ),
         verticalAlignment = Alignment.CenterVertically
