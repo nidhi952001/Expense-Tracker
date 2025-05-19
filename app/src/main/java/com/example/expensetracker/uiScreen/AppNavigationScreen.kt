@@ -98,7 +98,6 @@ fun AppNavigationScreen() {
                         topBarAction(
                             currentRoute = currentRoute,
                             walletViewModel = walletViewModel,
-                            walletUiState = inputWalletState,
                             expViewModel = expViewModel,
                             navController = navController
                             )

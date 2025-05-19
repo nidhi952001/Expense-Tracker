@@ -45,7 +45,7 @@ data class ExpenseInputState(
 )
 
 data class CategoryInputState(
-    val selectedCategoryId:Int=0,
+    var selectedCategoryId:Int=0,
     val validExpCategory:Boolean = false
 )
 

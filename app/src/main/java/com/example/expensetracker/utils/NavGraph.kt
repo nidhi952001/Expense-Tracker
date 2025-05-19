@@ -44,13 +44,12 @@ fun getScreenName(currentRoute: String):String {
 fun topBarAction(
     currentRoute: String?,
     walletViewModel: WalletViewModel,
-    walletUiState: WalletInputState,
     navController: NavController,
     expViewModel: ExpenseViewModel
 ) {
     when(currentRoute){
         TopLevelDestination.addWallet.name->{
-            walletViewModel.saveIntoWallet(walletUiState)
+            walletViewModel.saveIntoWallet()
             navController.navigateUp()
         }
         TopLevelDestination.expense.name->{

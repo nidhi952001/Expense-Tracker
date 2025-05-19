@@ -35,9 +35,9 @@ data class Income(
     @ColumnInfo(name = "income_id")
     val incId: Int,
     @ColumnInfo(name = "income_time")
-    val incTime: LocalTime,
+    val incTime: Long?,
     @ColumnInfo(name = "income_date")
-    val incDate: String,
+    val incDate: Long?,
     @ColumnInfo(name = "income_amount")
     val incAmount: Float,
     @ColumnInfo(name = "income_description")

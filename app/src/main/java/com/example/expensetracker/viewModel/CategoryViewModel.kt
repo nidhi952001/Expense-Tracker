@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CategoryViewModel @Inject constructor(
-    private val categoryRepository: CategoryRepository
+    private val categoryRepository: CategoryRepository,
 ):ViewModel(){
 
     val listOfCategory:StateFlow<List<Category>> = categoryRepository.showCategory().stateIn(
@@ -45,6 +45,7 @@ class CategoryViewModel @Inject constructor(
         }
         if(selectedCategory!=0) _temCatUiState.update { it.copy(validExpCategory = true) }
         else _temCatUiState.update { it.copy(validExpCategory = false) }
+        categoryRepository.updateselectedCategory(selectedCategory)
     }
 
     val currentExpCategory = _temCatUiState.map {

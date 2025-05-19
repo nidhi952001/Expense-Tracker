@@ -160,15 +160,15 @@ class WalletViewModel @Inject constructor(
     }
 
 
-    fun saveIntoWallet(walletUiState: WalletInputState) {
+    fun saveIntoWallet() {
         val newWallet = Wallet(
             walletId = 0,
-            walletName = walletUiState.walletName,
-            walletType = walletUiState.selectType,
-            walletAmount = walletUiState.walletAmount.toFloat(),
-            walletIcon = walletUiState.selectedIcon,
-            walletIconDes = walletUiState.walletIconName,
-            walletColor = walletUiState.selectedColors
+            walletName = _tempWalletState.value.walletName,
+            walletType = _tempWalletState.value.selectType,
+            walletAmount = _tempWalletState.value.walletAmount.toFloat(),
+            walletIcon = _tempWalletState.value.selectedIcon,
+            walletIconDes = _tempWalletState.value.walletIconName,
+            walletColor = _tempWalletState.value.selectedColors
         )
         addWallet(newWallet)
         resetWalletUiState()
@@ -185,6 +185,7 @@ class WalletViewModel @Inject constructor(
         _tempWalletState.update {
             it.copy(selectedExpWalletId = walletId)
         }
+        walletRepository.updateSelectedWallet(walletId)
     }
 
     val selectedWallet = _tempWalletState.map {

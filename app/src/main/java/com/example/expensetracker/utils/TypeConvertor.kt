@@ -10,15 +10,7 @@ import java.time.LocalTime
 
 class TypeConvertor {
 
-    @TypeConverter
-    fun fromLocalTime(time: LocalTime):String{
-        return time.toString()
-    }
-    @TypeConverter
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun toLocalTime(str: String):LocalTime{
-        return LocalTime.parse(str)
-    }
+
 
     @TypeConverter
     fun fromColor(color: Color):Int{

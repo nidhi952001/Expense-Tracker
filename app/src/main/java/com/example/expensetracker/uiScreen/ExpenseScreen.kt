@@ -48,13 +48,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.text.buildSpannedString
 import com.example.expensetracker.R
 import com.example.expensetracker.entity.Category
 import com.example.expensetracker.entity.Wallet
@@ -202,17 +205,18 @@ private fun expenseCategory(expSelectedCat: Category?,onClickListOfCategory:()->
 
 @Composable
 private fun expenseWallet(expSelectedWallet: Wallet?,onClickListOfWallet:()->Unit) {
-    val icon = "iconId"
-    val iconId = mapOf(
-        icon to InlineTextContent(
-            Placeholder(width = 20.sp, height = 20.sp, placeholderVerticalAlign = PlaceholderVerticalAlign.AboveBaseline)
-        ){
-            Icon(painter = painterResource( R.drawable.currency_rupee_ui), contentDescription = "")
-        }
-    )
+    buildSpannedString {
+
+    }
     val annotedString = buildAnnotatedString {
         append(expSelectedWallet?.walletName)
-        //appendInlineContent(icon,"currency")
+        append("\u0020")
+        withStyle(
+            style = SpanStyle(fontWeight = FontWeight.Bold, color = Color.Black,)
+        ){
+            append("•")
+        }
+        append("\u0020₹\u0020")
         append(expSelectedWallet?.walletAmount.toString())
     }
     label("Wallet")
