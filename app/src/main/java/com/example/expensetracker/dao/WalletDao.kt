@@ -21,4 +21,6 @@ interface WalletDao {
     fun totalBalance():Flow<Float>
     @Query("select * from wallet where walletId=:walletID")
     fun getWalletDataById(walletID: Int): Flow<Wallet?>
+
+    //suspend fun updateWalletAmount(updateWalletAmount: Float)
 }

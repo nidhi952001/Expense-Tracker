@@ -45,4 +45,8 @@ class WalletRepository @Inject constructor(
     fun updateSelectedWallet(walletId: Int) {
         _selectedWallet.value = walletId
     }
+
+    /*suspend fun updateWalletBalance(updateWalletAmount: Float) {
+        walletDao.updateWalletAmount(updateWalletAmount)
+    }*/
 }

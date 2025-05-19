@@ -54,6 +54,7 @@ fun topBarAction(
         }
         TopLevelDestination.expense.name->{
             expViewModel.saveIntoExpense()
+            navController.navigateUp()
         }
     }
 }

@@ -22,7 +22,7 @@ import javax.inject.Inject
 class ExpenseViewModel @Inject constructor(
     private val expenseRepository: ExpenseRepository,
     categoryRepository: CategoryRepository,
-    walletRepository: WalletRepository
+    private val walletRepository: WalletRepository
 ):ViewModel() {
 
     private val _expenseTempState = MutableStateFlow(ExpenseInputState())
@@ -85,6 +85,18 @@ class ExpenseViewModel @Inject constructor(
         )
         viewModelScope.launch {
             expenseRepository.addExpense(expense)
+        }
+        /*viewModelScope.launch {
+            val updateWalletAmount = currentWallet.value - _expenseTempState.value.expAmount.toFloat()
+            walletRepository.updateWalletBalance(updateWalletAmount)
+        }*/
+        _expenseTempState.update {
+            it.copy(
+                showDateDialogUI = false,
+                expDescription = "",
+                expAmount= "",
+                validExpAmount= false
+            )
         }
     }
 
