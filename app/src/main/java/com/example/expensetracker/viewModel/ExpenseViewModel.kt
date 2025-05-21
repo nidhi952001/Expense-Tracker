@@ -1,19 +1,16 @@
 package com.example.expensetracker.viewModel
 
 import android.util.Log
-import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.expensetracker.entity.Expense
 import com.example.expensetracker.repository.CategoryRepository
 import com.example.expensetracker.repository.ExpenseRepository
 import com.example.expensetracker.repository.WalletRepository
-import com.example.expensetracker.utils.InputUIState.ExpenseInputState
+import com.example.expensetracker.utils.InputUIState.ExpenseIncomeInputState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,7 +22,7 @@ class ExpenseViewModel @Inject constructor(
     private val walletRepository: WalletRepository
 ):ViewModel() {
 
-    private val _expenseTempState = MutableStateFlow(ExpenseInputState())
+    private val _expenseTempState = MutableStateFlow(ExpenseIncomeInputState())
     val tempExpenseState = _expenseTempState.asStateFlow()
 
 
@@ -33,11 +30,7 @@ class ExpenseViewModel @Inject constructor(
     val currentCategory = categoryRepository.selectedCategory
     val currentWallet = walletRepository.selectedWallet
 
-    fun addExpense(expense: Expense){
-        viewModelScope.launch(Dispatchers.IO) {
-            expenseRepository.addExpense(expense)
-        }
-    }
+
 
     fun showExpense(){
         expenseRepository.showExpense()
@@ -59,16 +52,16 @@ class ExpenseViewModel @Inject constructor(
 
     fun updateExpenseAmount(expenseAmount: String) {
         _expenseTempState.update {
-            it.copy(expAmount = expenseAmount)
+            it.copy(expIncAmount = expenseAmount)
         }
         Log.d("TAG", "updateExpenseAmount: $expenseAmount")
-        if(expenseAmount.isNotEmpty() && expenseAmount.isNotBlank()) _expenseTempState.update { it.copy(validExpAmount = true) }
-        else  _expenseTempState.update { it.copy(validExpAmount = false) }
+        if(expenseAmount.isNotEmpty() && expenseAmount.isNotBlank()) _expenseTempState.update { it.copy(validExpIncAmount = true) }
+        else  _expenseTempState.update { it.copy(validExpIncAmount = false) }
     }
 
     fun updateExpenseDes(description: String) {
         _expenseTempState.update {
-            it.copy(expDescription = description)
+            it.copy(expIncDescription = description)
         }
 
     }
@@ -76,26 +69,39 @@ class ExpenseViewModel @Inject constructor(
     fun saveIntoExpense() {
         val expense = Expense(
             expId = 0,
-            expTime = _expenseTempState.value.selectedDate,
-            expDate = 0L,
-            expAmount = _expenseTempState.value.expAmount.toFloat(),
-            expDescription = _expenseTempState.value.expDescription,
+            expTime = 0L,
+            expDate = _expenseTempState.value.selectedDate,
+            expAmount = _expenseTempState.value.expIncAmount.toFloat(),
+            expDescription = _expenseTempState.value.expIncDescription,
             expCategory = currentCategory.value,
             expWallet = currentWallet.value
         )
         viewModelScope.launch {
             expenseRepository.addExpense(expense)
+            //fetch current wallet amount
+            val currentWalletAmount = walletRepository.getWalletAmountById(currentWallet.value)
+            //update the wallet
+            if(!_expenseTempState.value.expIncAmount.isNullOrEmpty()) {
+                val updateWalletAmount = currentWalletAmount -
+                        _expenseTempState.value.expIncAmount.toFloat()
+
+                walletRepository.updateWalletBalance(updateWalletAmount, currentWallet.value)
+
+                //now reset the value foe UI
+                resetExpenseUiState()
+            }
         }
-        /*viewModelScope.launch {
-            val updateWalletAmount = currentWallet.value - _expenseTempState.value.expAmount.toFloat()
-            walletRepository.updateWalletBalance(updateWalletAmount)
-        }*/
+
+
+    }
+
+    fun resetExpenseUiState(){
         _expenseTempState.update {
             it.copy(
                 showDateDialogUI = false,
-                expDescription = "",
-                expAmount= "",
-                validExpAmount= false
+                expIncDescription = "",
+                expIncAmount= "",
+                validExpIncAmount= false
             )
         }
     }

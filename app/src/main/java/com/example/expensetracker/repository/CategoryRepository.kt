@@ -3,10 +3,10 @@ package com.example.expensetracker.repository
 import android.util.Log
 import com.example.expensetracker.dao.CategoryDao
 import com.example.expensetracker.entity.Category
+import com.example.expensetracker.entity.CategoryType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -21,14 +21,15 @@ class CategoryRepository @Inject constructor(
         categoryDao.addCategory(category)
     }
 
-     fun showCategory():Flow<List<Category>> {
-        return categoryDao.showCategory()
+     fun showCategoryByType(category:CategoryType):Flow<List<Category>> {
+        return categoryDao.showCategoryByType(category)
     }
 
-    fun getCategoryById(categoryId: Int): Flow<Category?> {
-        return categoryDao.getCategoryById(categoryId)
+    fun getCategoryNameById(categoryId: Int): Flow<Int?> {
+        return categoryDao.getCategoryNameById(categoryId)
     }
 
+    //this is for expense screen
     fun updateselectedCategory(selectedCategory: Int) {
         Log.d("DEBUG", "Category Repo updated: $selectedCategory")
         _selectedCategory.value = selectedCategory

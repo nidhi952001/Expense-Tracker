@@ -1,13 +1,8 @@
 package com.example.expensetracker.repository
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
-import androidx.lifecycle.LiveData
-import androidx.room.Query
 import com.example.expensetracker.dao.WalletDao
 import com.example.expensetracker.entity.Wallet
 import com.example.expensetracker.utils.DatastoreManager
-import com.example.expensetracker.utils.InputUIState.WalletInputState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -46,7 +41,11 @@ class WalletRepository @Inject constructor(
         _selectedWallet.value = walletId
     }
 
-    /*suspend fun updateWalletBalance(updateWalletAmount: Float) {
-        walletDao.updateWalletAmount(updateWalletAmount)
-    }*/
+    suspend fun updateWalletBalance(updateWalletAmount: Float, walletId: Int) {
+        walletDao.updateWalletAmount(updateWalletAmount,walletId)
+    }
+
+    suspend fun getWalletAmountById(walletId: Int): Float {
+        return walletDao.getWalletAmountById(walletId)
+    }
 }

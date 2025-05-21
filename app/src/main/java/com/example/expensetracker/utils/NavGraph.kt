@@ -4,9 +4,10 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.example.expensetracker.R
-import com.example.expensetracker.utils.InputUIState.WalletInputState
 import com.example.expensetracker.viewModel.ExpenseViewModel
+import com.example.expensetracker.viewModel.IncomeViewModel
 import com.example.expensetracker.viewModel.WalletViewModel
 
 enum class TopLevelDestination(@StringRes val route: Int) {
@@ -21,18 +22,19 @@ enum class TopLevelDestination(@StringRes val route: Int) {
     pickWalletIcon(route =R.string.pickIcon),
     showDetailOfWallet(route = R.string.show_detail_of_wallet),
     selectWallet(route = R.string.select_wallet),
-    selectCategory(route = R.string.selectCategory)
+    selectExpCategory(route = R.string.selectCategory),
+    selectIncCategory(route = R.string.selectCategory)
 }
 
 val screenTitle = mapOf(
     "addName" to R.string.add_name,
     "addInitialAmount" to R.string.initial_amount,
-    "expense" to R.string.expense,
     "income" to R.string.income,
     "addWallet" to R.string.addWallet,
     "pickWalletIcon" to R.string.pickIcon,
     "selectWallet" to R.string.select_wallet,
-    "selectCategory" to R.string.selectCategory
+    "selectExpCategory" to R.string.selectCategory,
+    "selectIncCategory" to R.string.selectCategory
 )
 @Composable
 fun getScreenName(currentRoute: String):String {
@@ -45,7 +47,8 @@ fun topBarAction(
     currentRoute: String?,
     walletViewModel: WalletViewModel,
     navController: NavController,
-    expViewModel: ExpenseViewModel
+    expViewModel: ExpenseViewModel,
+    incViewModel: IncomeViewModel
 ) {
     when(currentRoute){
         TopLevelDestination.addWallet.name->{
@@ -54,7 +57,11 @@ fun topBarAction(
         }
         TopLevelDestination.expense.name->{
             expViewModel.saveIntoExpense()
-            navController.navigateUp()
+            navController.navigate(navController.graph.findStartDestination().id)
+        }
+        TopLevelDestination.income.name->{
+            incViewModel.saveIntoIncome()
+            navController.navigate(navController.graph.findStartDestination().id)
         }
     }
 }

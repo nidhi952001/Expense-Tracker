@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">ExpenseTracker</string>
-    <string name="expense">Expense</string>
     <string name="income">Income</string>
+    <string name="expense">Expense</string>
     <string name="home">Home</string>
     <string name="add_name">Add Name</string>
     <string name="numericInput">Numeric Input</string>
@@ -71,4 +71,13 @@
     <string name="travel">Travel</string>
     <string name="others">Others</string>
     <string name="setting">Setting</string>
+
+    <string name="allowance">Allowance</string>
+    <string name="award">Award</string>
+    <string name="bonus">Bonus</string>
+    <string name="dividend">Dividend</string>
+    <string name="investment">Investment</string>
+    <string name="lottery">Lottery</string>
+    <string name="salary">Salary</string>
+    <string name="tips">Tips</string>
 </resources>

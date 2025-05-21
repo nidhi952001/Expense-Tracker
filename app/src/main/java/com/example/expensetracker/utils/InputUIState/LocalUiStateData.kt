@@ -14,9 +14,6 @@ data class HomeStateData(
 
     )
 
-data class TopBarStateData(
-    val selectedTopBar: String = TopLevelDestination.expense.name
-)
 
 data class WalletInputState(
     val walletName: String = "",
@@ -36,17 +33,20 @@ data class WalletInputState(
     val selectedExpWalletId:Int=1
 )
 
-data class ExpenseInputState(
+data class ExpenseIncomeInputState(
     val showDateDialogUI: Boolean = false,
     val selectedDate: Long? = System.currentTimeMillis(),
-    val expDescription: String = "",
-    val expAmount:String = "",
-    val validExpAmount:Boolean = false,
+    val expIncDescription: String = "",
+    val expIncAmount:String = "",
+    val validExpIncAmount:Boolean = false,
 )
 
 data class CategoryInputState(
-    var selectedCategoryId:Int=0,
-    val validExpCategory:Boolean = false
+    val selectedExpCategoryId:Int=0,
+    val validExpCategory:Boolean = false,
+    var selectedIncCategoryId:Int=0,
+    val validIncCategory:Boolean=false
 )
+
 
 

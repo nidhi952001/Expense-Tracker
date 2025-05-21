@@ -2,6 +2,7 @@ package com.example.expensetracker.uiScreen
 
 import android.os.Build
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,10 +18,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -46,8 +45,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.Placeholder
-import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -56,7 +53,6 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.text.buildSpannedString
 import com.example.expensetracker.R
 import com.example.expensetracker.entity.Category
@@ -70,7 +66,7 @@ import com.example.expensetracker.ui.theme.AppColors.inverseOnSurface
 import com.example.expensetracker.ui.theme.AppColors.onBackground
 import com.example.expensetracker.ui.theme.AppColors.onSurface
 import com.example.expensetracker.ui.theme.AppColors.surface
-import com.example.expensetracker.utils.InputUIState.ExpenseInputState
+import com.example.expensetracker.utils.InputUIState.ExpenseIncomeInputState
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -79,19 +75,21 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ExpenseScreen(
+fun ExpenseIncomeScreen(
     modifier: Modifier,
     showDateDialogUI: (Boolean) -> Unit,
     onDateSelected: (Long?) -> Unit,
-    expenseUiState: ExpenseInputState,
+    expenseUiState: ExpenseIncomeInputState,
     onExpenseAmountChanged: (String) -> Unit,
     onDescriptionChanged: (String) -> Unit,
     onClickListOfWallet: () -> Unit,
     selectedExpWallet: Wallet?,
     onClickListOfCategory: () -> Unit,
-    selectedExpCategory: Category?
+    selectedCategory: Int?,
+    onBack: () -> Unit
 ) {
 
+    BackHandler(onBack = onBack)
     val scrollableState = rememberScrollState()
     val datePickerState = rememberDatePickerState()
     val currentTime = Calendar.getInstance()
@@ -130,14 +128,15 @@ fun ExpenseScreen(
                     onDismiss = { showDateDialogUI(false) })
             }
             expenseAmount(
-                expenseAmount = expenseUiState.expAmount,
+                expenseAmount = expenseUiState.expIncAmount,
                 onExpenseValueChange = { onExpenseAmountChanged(it) })
             expenseDescription(
-                description = expenseUiState.expDescription,
+                description = expenseUiState.expIncDescription,
                 onDescriptionChanged = { onDescriptionChanged(it) })
-            expenseCategory(
-                expSelectedCat = selectedExpCategory,
-                onClickListOfCategory = onClickListOfCategory)
+            category(
+                selectedCat = selectedCategory,
+                onClickListOfCategory = onClickListOfCategory
+            )
             expenseWallet(
                 expSelectedWallet = selectedExpWallet,
                 onClickListOfWallet = onClickListOfWallet)
@@ -190,8 +189,8 @@ private fun expenseDescription(description: String, onDescriptionChanged: (Strin
 }
 
 @Composable
-private fun expenseCategory(expSelectedCat: Category?,onClickListOfCategory:()->Unit) {
-    val value = if(expSelectedCat!=null)stringResource( expSelectedCat.categoryName) else ""
+private fun category(selectedCat: Int?, onClickListOfCategory:()->Unit) {
+    val value = if(selectedCat!=null)stringResource(selectedCat) else ""
     label("Category")
     inputWithTrailingIcon(
         value = value,

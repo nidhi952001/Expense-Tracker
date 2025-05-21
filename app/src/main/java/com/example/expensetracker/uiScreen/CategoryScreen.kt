@@ -67,14 +67,16 @@ fun showCategory(
     selectedCategory: CategoryInputState
 ) {
     val borderStroke =
-        if(selectedCategory.selectedCategoryId!=category.categoryId)
+        if(selectedCategory.selectedExpCategoryId!=category.categoryId)
+        BorderStroke(1.dp,Color.Black)
+    else if(selectedCategory.selectedIncCategoryId!=category.categoryId)
         BorderStroke(1.dp,Color.Black)
     else
         BorderStroke(0.dp,Color.Unspecified)
     Row(
         modifier = Modifier.fillMaxWidth()
             .clickable(onClick = {onSelectCategory(category.categoryId)})
-            .padding(top = 10.dp).padding(horizontal = 30.dp),
+            .padding(top = 10.dp).padding(horizontal = 30.dp, vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween ,
         verticalAlignment = Alignment.CenterVertically) {
         Column(modifier = Modifier.fillMaxWidth().weight(1f)) {
@@ -92,7 +94,8 @@ fun showCategory(
                 )
                 Text(
                     text = stringResource(category.categoryName),
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontSize = MaterialTheme.typography.titleLarge.fontSize
                 )
             }
         }
@@ -101,14 +104,20 @@ fun showCategory(
                 .size(30.dp)
                 .padding(5.dp)
                 .clip(CircleShape)
-                .background(color = if(selectedCategory.selectedCategoryId == category.categoryId) {
-                    Color.Blue.copy(alpha = 0.6F)
-                }else{
-                    Color.Unspecified
-                })
+                .background(color =
+                    if(selectedCategory.selectedExpCategoryId == category.categoryId) {
+                        Color.Blue.copy(alpha = 0.6F)
+                    }
+                    else if(selectedCategory.selectedIncCategoryId == category.categoryId){
+                        Color.Blue.copy(alpha = 0.6F)
+                    }
+                    else{
+                        Color.Unspecified
+                    }
+                )
                 .border(borderStroke, CircleShape)
         ){
-            if(selectedCategory.selectedCategoryId==category.categoryId) {
+            if(selectedCategory.selectedExpCategoryId==category.categoryId || selectedCategory.selectedIncCategoryId==category.categoryId) {
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = "",

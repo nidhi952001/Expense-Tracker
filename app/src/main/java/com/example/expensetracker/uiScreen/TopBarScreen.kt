@@ -40,7 +40,7 @@ import com.example.expensetracker.ui.theme.AppColors.outlineVariant
 import com.example.expensetracker.ui.theme.AppColors.primaryContainer
 import com.example.expensetracker.ui.theme.AppColors.surface
 import com.example.expensetracker.utils.InputUIState.CategoryInputState
-import com.example.expensetracker.utils.InputUIState.ExpenseInputState
+import com.example.expensetracker.utils.InputUIState.ExpenseIncomeInputState
 import com.example.expensetracker.utils.InputUIState.WalletInputState
 import com.example.expensetracker.utils.TopLevelDestination
 import com.example.expensetracker.utils.getScreenName
@@ -53,7 +53,7 @@ fun topBarWithBackArrow(
     localWallet: WalletInputState,
     onActionClick: () -> Unit,
     onBackClick: () -> Unit,
-    localExp: ExpenseInputState,
+    localExp: ExpenseIncomeInputState,
     localCat: CategoryInputState,
 ) {
     val currentScreenName = getScreenName(currentRoute!!)
@@ -89,10 +89,9 @@ fun topBarWithBackArrow(
 fun topBarTrailingIcon(
     currentRoute: String?,
     localWallet: WalletInputState,
-
     onActionClick: () -> Unit,
-    localExp: ExpenseInputState,
-    localCategory: CategoryInputState
+    localExp: ExpenseIncomeInputState,
+    localCategory: CategoryInputState,
 ) {
     if (currentRoute!! == TopLevelDestination.addWallet.name) {
         IconButton(
@@ -110,7 +109,7 @@ fun topBarTrailingIcon(
             )
         }
     }
-    if(currentRoute== TopLevelDestination.selectCategory.name){
+    if(currentRoute== TopLevelDestination.selectExpCategory.name){
         Icon(
             painter = painterResource(R.drawable.setting_ic),
             contentDescription = stringResource(R.string.setting),
@@ -118,10 +117,14 @@ fun topBarTrailingIcon(
             modifier = Modifier.size(30.dp).padding(15.dp)
         )
     }
-    if(currentRoute == TopLevelDestination.expense.name){
+    if(currentRoute == TopLevelDestination.expense.name || currentRoute==TopLevelDestination.income.name){
+        val enable = if(currentRoute == TopLevelDestination.expense.name)
+                (localExp.validExpIncAmount && localCategory.validExpCategory)
+        else
+                (localExp.validExpIncAmount && localCategory.validIncCategory)
         IconButton(
             onClick = { onActionClick() },
-            enabled = localExp.validExpAmount && localCategory.validExpCategory,
+            enabled =  (localExp.validExpIncAmount && localCategory.validIncCategory),
             colors = IconButtonDefaults.iconButtonColors(
                 disabledContentColor = outlineVariant,
                 contentColor = onSurface
@@ -134,27 +137,28 @@ fun topBarTrailingIcon(
             )
         }
     }
+
 }
 
 @Composable
 fun AppTopBar(
-    userName: String, currentRoute: String?,
+    userName: String,
+    currentRoute: String?,
     navHostController: NavHostController,
-    selected: String,
     localWallet: WalletInputState,
-    newSelectedRoute: (String) -> Unit,
     onActionClick: () -> Unit,
     onBackClick: () -> Unit,
-    localExp: ExpenseInputState,
+    localExp: ExpenseIncomeInputState,
     localCat: CategoryInputState
 ) {
     when (currentRoute) {
         TopLevelDestination.expense.name,
         TopLevelDestination.selectWallet.name,
-        TopLevelDestination.selectCategory.name,
+        TopLevelDestination.selectExpCategory.name,
         TopLevelDestination.addWallet.name,
         TopLevelDestination.pickWalletIcon.name,
-        TopLevelDestination.income.name -> {
+        TopLevelDestination.income.name,
+        TopLevelDestination.selectIncCategory.name-> {
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RectangleShape,
@@ -176,8 +180,8 @@ fun AppTopBar(
                     ) {
                         categoryTopBar(
                             modifier = Modifier.fillMaxWidth(),
-                            selected = selected,
-                            newSelectedRoute = { newSelectedRoute(it) })
+                            navHostController = navHostController,
+                            currentRoute = currentRoute)
                     }
                 }
             }
@@ -220,8 +224,8 @@ fun secondTopBar() {
 @Composable
 fun categoryTopBar(
     modifier: Modifier,
-    selected: String,
-    newSelectedRoute: (String) -> Unit
+    navHostController: NavHostController,
+    currentRoute: String
 ) {
     Row(
         modifier = modifier,
@@ -229,12 +233,12 @@ fun categoryTopBar(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Button(
-            onClick = { newSelectedRoute(TopLevelDestination.income.name) },
+            onClick = { navHostController.navigate(TopLevelDestination.income.name) },
             modifier = Modifier.weight(1f),
             colors = ButtonDefaults.buttonColors(
-                containerColor = if (selected.equals(TopLevelDestination.income.name)) primaryContainer
+                containerColor = if (currentRoute == TopLevelDestination.income.name) primaryContainer
                 else surface,
-                contentColor = if (selected.equals(TopLevelDestination.income.name)) onPrimaryContainer else onSurface
+                contentColor = if (currentRoute == TopLevelDestination.income.name) onPrimaryContainer else onSurface
             ),
             shape = RectangleShape,
         ) {
@@ -245,14 +249,14 @@ fun categoryTopBar(
             )
         }
         Button(
-            onClick = { newSelectedRoute(TopLevelDestination.expense.name) },
+            onClick = { navHostController.navigate(TopLevelDestination.expense.name) },
             modifier = Modifier.weight(1f),
             colors = ButtonDefaults.buttonColors(
                 containerColor =
-                if (selected == TopLevelDestination.expense.name) errorColor.copy(alpha = 0.8F)
+                if (currentRoute == TopLevelDestination.expense.name) errorColor.copy(alpha = 0.8F)
                 else surface,
                 contentColor =
-                if (selected == TopLevelDestination.expense.name) onError
+                if (currentRoute == TopLevelDestination.expense.name) onError
                 else onSurface
             ),
             shape = RectangleShape

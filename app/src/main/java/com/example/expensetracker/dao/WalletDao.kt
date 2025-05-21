@@ -1,6 +1,5 @@
 package com.example.expensetracker.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -22,5 +21,8 @@ interface WalletDao {
     @Query("select * from wallet where walletId=:walletID")
     fun getWalletDataById(walletID: Int): Flow<Wallet?>
 
-    //suspend fun updateWalletAmount(updateWalletAmount: Float)
+    @Query("update wallet set walletAmount=:updateWalletAmount where walletId=:walletId")
+    suspend fun updateWalletAmount(updateWalletAmount: Float, walletId: Int)
+    @Query("select walletAmount from wallet where walletId=:walletId")
+    suspend fun getWalletAmountById(walletId: Int): Float
 }
