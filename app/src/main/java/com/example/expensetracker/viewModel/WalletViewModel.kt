@@ -92,6 +92,13 @@ class WalletViewModel @Inject constructor(
                 )
             }
         }
+        else{
+            _tempWalletState.update {
+                it.copy(
+                    isWalletNameValid = false
+                )
+            }
+        }
         _tempWalletState.update {
             it.copy(
                 walletName = newWalletName
@@ -112,6 +119,13 @@ class WalletViewModel @Inject constructor(
             _tempWalletState.update {
                 it.copy(
                     isWalletAmountValid = true
+                )
+            }
+        }
+        else{
+            _tempWalletState.update {
+                it.copy(
+                    isWalletAmountValid = false
                 )
             }
         }

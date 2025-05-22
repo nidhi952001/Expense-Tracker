@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.expensetracker.repository.HomeRepository
 import com.example.expensetracker.utils.InputUIState.HomeStateData
+import com.example.expensetracker.utils.InputUIState.SelectedTopBar
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,6 +19,9 @@ class HomeViewModel @Inject constructor(
 
         //data = store
         val savedUsername = homeRepository.savedUserName
+        //selected top bar for income and expesnse
+        private val _selectedExpInc = MutableStateFlow(SelectedTopBar())
+        val selectedExpInc = _selectedExpInc.asStateFlow()
 
         //ui state for home
         private val _homeUiState = MutableStateFlow(HomeStateData())
@@ -47,6 +51,11 @@ class HomeViewModel @Inject constructor(
                 }
         }
 
+        fun updateSelectedInExp(selected:Int) {
+                _selectedExpInc.update {
+                        it.copy(selectedExpInc = selected)
+                }
+        }
 
 
 }

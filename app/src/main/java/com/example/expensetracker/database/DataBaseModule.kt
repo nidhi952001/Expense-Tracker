@@ -5,8 +5,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.SQLiteConnection
 import com.example.expensetracker.dao.CategoryDao
-import com.example.expensetracker.dao.ExpenseDao
-import com.example.expensetracker.dao.IncomeDao
+import com.example.expensetracker.dao.TransactionDao
 import com.example.expensetracker.dao.WalletDao
 import com.example.expensetracker.utils.StaticData.listOfCategory
 import dagger.Module
@@ -74,15 +73,10 @@ class DataBaseModule {
 
     @Provides
     @Singleton
-    fun provideIncomeDao(appDataBase: AppDataBase): IncomeDao {
-        return appDataBase.incomeDao
+    fun provideTransactionDao(appDataBase: AppDataBase): TransactionDao {
+        return appDataBase.transactionDao
     }
 
-    @Provides
-    @Singleton
-    fun provideExpenseDao(appDataBase: AppDataBase): ExpenseDao {
-        return appDataBase.expenseDao
-    }
 }
 
 @Qualifier

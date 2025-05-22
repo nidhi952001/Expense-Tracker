@@ -25,6 +25,7 @@ class CategoryViewModel @Inject constructor(
     private val categoryRepository: CategoryRepository,
 ):ViewModel(){
 
+
     val listOfExpCategory:StateFlow<List<Category>> = categoryRepository.showCategoryByType(CategoryType.EXPENSE).stateIn(
         viewModelScope, SharingStarted.WhileSubscribed(), emptyList()
     )
@@ -39,17 +40,16 @@ class CategoryViewModel @Inject constructor(
         }
     }
 
-    //temp ui state
+    //temp ui state for category screen
     private val _temCatUiState = MutableStateFlow(CategoryInputState())
     val tempCategoryState = _temCatUiState.asStateFlow()
     fun updateSelectedCategory(selectedCategory: Int) {
         _temCatUiState.update {
             it.copy(
-                selectedExpCategoryId = selectedCategory,
-                selectedIncCategoryId = 0,
-                validIncCategory = false
+                selectedExpCategoryId = selectedCategory
             )
         }
+        resetIncCategory()
         if(selectedCategory!=0) _temCatUiState.update { it.copy(validExpCategory = true) }
         else _temCatUiState.update { it.copy(validExpCategory = false) }
         categoryRepository.updateselectedCategory(selectedCategory)
@@ -57,11 +57,10 @@ class CategoryViewModel @Inject constructor(
     fun updateSelectedIncCategory(selectedCategory: Int){
         _temCatUiState.update {
             it.copy(
-                selectedIncCategoryId = selectedCategory,
-                selectedExpCategoryId = 0,
-                validExpCategory = false
+                selectedIncCategoryId = selectedCategory
             )
         }
+        resetExpCategory()
         if(selectedCategory!=0) _temCatUiState.update { it.copy(validIncCategory = true) }
         else _temCatUiState.update { it.copy(validIncCategory = false) }
         categoryRepository.updateselectedCategory(selectedCategory)
@@ -79,6 +78,25 @@ class CategoryViewModel @Inject constructor(
     }.distinctUntilChanged().flatMapLatest {
         categoryRepository.getCategoryNameById(it)
     }
+
+    fun resetIncCategory(){
+        _temCatUiState.update {
+            it.copy(
+                selectedIncCategoryId = 0,
+                validIncCategory = false,
+            )
+        }
+    }
+
+    fun resetExpCategory(){
+        _temCatUiState.update {
+            it.copy(
+                selectedExpCategoryId = 0,
+                validExpCategory = false
+            )
+        }
+    }
+
 
 
 }

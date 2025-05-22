@@ -32,6 +32,9 @@ data class WalletInputState(
     //wallet expense
     val selectedExpWalletId:Int=1
 )
+data class SelectedTopBar(
+    val selectedExpInc:Int = R.string.expense
+)
 
 data class ExpenseIncomeInputState(
     val showDateDialogUI: Boolean = false,

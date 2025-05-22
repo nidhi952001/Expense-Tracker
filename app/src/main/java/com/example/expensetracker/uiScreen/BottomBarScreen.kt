@@ -33,7 +33,7 @@ object ListOfBottomButton  {
             label = R.string.transaction
         ),
         BottomNavItem(
-            route = TopLevelDestination.expense.name,
+            route = TopLevelDestination.expenseIncome.name,
             painter = null,
             icon = Icons.Rounded.AddCircle,
             label = R.string.add

@@ -74,7 +74,8 @@ fun showCategory(
     else
         BorderStroke(0.dp,Color.Unspecified)
     Row(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
             .clickable(onClick = {onSelectCategory(category.categoryId)})
             .padding(top = 10.dp).padding(horizontal = 30.dp, vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween ,

@@ -2,12 +2,12 @@ package com.example.expensetracker.utils
 
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.example.expensetracker.R
-import com.example.expensetracker.viewModel.ExpenseViewModel
-import com.example.expensetracker.viewModel.IncomeViewModel
+import com.example.expensetracker.utils.InputUIState.SelectedTopBar
+import com.example.expensetracker.viewModel.CategoryViewModel
+import com.example.expensetracker.viewModel.ExpenseIncomeViewModel
 import com.example.expensetracker.viewModel.WalletViewModel
 
 enum class TopLevelDestination(@StringRes val route: Int) {
@@ -15,31 +15,30 @@ enum class TopLevelDestination(@StringRes val route: Int) {
     userName(route = R.string.add_name),
     initialAmount(route = R.string.initial_amount),
     transaction(route = R.string.transaction),
-    income(route = R.string.income),
-    expense(route = R.string.expense),
+    expenseIncome(route = R.string.expenseIncome),
     showWallet(route = R.string.showWallet),
     addWallet(route = R.string.addWallet),
     pickWalletIcon(route =R.string.pickIcon),
     showDetailOfWallet(route = R.string.show_detail_of_wallet),
     selectWallet(route = R.string.select_wallet),
-    selectExpCategory(route = R.string.selectCategory),
-    selectIncCategory(route = R.string.selectCategory)
+    selectCategory(route = R.string.selectCategory)
 }
 
-val screenTitle = mapOf(
-    "addName" to R.string.add_name,
-    "addInitialAmount" to R.string.initial_amount,
-    "income" to R.string.income,
-    "addWallet" to R.string.addWallet,
-    "pickWalletIcon" to R.string.pickIcon,
-    "selectWallet" to R.string.select_wallet,
-    "selectExpCategory" to R.string.selectCategory,
-    "selectIncCategory" to R.string.selectCategory
-)
 @Composable
-fun getScreenName(currentRoute: String):String {
-    val context = LocalContext.current
-    return screenTitle[currentRoute]?.let(context::getString) ?: currentRoute
+fun getScreenName(currentRoute: String, selectedExpInc: SelectedTopBar):String {
+    return when(currentRoute){
+        TopLevelDestination.userName.name -> stringResource(R.string.add_name)
+        TopLevelDestination.initialAmount.name -> stringResource(R.string.initial_amount)
+        TopLevelDestination.expenseIncome.name ->
+            if(selectedExpInc.selectedExpInc == R.string.expense)
+                stringResource(R.string.expense)
+            else
+                stringResource(R.string.income)
+        TopLevelDestination.addWallet.name-> stringResource(R.string.addWallet)
+        TopLevelDestination.pickWalletIcon.name -> stringResource(R.string.pickIcon)
+        TopLevelDestination.selectCategory.name -> stringResource(R.string.selectCategory)
+        else -> currentRoute
+    }
 }
 
 
@@ -47,21 +46,25 @@ fun topBarAction(
     currentRoute: String?,
     walletViewModel: WalletViewModel,
     navController: NavController,
-    expViewModel: ExpenseViewModel,
-    incViewModel: IncomeViewModel
+    expViewModel: ExpenseIncomeViewModel,
+    selectedExpInc: SelectedTopBar,
+    catViewModel: CategoryViewModel
 ) {
     when(currentRoute){
         TopLevelDestination.addWallet.name->{
             walletViewModel.saveIntoWallet()
             navController.navigateUp()
         }
-        TopLevelDestination.expense.name->{
-            expViewModel.saveIntoExpense()
-            navController.navigate(navController.graph.findStartDestination().id)
-        }
-        TopLevelDestination.income.name->{
-            incViewModel.saveIntoIncome()
-            navController.navigate(navController.graph.findStartDestination().id)
+        TopLevelDestination.expenseIncome.name->{
+            if(selectedExpInc.selectedExpInc == R.string.expense) {
+                expViewModel.saveIntoExpense()
+                navController.navigateUp()
+                catViewModel.resetExpCategory()
+            }else{
+                expViewModel.saveIntoIncome()
+                navController.navigateUp()
+                catViewModel.resetIncCategory()
+            }
         }
     }
 }

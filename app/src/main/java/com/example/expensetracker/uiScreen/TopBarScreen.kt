@@ -41,6 +41,7 @@ import com.example.expensetracker.ui.theme.AppColors.primaryContainer
 import com.example.expensetracker.ui.theme.AppColors.surface
 import com.example.expensetracker.utils.InputUIState.CategoryInputState
 import com.example.expensetracker.utils.InputUIState.ExpenseIncomeInputState
+import com.example.expensetracker.utils.InputUIState.SelectedTopBar
 import com.example.expensetracker.utils.InputUIState.WalletInputState
 import com.example.expensetracker.utils.TopLevelDestination
 import com.example.expensetracker.utils.getScreenName
@@ -48,15 +49,15 @@ import com.example.expensetracker.utils.getScreenName
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun topBarWithBackArrow(
-    navHostController: NavHostController,
     currentRoute: String?,
     localWallet: WalletInputState,
     onActionClick: () -> Unit,
     onBackClick: () -> Unit,
     localExp: ExpenseIncomeInputState,
     localCat: CategoryInputState,
+    selectedExpInc: SelectedTopBar,
 ) {
-    val currentScreenName = getScreenName(currentRoute!!)
+    val currentScreenName = getScreenName(currentRoute!!,selectedExpInc)
     CenterAlignedTopAppBar(
         modifier = Modifier.background(color = Color.Transparent),
         title = {
@@ -77,6 +78,7 @@ fun topBarWithBackArrow(
                 localWallet = localWallet,
                 localExp = localExp,
                 localCategory = localCat,
+                selectedExpInc = selectedExpInc,
                 onActionClick = onActionClick
             )
 
@@ -92,6 +94,7 @@ fun topBarTrailingIcon(
     onActionClick: () -> Unit,
     localExp: ExpenseIncomeInputState,
     localCategory: CategoryInputState,
+    selectedExpInc: SelectedTopBar,
 ) {
     if (currentRoute!! == TopLevelDestination.addWallet.name) {
         IconButton(
@@ -109,7 +112,7 @@ fun topBarTrailingIcon(
             )
         }
     }
-    if(currentRoute== TopLevelDestination.selectExpCategory.name){
+    if(currentRoute== TopLevelDestination.selectCategory.name){
         Icon(
             painter = painterResource(R.drawable.setting_ic),
             contentDescription = stringResource(R.string.setting),
@@ -117,14 +120,15 @@ fun topBarTrailingIcon(
             modifier = Modifier.size(30.dp).padding(15.dp)
         )
     }
-    if(currentRoute == TopLevelDestination.expense.name || currentRoute==TopLevelDestination.income.name){
-        val enable = if(currentRoute == TopLevelDestination.expense.name)
+    if(currentRoute== TopLevelDestination.expenseIncome.name &&
+        (selectedExpInc.selectedExpInc == R.string.expense || selectedExpInc.selectedExpInc == R.string.income)){
+        val enable = if(selectedExpInc.selectedExpInc == R.string.expense)
                 (localExp.validExpIncAmount && localCategory.validExpCategory)
         else
                 (localExp.validExpIncAmount && localCategory.validIncCategory)
         IconButton(
             onClick = { onActionClick() },
-            enabled =  (localExp.validExpIncAmount && localCategory.validIncCategory),
+            enabled =  enable,
             colors = IconButtonDefaults.iconButtonColors(
                 disabledContentColor = outlineVariant,
                 contentColor = onSurface
@@ -144,21 +148,20 @@ fun topBarTrailingIcon(
 fun AppTopBar(
     userName: String,
     currentRoute: String?,
-    navHostController: NavHostController,
     localWallet: WalletInputState,
     onActionClick: () -> Unit,
     onBackClick: () -> Unit,
-    localExp: ExpenseIncomeInputState,
-    localCat: CategoryInputState
+    localExpIncState: ExpenseIncomeInputState,
+    localCatState: CategoryInputState,
+    selectedExpInc: SelectedTopBar,
+    onSelectExpInc: (Int) -> Unit
 ) {
     when (currentRoute) {
-        TopLevelDestination.expense.name,
+        TopLevelDestination.expenseIncome.name,
         TopLevelDestination.selectWallet.name,
-        TopLevelDestination.selectExpCategory.name,
+        TopLevelDestination.selectCategory.name,
         TopLevelDestination.addWallet.name,
-        TopLevelDestination.pickWalletIcon.name,
-        TopLevelDestination.income.name,
-        TopLevelDestination.selectIncCategory.name-> {
+        TopLevelDestination.pickWalletIcon.name-> {
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RectangleShape,
@@ -167,21 +170,20 @@ fun AppTopBar(
             ) {
                 Column {
                     topBarWithBackArrow(
-                        navHostController = navHostController,
                         currentRoute = currentRoute,
                         localWallet = localWallet,
-                        localExp = localExp,
-                        localCat = localCat,
+                        localExp = localExpIncState,
+                        localCat = localCatState,
+                        selectedExpInc = selectedExpInc,
                         onActionClick = onActionClick,
-                        onBackClick = onBackClick
+                        onBackClick = onBackClick,
                     )
-                    if (currentRoute == TopLevelDestination.expense.name ||
-                        currentRoute == TopLevelDestination.income.name
+                    if (currentRoute == TopLevelDestination.expenseIncome.name
                     ) {
                         categoryTopBar(
                             modifier = Modifier.fillMaxWidth(),
-                            navHostController = navHostController,
-                            currentRoute = currentRoute)
+                            selectedExpInc = selectedExpInc,
+                            onSelectExpInc = onSelectExpInc)
                     }
                 }
             }
@@ -224,8 +226,8 @@ fun secondTopBar() {
 @Composable
 fun categoryTopBar(
     modifier: Modifier,
-    navHostController: NavHostController,
-    currentRoute: String
+    selectedExpInc: SelectedTopBar,
+    onSelectExpInc:(Int)->Unit
 ) {
     Row(
         modifier = modifier,
@@ -233,12 +235,12 @@ fun categoryTopBar(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Button(
-            onClick = { navHostController.navigate(TopLevelDestination.income.name) },
+            onClick = { onSelectExpInc(R.string.income) },
             modifier = Modifier.weight(1f),
             colors = ButtonDefaults.buttonColors(
-                containerColor = if (currentRoute == TopLevelDestination.income.name) primaryContainer
+                containerColor = if (selectedExpInc.selectedExpInc == R.string.income) primaryContainer
                 else surface,
-                contentColor = if (currentRoute == TopLevelDestination.income.name) onPrimaryContainer else onSurface
+                contentColor = if (selectedExpInc.selectedExpInc == R.string.income) onPrimaryContainer else onSurface
             ),
             shape = RectangleShape,
         ) {
@@ -249,14 +251,14 @@ fun categoryTopBar(
             )
         }
         Button(
-            onClick = { navHostController.navigate(TopLevelDestination.expense.name) },
+            onClick = { onSelectExpInc(R.string.expense) },
             modifier = Modifier.weight(1f),
             colors = ButtonDefaults.buttonColors(
                 containerColor =
-                if (currentRoute == TopLevelDestination.expense.name) errorColor.copy(alpha = 0.8F)
+                if (selectedExpInc.selectedExpInc == R.string.expense) errorColor.copy(alpha = 0.8F)
                 else surface,
                 contentColor =
-                if (currentRoute == TopLevelDestination.expense.name) onError
+                if (selectedExpInc.selectedExpInc == R.string.expense) onError
                 else onSurface
             ),
             shape = RectangleShape
