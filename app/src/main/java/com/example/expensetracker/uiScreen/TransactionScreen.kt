@@ -1,9 +1,7 @@
 package com.example.expensetracker.uiScreen
 
 import android.app.Activity
-import android.icu.text.DateFormat
 import android.icu.text.SimpleDateFormat
-import android.provider.ContactsContract.CommonDataKinds.Im
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -45,7 +43,6 @@ import com.example.expensetracker.ui.theme.AppColors
 import com.example.expensetracker.utils.DisplayUIState.overViewDisplayState
 import com.example.expensetracker.utils.DisplayUIState.transactionDetail
 import com.example.transactionensetracker.entity.TransactionType
-import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -67,10 +64,8 @@ fun TransactionScreen(
     Column(
         modifier = modifier.scrollable(scrollableState , orientation = Orientation.Vertical)
     ) {
-        TransactionSummary(modifier = Modifier.fillMaxWidth()
-            .background(color = AppColors.surface),
-            overviewUiState = overviewUiState)
-        TransactionDetail(modifier = Modifier.fillMaxWidth(),
+        TransactionDetail(modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp),
+            overviewUiState = overviewUiState,
             showTransaction = showTransaction)
     }
 
@@ -78,7 +73,7 @@ fun TransactionScreen(
 
 @Composable
 fun TransactionSummary(modifier: Modifier, overviewUiState: overViewDisplayState){
-    Column(modifier= modifier.padding(horizontal = 10.dp, vertical = 10.dp)) {
+    Column(modifier= modifier.padding(horizontal = 10.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = stringResource(R.string.overview),
@@ -93,43 +88,90 @@ fun TransactionSummary(modifier: Modifier, overviewUiState: overViewDisplayState
         }
         Row(modifier = Modifier.fillMaxWidth(),horizontalArrangement = Arrangement.SpaceBetween) {
             Text(text = stringResource(R.string.income))
-            Text(text = overviewUiState.totalIncome.toString())
+            Text(text = "₹ "+overviewUiState.totalIncome.toString(),
+                color = Color.Blue.copy(alpha = 0.5F))
         }
         Row(modifier = Modifier.fillMaxWidth(),horizontalArrangement = Arrangement.SpaceBetween) {
             Text(text = stringResource(R.string.expense))
-            Text(text = overviewUiState.totalExpense.toString())
+            Text(text = "-₹ "+overviewUiState.totalExpense.toString(),
+                color = Color.Red.copy(alpha = 0.5F))
         }
         Row(modifier = Modifier.fillMaxWidth(),horizontalArrangement = Arrangement.SpaceBetween) {
             Text(text = stringResource(R.string.total))
-            Text(text = overviewUiState.total.toString())
+            Text(text =
+                if(overviewUiState.total>0)
+                    "₹ "+overviewUiState.total.toString()
+                else
+                    "-₹ "+overviewUiState.total.toString()
+            )
         }
     }
 }
 
 @Composable
-fun TransactionDetail(modifier: Modifier, showTransaction: List<transactionDetail>){
+fun TransactionDetail(modifier: Modifier,overviewUiState: overViewDisplayState, showTransaction: List<transactionDetail>){
     val groupByDate = showTransaction.groupBy { it.transaction_date }
-    LazyColumn(modifier= modifier.padding(vertical = 10.dp)) {
-        /*item{
-            Row(modifier = modifier.background(
-                color = AppColors.surface).padding(horizontal = 10.dp) ) {
-                val date = Date(groupByDate.values.stream().?:0L)
-                val format = SimpleDateFormat("dd/MM/YYYY", Locale.getDefault())
-                Text(text = format.format(date))
+    var uniqueDate = emptySet<String>()
+    val format = SimpleDateFormat("dd/MM/YYYY", Locale.getDefault())
+    val formatDate = SimpleDateFormat("dd", Locale.getDefault())
+    val formatDay = SimpleDateFormat("eeee", Locale.getDefault())
+    val formatMonthYear = SimpleDateFormat("MMM yyyy",Locale.getDefault())
+
+    LazyColumn(modifier= modifier) {
+        item {
+            TransactionSummary(modifier = Modifier.fillMaxWidth()
+                .background(color = AppColors.surface),
+                overviewUiState = overviewUiState)
+        }
+        groupByDate.forEach { date, transactionDetails ->
+            items(items = transactionDetails) { transaction ->
+                    if (!uniqueDate.contains(format.format(date))) {
+                        TransactionDate(
+                            date,
+                            formatDate,
+                            formatDay,
+                            formatMonthYear,
+                            addUniqueDate = { uniqueDate = setOf(format.format(date)) }
+                        )
+                    }
+                    TransactionByDate(transaction, modifier = Modifier)
             }
-        }*/
-        items(items = showTransaction){transaction->
-            TransactionByDate(transaction,modifier)
         }
     }
+}
+
+@Composable
+private fun TransactionDate(
+    date: Long?,
+    formatDate: SimpleDateFormat,
+    formatDay: SimpleDateFormat,
+    formatMonthYear: SimpleDateFormat,
+    addUniqueDate:(Date)->Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth()
+            .padding(top = 20.dp)
+            .background(
+                color = AppColors.surface
+            ).padding(20.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        val date = date?.let { Date(it) }
+        Text(text = formatDate.format(date))
+        Spacer(modifier = Modifier.width(10.dp))
+        Column {
+            Text(text = formatDay.format(date))
+            Text(text = formatMonthYear.format(date))
+        }
+        addUniqueDate(date!!)
+    }
+    Spacer(modifier = Modifier.height(2.dp))
 }
 
 @Composable
 fun TransactionByDate(transaction: transactionDetail,modifier: Modifier) {
-
-    Spacer(modifier = Modifier.height(3.dp))
-    Row(modifier = Modifier.fillMaxWidth().background(
-        color = AppColors.surface).padding(horizontal = 10.dp) , verticalAlignment = Alignment.CenterVertically) {
+    Row(modifier = modifier.fillMaxWidth().background(
+        color = AppColors.surface).padding(10.dp) , verticalAlignment = Alignment.CenterVertically) {
         Column(modifier = Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(
@@ -141,17 +183,24 @@ fun TransactionByDate(transaction: transactionDetail,modifier: Modifier) {
                     contentScale = ContentScale.Fit,
                     colorFilter = ColorFilter.tint(color = Color.White)
                 )
-                Spacer(modifier = Modifier.width(5.dp))
+                Spacer(modifier = Modifier.width(10.dp))
                 Column {
                     Text(text =
-                        transaction.transaction_description ?: stringResource(transaction.categoryName)
+                    (if(transaction.transaction_description!="")
+                        transaction.transaction_description
+                    else
+                        stringResource(transaction.categoryName))!!
                     )
                     Text(text = transaction.walletName)
                 }
             }
         }
         Text(
-            text = transaction.transaction_amount.toString(),
+            text =
+            if(transaction.transaction_type == TransactionType.Income)
+                "₹ "+transaction.transaction_amount.toString()
+            else
+                "-₹ "+transaction.transaction_amount.toString(),
             color =
             if(transaction.transaction_type == TransactionType.Income)
                 Color.Blue.copy(alpha = 0.5F)
@@ -161,4 +210,5 @@ fun TransactionByDate(transaction: transactionDetail,modifier: Modifier) {
         )
     }
 }
+
 

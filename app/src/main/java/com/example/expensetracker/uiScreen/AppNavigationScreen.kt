@@ -154,7 +154,7 @@ fun AppNavigationScreen() {
                 }
                 composable(route = TopLevelDestination.transaction.name) {
                     TransactionScreen(
-                        modifier = Modifier.fillMaxSize().background(color = AppColors.inverseOnSurface).padding(top = 20.dp),
+                        modifier = Modifier.fillMaxSize().background(color = AppColors.inverseOnSurface),
                         overviewUiState = overViewState,
                         showTransaction = showTransaction
                     )
