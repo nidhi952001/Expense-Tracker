@@ -18,7 +18,7 @@ interface TransactionDao {
     suspend fun addExpense(expense: Transaction)
 
     @Query("select sum(transaction_amount) from `Transaction` where transaction_type=:income")
-    fun showTotalIncome(income:TransactionType): Flow<Float>
+    fun showTotalIncome(income: TransactionType): Flow<Float>
 
     @Query("Select sum(transaction_amount) from `Transaction` where transaction_type=:expense")
     fun showTotalExpense(expense: TransactionType): Flow<Float>

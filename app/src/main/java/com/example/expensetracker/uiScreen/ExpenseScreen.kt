@@ -238,7 +238,7 @@ private fun expenseWallet(expSelectedWallet: Wallet?,onClickListOfWallet:()->Uni
 
 
 fun convertMillisToDate(millis: Long): String {
-    val formatter = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+    val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     return formatter.format(Date(millis))
 }
 
@@ -304,8 +304,8 @@ fun inputWithLeadingIcon(
     isReadOnly: Boolean,
     saveAmount: (Float?) -> Unit = {}
 ) {
-    val bringIntoViewRequester = remember { BringIntoViewRequester() }
-    val coroutineScope = rememberCoroutineScope()
+    /*val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val coroutineScope = rememberCoroutineScope()*/
     TextField(
         value = value,
         onValueChange = { onValueChange(it) },
@@ -334,14 +334,14 @@ fun inputWithLeadingIcon(
             )
         },
         modifier = Modifier
-            .bringIntoViewRequester(bringIntoViewRequester)
+            /*.bringIntoViewRequester(bringIntoViewRequester)
             .onFocusChanged { focusState ->
                 if (focusState.isFocused) {
                     coroutineScope.launch {
                         bringIntoViewRequester.bringIntoView()
                     }
                 }
-            }
+            }*/
             .fillMaxWidth(),
         shape = inputFieldShape,
         colors = TextFieldDefaults.colors(
@@ -371,8 +371,8 @@ fun inputWithTrailingIcon(
     isEnabled: Boolean,
     onClick:()->Unit
 ) {
-    val bringIntoViewRequester = remember { BringIntoViewRequester() }
-    val coroutineScope = rememberCoroutineScope()
+   /* val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val coroutineScope = rememberCoroutineScope()*/
     TextField(
         value = value,
         onValueChange = {},  // No update needed as it's read-only
@@ -400,14 +400,14 @@ fun inputWithTrailingIcon(
             )
         },
         modifier = Modifier
-            .bringIntoViewRequester(bringIntoViewRequester)
+            /*.bringIntoViewRequester(bringIntoViewRequester)
             .onFocusChanged { focusState ->
                 if (focusState.isFocused) {
                     coroutineScope.launch {
                         bringIntoViewRequester.bringIntoView()
                     }
                 }
-            }
+            }*/
             .fillMaxWidth().clickable(
                 onClick = {
                     Log.d("click ","click is true")
@@ -436,8 +436,6 @@ fun inputWithNoIcon(
     onValueChange: (String) -> Unit,
     isReadOnly: Boolean,
 ) {
-    val bringIntoViewRequester = remember { BringIntoViewRequester() }
-    val coroutineScope = rememberCoroutineScope()
     TextField(
         value = value,
         onValueChange = {
@@ -460,14 +458,6 @@ fun inputWithNoIcon(
             fontStyle = inputTextStyle
         ),
         modifier = Modifier
-            .bringIntoViewRequester(bringIntoViewRequester)
-            .onFocusChanged { focusState ->
-                if (focusState.isFocused) {
-                    coroutineScope.launch {
-                        bringIntoViewRequester.bringIntoView()
-                    }
-                }
-            }
             .fillMaxWidth(),
         shape = inputFieldShape,
         colors = TextFieldDefaults.colors(

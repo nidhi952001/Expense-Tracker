@@ -8,18 +8,21 @@ import com.example.expensetracker.repository.TransactionRepository
 import com.example.expensetracker.repository.WalletRepository
 import com.example.expensetracker.utils.DisplayUIState.overViewDisplayState
 import com.example.expensetracker.utils.InputUIState.ExpenseIncomeInputState
+import com.example.expensetracker.utils.InputUIState.SelectedMonthAndYear
 import com.example.transactionensetracker.entity.Transaction
 import com.example.transactionensetracker.entity.TransactionType
+import com.google.common.collect.Multimaps
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,6 +37,14 @@ class ExpenseIncomeViewModel @Inject constructor(
 
     val currentCategory = categoryRepository.selectedCategory
     val currentWallet = walletRepository.selectedWallet
+
+    private val _currentMonthYear = MutableStateFlow(SelectedMonthAndYear())
+    val currentMonthYear = _currentMonthYear.asStateFlow()
+
+    // Your formatted string
+    val format = SimpleDateFormat("MMM yyyy", Locale.getDefault())
+    val date = format.parse(_currentMonthYear.value.selectedMonthYear)
+    val timestamp = date.time
 
     private val showExpenseTotal = transactionRepository.showTotalExpense(TransactionType.Expense)
     private val showIncomeTotal = transactionRepository.showTotalIncome(TransactionType.Income)

@@ -9,6 +9,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -30,7 +34,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.example.expensetracker.R
 import com.example.expensetracker.ui.theme.AppColors.errorColor
 import com.example.expensetracker.ui.theme.AppColors.onError
@@ -45,6 +48,11 @@ import com.example.expensetracker.utils.InputUIState.SelectedTopBar
 import com.example.expensetracker.utils.InputUIState.WalletInputState
 import com.example.expensetracker.utils.TopLevelDestination
 import com.example.expensetracker.utils.getScreenName
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -212,14 +220,29 @@ fun topBarWithoutBackArrow(userName: String, currentRoute: String?) {
             modifier = Modifier
         )
         if (currentRoute.equals(TopLevelDestination.transaction.name)) {
-            secondTopBar()
+            selectMonthTopBar()
         }
     }
 }
 
 @Composable
-fun secondTopBar() {
-    Text(text = "another title for date with condition")
+fun selectMonthTopBar() {
+    val formatMonthYear = android.icu.text.SimpleDateFormat("MMM yyyy", Locale.getDefault())
+    val date = Date()
+    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp) , verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arrangement.SpaceBetween) {
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+            contentDescription = stringResource(R.string.previous)
+        )
+        Text(
+            text = formatMonthYear.format(date),
+            fontWeight = FontWeight.ExtraBold
+        )
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            contentDescription = stringResource(R.string.next)
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

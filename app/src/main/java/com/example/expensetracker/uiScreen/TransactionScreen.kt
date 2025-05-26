@@ -22,10 +22,16 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,6 +41,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -73,36 +80,58 @@ fun TransactionScreen(
 
 @Composable
 fun TransactionSummary(modifier: Modifier, overviewUiState: overViewDisplayState){
-    Column(modifier= modifier.padding(horizontal = 10.dp)) {
-        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+    Column(modifier= modifier.padding(horizontal = 10.dp, vertical = 15.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = stringResource(R.string.overview),
                 style = MaterialTheme.typography.titleMedium,
                 color = AppColors.inverseSurface,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                modifier = Modifier.padding(end = 3.dp)
             )
             Icon(
-                imageVector = Icons.Default.Info,
-                contentDescription = stringResource(R.string.info)
+                imageVector = Icons.Outlined.Info,
+                contentDescription = stringResource(R.string.info),
             )
         }
         Row(modifier = Modifier.fillMaxWidth(),horizontalArrangement = Arrangement.SpaceBetween) {
+            val annotedString = buildAnnotatedString {
+                append(stringResource( R.string.ruppes_icon))
+                append(" ")
+                append(overviewUiState.totalIncome.toString())
+            }
             Text(text = stringResource(R.string.income))
-            Text(text = "₹ "+overviewUiState.totalIncome.toString(),
+            Text(text = annotedString,
                 color = Color.Blue.copy(alpha = 0.5F))
         }
         Row(modifier = Modifier.fillMaxWidth(),horizontalArrangement = Arrangement.SpaceBetween) {
+            val annotedString = buildAnnotatedString {
+                append(stringResource(R.string.minus_icon))
+                append(stringResource( R.string.ruppes_icon))
+                append(" ")
+                append(overviewUiState.totalExpense.toString())
+            }
             Text(text = stringResource(R.string.expense))
-            Text(text = "-₹ "+overviewUiState.totalExpense.toString(),
+            Text(text =annotedString,
                 color = Color.Red.copy(alpha = 0.5F))
         }
         Row(modifier = Modifier.fillMaxWidth(),horizontalArrangement = Arrangement.SpaceBetween) {
+            val annotedString = buildAnnotatedString {
+                append(stringResource( R.string.ruppes_icon))
+                append(" ")
+                append(overviewUiState.total.toString())
+            }
+            val annotedString1 = buildAnnotatedString {
+                append(stringResource(R.string.minus_icon))
+                append(stringResource( R.string.ruppes_icon))
+                append(" ")
+                append(overviewUiState.total.toString())
+            }
             Text(text = stringResource(R.string.total))
             Text(text =
-                if(overviewUiState.total>0)
-                    "₹ "+overviewUiState.total.toString()
-                else
-                    "-₹ "+overviewUiState.total.toString()
+                if(overviewUiState.total>0) annotedString
+                else annotedString1
             )
         }
     }
@@ -153,11 +182,16 @@ private fun TransactionDate(
             .padding(top = 20.dp)
             .background(
                 color = AppColors.surface
-            ).padding(20.dp),
+            ).padding(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         val date = date?.let { Date(it) }
-        Text(text = formatDate.format(date))
+        Text(text = formatDate.format(date),
+            fontSize = MaterialTheme.typography.headlineLarge.fontSize,
+            style = MaterialTheme.typography.titleMedium,
+            color = AppColors.inverseSurface,
+            fontWeight = FontWeight.ExtraBold,
+            )
         Spacer(modifier = Modifier.width(10.dp))
         Column {
             Text(text = formatDay.format(date))
@@ -189,18 +223,28 @@ fun TransactionByDate(transaction: transactionDetail,modifier: Modifier) {
                     (if(transaction.transaction_description!="")
                         transaction.transaction_description
                     else
-                        stringResource(transaction.categoryName))!!
+                        stringResource(transaction.categoryName))!!,
+                        fontWeight = FontWeight.ExtraBold
                     )
                     Text(text = transaction.walletName)
                 }
             }
         }
+        val annotedString = buildAnnotatedString {
+            append(stringResource( R.string.ruppes_icon))
+            append(" ")
+            append(transaction.transaction_amount.toString())
+        }
+        val annotedString1 = buildAnnotatedString {
+            append(stringResource(R.string.minus_icon))
+            append(stringResource( R.string.ruppes_icon))
+            append(" ")
+            append(transaction.transaction_amount.toString())
+        }
         Text(
             text =
-            if(transaction.transaction_type == TransactionType.Income)
-                "₹ "+transaction.transaction_amount.toString()
-            else
-                "-₹ "+transaction.transaction_amount.toString(),
+            if(transaction.transaction_type == TransactionType.Income) annotedString
+            else annotedString1,
             color =
             if(transaction.transaction_type == TransactionType.Income)
                 Color.Blue.copy(alpha = 0.5F)

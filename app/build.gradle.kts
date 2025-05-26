@@ -76,6 +76,7 @@ dependencies {
     implementation(libs.accompanist.permissions)
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
+    implementation(libs.guava)
     ksp(libs.hilt.android.compiler)
     ksp(libs.moshi.kotlin.codegen)
     testImplementation(libs.junit)

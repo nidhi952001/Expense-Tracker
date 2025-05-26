@@ -13,6 +13,7 @@
     <!--top bar -->
     <string name="go_back">GO Back</string>
     <string name="save">SAVE</string>
+    <string name="previous">Previous</string>
    <!-- bottom bar-->
     <string name="transaction">Transaction</string>
     <string name="calendar">Calendar</string>
@@ -36,6 +37,8 @@
     <string name="next">Next</string>
     <string name="money_dec">Money</string>
     <string name="finance_dec">Finance</string>
+    <string name="minus_icon">-</string>
+    <string name="ruppes_icon">₹</string>
 
     <!--wallet-->
     <string name="account_balance">Account Balance</string>

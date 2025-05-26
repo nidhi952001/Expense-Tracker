@@ -7,6 +7,9 @@ import com.example.expensetracker.utils.TopLevelDestination
 import com.example.expensetracker.utils.StaticData.TypeOfWallet
 import com.example.expensetracker.utils.StaticData.listOfWalletColor
 import com.example.expensetracker.utils.StaticData.listOfWalletIcon
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 data class HomeStateData(
     val userName: String = "",
@@ -34,6 +37,10 @@ data class WalletInputState(
 )
 data class SelectedTopBar(
     val selectedExpInc:Int = R.string.expense
+)
+
+data class SelectedMonthAndYear(
+    val selectedMonthYear: String = SimpleDateFormat("MMM yyyy", Locale.getDefault()).format(Date())
 )
 
 data class ExpenseIncomeInputState(

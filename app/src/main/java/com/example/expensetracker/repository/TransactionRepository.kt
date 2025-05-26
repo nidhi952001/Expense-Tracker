@@ -16,7 +16,7 @@ class TransactionRepository @Inject constructor(
         transactionDao.addExpense(transaction)
     }
 
-    fun showTotalExpense(expense:TransactionType):Flow<Float>{
+    fun showTotalExpense(expense: TransactionType):Flow<Float>{
         return transactionDao.showTotalExpense(expense)
     }
 
@@ -24,7 +24,7 @@ class TransactionRepository @Inject constructor(
         transactionDao.addIncome(income)
     }
 
-    fun showTotalIncome(income:TransactionType): Flow<Float> {
+    fun showTotalIncome(income: TransactionType): Flow<Float> {
         return transactionDao.showTotalIncome(income)
     }
 
