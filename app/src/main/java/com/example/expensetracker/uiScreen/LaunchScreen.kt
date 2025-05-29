@@ -239,7 +239,13 @@ fun initialMoneyScreen(
             },
             singleLine = true,
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-            keyboardActions = KeyboardActions(onDone = { saveInitialMoney(initialMoneyState.initialMoney) })
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    if(initialMoneyState.initialMoney!="") {
+                        saveInitialMoney(initialMoneyState.initialMoney)
+                    }
+                }
+            )
         )
     }
 }

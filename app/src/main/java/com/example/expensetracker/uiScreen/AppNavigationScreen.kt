@@ -24,7 +24,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.expensetracker.R
-import com.example.expensetracker.ui.theme.AppColors
 import com.example.expensetracker.ui.theme.AppColors.inverseOnSurface
 import com.example.expensetracker.ui.theme.AppColors.surface
 import com.example.expensetracker.utils.TopLevelDestination
@@ -59,6 +58,7 @@ fun AppNavigationScreen() {
     val selectedExpenseWallet by walletViewModel.selectedWallet.collectAsState(
             initial = null
     )
+    val selectedWallet_detail by walletViewModel.getSelectedWalletDetails.collectAsState(null)
     val overViewState by expIncViewModel.showOverView.collectAsState()
     val showTransaction by expIncViewModel._showTransaction.collectAsState()
     val listOfExpCategory by categoryViewModel.listOfExpCategory.collectAsState()
@@ -110,7 +110,16 @@ fun AppNavigationScreen() {
                         topBarBackAction(
                             currentRoute = currentRoute,
                             walletViewModel = walletViewModel,
-                            navController = navController
+                            navController = navController,
+                            onBackClick = true
+                        )
+                    },
+                    onEditWallet = {
+                        topBarBackAction(
+                            currentRoute = currentRoute,
+                            walletViewModel = walletViewModel,
+                            navController = navController,
+                            onBackClick = false
                         )
                     }
                 )
@@ -154,7 +163,7 @@ fun AppNavigationScreen() {
                 }
                 composable(route = TopLevelDestination.transaction.name) {
                     TransactionScreen(
-                        modifier = Modifier.fillMaxSize().background(color = AppColors.inverseOnSurface),
+                        modifier = Modifier.fillMaxSize().background(color = inverseOnSurface),
                         overviewUiState = overViewState,
                         showTransaction = showTransaction
                     )
@@ -221,8 +230,9 @@ fun AppNavigationScreen() {
                         modifier = Modifier.scrollable(state = walletScrollableState, orientation = Orientation.Vertical).fillMaxSize().background(color =  inverseOnSurface),
                         walletDatabaseState = walletDatabaseState,
                         addWallet = {navController.navigate(TopLevelDestination.addWallet.name)},
-                        onViewWalletDetail = {wallet->
-                            navController.navigate(TopLevelDestination.showDetailOfWallet.name+"/${wallet}")
+                        onViewWalletDetail = {walletId->
+                            walletViewModel.getSelectedWalletData(walletId)
+                            navController.navigate(TopLevelDestination.showDetailOfWallet.name)
                         }
                     )
                 }
@@ -252,14 +262,19 @@ fun AppNavigationScreen() {
                                 navController.navigateUp()
                             })
                 }
-                composable(route = TopLevelDestination.showDetailOfWallet.name+"/{walletId}"){
-                        val walletId = it.arguments?.getString("walletId")?.toIntOrNull()
+                composable(route = TopLevelDestination.showDetailOfWallet.name)
+                {
+                        showWalletDetail(
+                            walletData = selectedWallet_detail,
+                            modifier = Modifier.fillMaxSize().background(color = inverseOnSurface)
+                        )
 
                 }
             }
         }
     }
 }
+
 
 
 

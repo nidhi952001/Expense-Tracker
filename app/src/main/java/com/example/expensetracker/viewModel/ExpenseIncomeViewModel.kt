@@ -163,4 +163,9 @@ class ExpenseIncomeViewModel @Inject constructor(
             )
         }
     }
+
+
+    fun fetchTotalExpenseCountById(walletId:Int){
+
+    }
 }

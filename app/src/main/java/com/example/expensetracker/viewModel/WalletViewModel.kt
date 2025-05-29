@@ -5,12 +5,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.expensetracker.R
 import com.example.expensetracker.entity.Wallet
+import com.example.expensetracker.repository.TransactionRepository
 import com.example.expensetracker.repository.WalletRepository
+import com.example.expensetracker.utils.DisplayUIState.WalletDetailState
 import com.example.expensetracker.utils.DisplayUIState.WalletDisplayState
 import com.example.expensetracker.utils.InputUIState.WalletInputState
+import com.example.expensetracker.utils.StaticData.ListOfIcons
 import com.example.expensetracker.utils.StaticData.TypeOfWallet
+import com.example.expensetracker.utils.StaticData.listOfWalletColor
 import com.example.expensetracker.utils.StaticData.listOfWalletColor.coloCodeToColor
 import com.example.expensetracker.utils.StaticData.listOfWalletIcon
+import com.example.transactionensetracker.entity.TransactionType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,6 +34,7 @@ import javax.inject.Inject
 @HiltViewModel
 class WalletViewModel @Inject constructor(
     private val walletRepository: WalletRepository,
+    private val transactionRepository: TransactionRepository
 ) : ViewModel() {
     val initialAmount = walletRepository.initialAmount
 
@@ -206,5 +212,65 @@ class WalletViewModel @Inject constructor(
         it.selectedExpWalletId
     }.distinctUntilChanged().flatMapLatest {
         walletRepository.getWalletDataById(it)
+    }
+
+    fun getSelectedWalletData(walletId: Int) {
+        _tempWalletState.update {
+            it.copy(
+                selectedWalletId_detail = walletId
+            )
+        }
+    }
+
+    val selectedWallet_detail = _tempWalletState.map {
+        it.selectedWalletId_detail
+    }.distinctUntilChanged().flatMapLatest {
+        walletRepository.getWalletDataById(it)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(0),null)
+
+    val countSelectedWallet_expense = _tempWalletState.map {
+        it.selectedWalletId_detail
+    }.distinctUntilChanged().flatMapLatest {
+        transactionRepository.getExpenseCountById(it,TransactionType.Expense)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(0),0)
+
+
+    val countselectedwalletIncome = _tempWalletState.map {
+        it.selectedWalletId_detail
+    }.distinctUntilChanged().flatMapLatest {
+        transactionRepository.getIncomeCountById(it,TransactionType.Income)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(0),0)
+
+    val transactionByWallet = _tempWalletState.map {
+        it.selectedWalletId_detail
+    }.distinctUntilChanged().flatMapLatest {
+        transactionRepository.showTransactionByWallet(it)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(0), emptyList())
+
+    val getSelectedWalletDetails: StateFlow<WalletDetailState> =
+        combine(selectedWallet_detail,countSelectedWallet_expense, countselectedwalletIncome,transactionByWallet)
+        { wallet,countExp,countInc,transaction->
+            WalletDetailState(wallet,countExp,countInc,transaction)
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(0),
+            WalletDetailState(null, 0, 0, emptyList())
+        )
+
+    fun editWallet(){
+        _tempWalletState.update {
+            it.copy(
+                walletName = selectedWallet_detail.value?.walletName!!,
+                walletAmount = selectedWallet_detail.value?.walletAmount.toString(),
+                 isWalletNameValid= true,
+             isWalletAmountValid = true,
+             showListOfColor = listOfWalletColor.coloCodeToColor,
+             selectedColors = selectedWallet_detail.value!!.walletColor,
+             showColorPicker = false,
+             walletIconName = selectedWallet_detail.value!!.walletIconDes,
+             listOfIcon = listOfWalletIcon.iconData,
+             selectedIcon= selectedWallet_detail.value!!.walletIcon,
+            )
+        }
     }
 }

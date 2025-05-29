@@ -6,6 +6,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -46,14 +49,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachIndexed
 import com.example.expensetracker.R
 import com.example.expensetracker.entity.Wallet
+import com.example.expensetracker.ui.theme.AppColors
 import com.example.expensetracker.ui.theme.AppColors.inputFieldBackgroundColors
 import com.example.expensetracker.ui.theme.AppColors.inputFieldShape
 import com.example.expensetracker.ui.theme.AppColors.inputTextSize
@@ -66,10 +73,12 @@ import com.example.expensetracker.ui.theme.AppColors.onSurface
 import com.example.expensetracker.ui.theme.AppColors.secondary
 import com.example.expensetracker.ui.theme.AppColors.secondaryContainer
 import com.example.expensetracker.ui.theme.AppColors.surface
+import com.example.expensetracker.utils.DisplayUIState.WalletDetailState
 import com.example.expensetracker.utils.DisplayUIState.WalletDisplayState
+import com.example.expensetracker.utils.DisplayUIState.transactionDetailByWallet
 import com.example.expensetracker.utils.InputUIState.WalletInputState
 import com.example.expensetracker.utils.StaticData.TypeOfWallet
-import com.example.expensetracker.utils.StaticData.listOfWalletColor
+import com.example.transactionensetracker.entity.TransactionType
 
 val listOfWallet = listOf(
     TypeOfWallet.General,
@@ -608,6 +617,165 @@ fun Check() {
             contentDescription = "",
             tint = Color.White,
             modifier = Modifier.padding(3.dp))*/
+    }
+}
+
+//wallet detail screen
+@Composable
+fun showWalletDetail(
+    walletData: WalletDetailState?,
+    modifier: Modifier
+) {
+    val scrollableState = rememberScrollState()
+    if (walletData?.selectedWallet_detail != null){
+        Box(modifier = modifier.fillMaxSize().padding(top = 20.dp).scrollable(scrollableState,Orientation.Vertical)) {
+            Column {
+                walletDetail(walletData.selectedWallet_detail, walletData)
+                if(walletData.transaction.isNotEmpty())
+                    walletTransaction(walletData.transaction)
+            }
+        }
+    }
+}
+
+@Composable
+fun walletTransaction(transaction: List<transactionDetailByWallet>) {
+    LazyColumn(modifier = Modifier.wrapContentHeight().padding(top = 20.dp).background(
+        color = surface).padding(horizontal = 10.dp)) {
+        item {
+            Text(text = "Transaction list" ,
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 10.dp))
+        }
+        items(transaction) {
+            allWalletTransaction(it, modifier = Modifier)
+        }
+    }
+}
+
+@Composable
+private fun walletDetail(
+    selectedWallet_detail: Wallet,
+    walletData: WalletDetailState
+) {
+    Column(
+        modifier = Modifier.background(color = surface)
+            .padding(vertical = 20.dp, horizontal = 10.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Image(
+                painter = painterResource(selectedWallet_detail.walletIcon),
+                contentDescription = stringResource(selectedWallet_detail.walletIconDes),
+                colorFilter = ColorFilter.tint(
+                    color = Color.White
+                ),
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(color = selectedWallet_detail.walletColor)
+                    .padding(8.dp)
+            )
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = selectedWallet_detail.walletName,
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = MaterialTheme.typography.bodyLarge.fontSize
+            )
+
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = stringResource(R.string.ruppes_icon) + selectedWallet_detail.walletAmount.toString(),
+                fontSize = MaterialTheme.typography.titleMedium.fontSize
+            )
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(start = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = stringResource(R.string.income))
+            Text(
+                text = walletData.countSelectedWallet_income.toString() + "  " +
+                        stringResource(R.string.transactions),
+                color = Color.Blue.copy(alpha = 0.5F)
+            )
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(start = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = stringResource(R.string.expense))
+            Text(
+                text = walletData.countSelectedWallet_expense.toString() + "  " +
+                        stringResource(R.string.transactions),
+                color = Color.Red.copy(alpha = 0.5F)
+            )
+        }
+    }
+}
+
+
+@Composable
+private fun allWalletTransaction(
+    transaction: transactionDetailByWallet,
+    modifier: Modifier.Companion
+) {
+    Row(modifier = modifier.fillMaxWidth().padding(vertical = 10.dp, horizontal = 10.dp) , verticalAlignment = Alignment.CenterVertically) {
+        Column(modifier = Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(transaction.categoryIcon),
+                    contentDescription = stringResource(transaction.categoryName),
+                    modifier = Modifier.size(35.dp)
+                        .clip(CircleShape)
+                        .background(color = transaction.categoryColor).padding(3.dp),
+                    contentScale = ContentScale.Fit,
+                    colorFilter = ColorFilter.tint(color = Color.White)
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Column {
+                    Text(text =
+                        stringResource(transaction.categoryName),
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                    Text(text = transaction.total_transaction.toString()+" "+ stringResource(R.string.transactions))
+                }
+            }
+        }
+        val annotedString = buildAnnotatedString {
+            append(stringResource( R.string.ruppes_icon))
+            append(" ")
+            append(transaction.transaction_total_amount.toString())
+        }
+        val annotedString1 = buildAnnotatedString {
+            append(stringResource(R.string.minus_icon))
+            append(stringResource( R.string.ruppes_icon))
+            append(" ")
+            append(transaction.transaction_total_amount.toString())
+        }
+        Text(
+            text =
+            if(transaction.transaction_type == TransactionType.Income) annotedString
+            else annotedString1,
+            color =
+            if(transaction.transaction_type == TransactionType.Income)
+                Color.Blue.copy(alpha = 0.5F)
+            else
+                Color.Red.copy(alpha = 0.5F),
+            textAlign = TextAlign.End
+        )
     }
 }
 

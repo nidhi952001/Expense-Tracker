@@ -2,6 +2,7 @@ package com.example.expensetracker.utils.InputUIState
 
 import androidx.compose.ui.graphics.Color
 import com.example.expensetracker.R
+import com.example.expensetracker.entity.Wallet
 import com.example.expensetracker.utils.StaticData.ListOfIcons
 import com.example.expensetracker.utils.TopLevelDestination
 import com.example.expensetracker.utils.StaticData.TypeOfWallet
@@ -33,7 +34,10 @@ data class WalletInputState(
     val selectedIcon: Int = R.drawable.account_wallet_ic,
 
     //wallet expense
-    val selectedExpWalletId:Int=1
+    val selectedExpWalletId:Int=1,
+
+    //selected wallet for details screen
+    val selectedWalletId_detail:Int = 0
 )
 data class SelectedTopBar(
     val selectedExpInc:Int = R.string.expense

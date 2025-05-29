@@ -48,4 +48,5 @@ class WalletRepository @Inject constructor(
     suspend fun getWalletAmountById(walletId: Int): Float {
         return walletDao.getWalletAmountById(walletId)
     }
+
 }

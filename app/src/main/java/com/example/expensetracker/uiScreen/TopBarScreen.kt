@@ -64,16 +64,19 @@ fun topBarWithBackArrow(
     localExp: ExpenseIncomeInputState,
     localCat: CategoryInputState,
     selectedExpInc: SelectedTopBar,
+    onEditWallet: () -> Unit
 ) {
     val currentScreenName = getScreenName(currentRoute!!,selectedExpInc)
     CenterAlignedTopAppBar(
         modifier = Modifier.background(color = Color.Transparent),
         title = {
-            Text(
-                text = currentScreenName,
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleMedium
-            )
+            if(currentRoute!=TopLevelDestination.showDetailOfWallet.name) {
+                Text(
+                    text = currentScreenName,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
         },
         navigationIcon = {
             Icon(Icons.Default.ArrowBack,
@@ -87,7 +90,8 @@ fun topBarWithBackArrow(
                 localExp = localExp,
                 localCategory = localCat,
                 selectedExpInc = selectedExpInc,
-                onActionClick = onActionClick
+                onActionClick = onActionClick,
+                onEditWallet = onEditWallet
             )
 
         }
@@ -103,6 +107,7 @@ fun topBarTrailingIcon(
     localExp: ExpenseIncomeInputState,
     localCategory: CategoryInputState,
     selectedExpInc: SelectedTopBar,
+    onEditWallet:()->Unit
 ) {
     if (currentRoute!! == TopLevelDestination.addWallet.name) {
         IconButton(
@@ -125,7 +130,7 @@ fun topBarTrailingIcon(
             painter = painterResource(R.drawable.setting_ic),
             contentDescription = stringResource(R.string.setting),
             tint = onSurface,
-            modifier = Modifier.size(30.dp).padding(15.dp)
+            modifier = Modifier.size(40.dp).padding(end = 15.dp)
         )
     }
     if(currentRoute== TopLevelDestination.expenseIncome.name &&
@@ -149,6 +154,22 @@ fun topBarTrailingIcon(
             )
         }
     }
+    if(currentRoute==TopLevelDestination.showDetailOfWallet.name)
+    if(currentRoute == TopLevelDestination.showDetailOfWallet.name){
+            Icon(
+                painter = painterResource(R.drawable.edit_ic),
+                contentDescription = stringResource(R.string.edit),
+                tint = onSurface,
+                modifier = Modifier.size(40.dp).padding(end = 15.dp).clickable(onClick = {onEditWallet()})
+            )
+        Icon(
+            painter = painterResource(R.drawable.pie_chart_ic),
+            contentDescription = stringResource(R.string.statistic),
+            tint = onSurface,
+            modifier = Modifier.size(40.dp).padding(end = 15.dp)
+        )
+
+    }
 
 }
 
@@ -162,14 +183,16 @@ fun AppTopBar(
     localExpIncState: ExpenseIncomeInputState,
     localCatState: CategoryInputState,
     selectedExpInc: SelectedTopBar,
-    onSelectExpInc: (Int) -> Unit
+    onSelectExpInc: (Int) -> Unit,
+    onEditWallet:()->Unit
 ) {
     when (currentRoute) {
         TopLevelDestination.expenseIncome.name,
         TopLevelDestination.selectWallet.name,
         TopLevelDestination.selectCategory.name,
         TopLevelDestination.addWallet.name,
-        TopLevelDestination.pickWalletIcon.name-> {
+        TopLevelDestination.pickWalletIcon.name,
+        TopLevelDestination.showDetailOfWallet.name-> {
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RectangleShape,
@@ -185,6 +208,7 @@ fun AppTopBar(
                         selectedExpInc = selectedExpInc,
                         onActionClick = onActionClick,
                         onBackClick = onBackClick,
+                        onEditWallet = onEditWallet
                     )
                     if (currentRoute == TopLevelDestination.expenseIncome.name
                     ) {

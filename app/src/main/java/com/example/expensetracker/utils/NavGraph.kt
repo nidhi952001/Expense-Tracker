@@ -73,12 +73,22 @@ fun topBarAction(
 fun topBarBackAction(
     currentRoute: String?,
     walletViewModel: WalletViewModel,
-    navController: NavController
+    navController: NavController,
+    onBackClick: Boolean
 ){
     when(currentRoute){
         TopLevelDestination.addWallet.name->{
             walletViewModel.resetWalletUiState()
             navController.navigateUp()
+        }
+        TopLevelDestination.showDetailOfWallet.name->{
+            if(onBackClick) {
+                navController.navigateUp()
+            }
+            else{
+                walletViewModel.editWallet()
+                navController.navigate(TopLevelDestination.addWallet.name)
+            }
         }
         else->{
             navController.navigateUp()

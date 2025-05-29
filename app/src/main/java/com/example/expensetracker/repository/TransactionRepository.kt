@@ -2,6 +2,7 @@ package com.example.expensetracker.repository
 
 import com.example.expensetracker.dao.TransactionDao
 import com.example.expensetracker.utils.DisplayUIState.transactionDetail
+import com.example.expensetracker.utils.DisplayUIState.transactionDetailByWallet
 import com.example.transactionensetracker.entity.Transaction
 import com.example.transactionensetracker.entity.TransactionType
 import kotlinx.coroutines.flow.Flow
@@ -30,5 +31,17 @@ class TransactionRepository @Inject constructor(
 
     fun showExpenseTransaction():Flow<List<transactionDetail>>{
         return transactionDao.showExpenseTransaction()
+    }
+
+    fun getExpenseCountById(walletId:Int,expense: TransactionType):Flow<Int>{
+        return transactionDao.getExpenseCountById(walletId, expense)
+    }
+
+    fun getIncomeCountById(walletId:Int,income: TransactionType):Flow<Int>{
+        return transactionDao.getIncomeCountById(walletId, income)
+    }
+
+    fun showTransactionByWallet(walletId: Int): Flow<List<transactionDetailByWallet>> {
+        return transactionDao.showTransactionByWallet(walletId)
     }
 }

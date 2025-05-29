@@ -58,6 +58,7 @@
     <string name="payment">Payment</string>
     <string name="piggy_bank">Piggy bank</string>
     <string name="upi_wallet">Upi Wallet</string>
+    <string name="transactions">transactions</string>
 
     <!--category-->
     <string name="bills">Bills</string>
@@ -75,6 +76,7 @@
     <string name="travel">Travel</string>
     <string name="others">Others</string>
     <string name="setting">Setting</string>
+    <string name="edit">Edit</string>
 
     <string name="allowance">Allowance</string>
     <string name="award">Award</string>

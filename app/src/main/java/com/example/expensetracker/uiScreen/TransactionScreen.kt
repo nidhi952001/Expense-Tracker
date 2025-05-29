@@ -21,17 +21,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -163,7 +157,7 @@ fun TransactionDetail(modifier: Modifier,overviewUiState: overViewDisplayState, 
                             addUniqueDate = { uniqueDate = setOf(format.format(date)) }
                         )
                     }
-                    TransactionByDate(transaction, modifier = Modifier)
+                    allTransaction(transaction, modifier = Modifier)
             }
         }
     }
@@ -203,7 +197,7 @@ private fun TransactionDate(
 }
 
 @Composable
-fun TransactionByDate(transaction: transactionDetail,modifier: Modifier) {
+fun allTransaction(transaction: transactionDetail, modifier: Modifier) {
     Row(modifier = modifier.fillMaxWidth().background(
         color = AppColors.surface).padding(10.dp) , verticalAlignment = Alignment.CenterVertically) {
         Column(modifier = Modifier.weight(1f)) {

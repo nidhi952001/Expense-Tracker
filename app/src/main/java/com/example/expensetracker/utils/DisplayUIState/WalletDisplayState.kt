@@ -1,12 +1,7 @@
 package com.example.expensetracker.utils.DisplayUIState
 
-import androidx.annotation.DrawableRes
 import androidx.compose.ui.graphics.Color
-import androidx.room.ColumnInfo
-import com.example.expensetracker.entity.CategoryType
 import com.example.expensetracker.entity.Wallet
-import com.example.expensetracker.utils.StaticData.TypeOfWallet
-import com.example.transactionensetracker.entity.Transaction
 import com.example.transactionensetracker.entity.TransactionType
 
 data class WalletDisplayState(
@@ -14,6 +9,13 @@ data class WalletDisplayState(
     val totalBalance:Float
 )
 
+data class WalletDetailState(
+    val selectedWallet_detail: Wallet?,
+    val countSelectedWallet_expense: Int,
+    val countSelectedWallet_income: Int,
+    val transaction: List<transactionDetailByWallet>
+
+)
 
 data class overViewDisplayState(
     val totalExpense: Float,
@@ -28,6 +30,16 @@ data class transactionDetail(
     val transaction_description: String?,
     val transaction_type: TransactionType,
     val walletName: String,
+    val categoryName:Int,
+    val categoryIcon:Int,
+    val categoryColor:Color,
+)
+
+data class transactionDetailByWallet(
+    val transaction_id: Int,
+    val total_transaction:Int?,
+    val transaction_total_amount:Float,
+    val transaction_type: TransactionType,
     val categoryName:Int,
     val categoryIcon:Int,
     val categoryColor:Color,

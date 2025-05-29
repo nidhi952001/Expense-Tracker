@@ -1,10 +1,12 @@
 package com.example.expensetracker.dao
 
+import androidx.compose.ui.graphics.Color
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.expensetracker.utils.DisplayUIState.transactionDetail
+import com.example.expensetracker.utils.DisplayUIState.transactionDetailByWallet
 import com.example.transactionensetracker.entity.Transaction
 import com.example.transactionensetracker.entity.TransactionType
 import kotlinx.coroutines.flow.Flow
@@ -28,4 +30,16 @@ interface TransactionDao {
             " from `transaction` as t inner join wallet as w inner join category as c where " +
             "t.transaction_wallet_id=w.walletId and t.transaction_category_id=c.categoryId order by t.transaction_date desc")
     fun showExpenseTransaction():Flow<List<transactionDetail>>
+    @Query("select count(transaction_id) from `transaction` where transaction_wallet_id=:walletId and transaction_type=:expense")
+    fun getExpenseCountById(walletId: Int,expense:TransactionType): Flow<Int>
+
+    @Query("select count(transaction_id) from `transaction` where transaction_wallet_id=:walletId and transaction_type=:income")
+    fun getIncomeCountById(walletId: Int,income:TransactionType): Flow<Int>
+    @Query("select t.transaction_id,count(t.transaction_id) as total_transaction," +
+            "sum(t.transaction_amount) as transaction_total_amount," +
+            "t.transaction_type,c.categoryName,c.categoryIcon,c.categoryColor" +
+            " from `transaction` as t inner join category as c " +
+            "where t.transaction_category_id=c.categoryId and t.transaction_wallet_id=:walletId group by c.categoryType")
+    fun showTransactionByWallet(walletId: Int): Flow<List<transactionDetailByWallet>>
+
 }
