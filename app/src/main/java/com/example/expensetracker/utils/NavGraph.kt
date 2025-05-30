@@ -52,7 +52,12 @@ fun topBarAction(
 ) {
     when(currentRoute){
         TopLevelDestination.addWallet.name->{
-            walletViewModel.saveIntoWallet()
+            if(walletViewModel.tempWalletState.value.onEditWalletClick){
+                walletViewModel.editWallet()
+            }
+            else {
+                walletViewModel.saveIntoWallet()
+            }
             navController.navigateUp()
         }
         TopLevelDestination.expenseIncome.name->{
@@ -83,10 +88,11 @@ fun topBarBackAction(
         }
         TopLevelDestination.showDetailOfWallet.name->{
             if(onBackClick) {
+                walletViewModel.resetOnEditClick()
                 navController.navigateUp()
             }
             else{
-                walletViewModel.editWallet()
+                walletViewModel.showWallet_edit()
                 navController.navigate(TopLevelDestination.addWallet.name)
             }
         }

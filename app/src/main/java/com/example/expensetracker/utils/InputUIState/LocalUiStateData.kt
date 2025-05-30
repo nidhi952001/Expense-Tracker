@@ -20,6 +20,7 @@ data class HomeStateData(
 
 
 data class WalletInputState(
+    val walletId:Int=0,
     val walletName: String = "",
     val isWalletNameValid: Boolean = false,
     val isWalletTypeExpanded: Boolean = false,
@@ -33,11 +34,15 @@ data class WalletInputState(
     val listOfIcon: List<ListOfIcons> = listOfWalletIcon.iconData,
     val selectedIcon: Int = R.drawable.account_wallet_ic,
 
+    val hideBalance:Boolean = true,
+
+
     //wallet expense
     val selectedExpWalletId:Int=1,
 
     //selected wallet for details screen
-    val selectedWalletId_detail:Int = 0
+    val selectedWalletId_detail:Int = 0,
+    val onEditWalletClick :Boolean = false
 )
 data class SelectedTopBar(
     val selectedExpInc:Int = R.string.expense

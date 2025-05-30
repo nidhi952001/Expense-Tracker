@@ -233,7 +233,9 @@ fun AppNavigationScreen() {
                         onViewWalletDetail = {walletId->
                             walletViewModel.getSelectedWalletData(walletId)
                             navController.navigate(TopLevelDestination.showDetailOfWallet.name)
-                        }
+                        },
+                        amountVisibility = inputWalletState,
+                        onClickVisibility = {walletViewModel.updateVisibility(it)}
                     )
                 }
                 composable(route = TopLevelDestination.addWallet.name) {

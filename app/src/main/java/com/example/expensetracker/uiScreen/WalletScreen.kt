@@ -60,7 +60,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachIndexed
 import com.example.expensetracker.R
 import com.example.expensetracker.entity.Wallet
-import com.example.expensetracker.ui.theme.AppColors
 import com.example.expensetracker.ui.theme.AppColors.inputFieldBackgroundColors
 import com.example.expensetracker.ui.theme.AppColors.inputFieldShape
 import com.example.expensetracker.ui.theme.AppColors.inputTextSize
@@ -79,6 +78,8 @@ import com.example.expensetracker.utils.DisplayUIState.transactionDetailByWallet
 import com.example.expensetracker.utils.InputUIState.WalletInputState
 import com.example.expensetracker.utils.StaticData.TypeOfWallet
 import com.example.transactionensetracker.entity.TransactionType
+import kotlin.math.floor
+import kotlin.math.roundToInt
 
 val listOfWallet = listOf(
     TypeOfWallet.General,
@@ -90,7 +91,9 @@ fun viewWalletWithBalance(
     modifier: Modifier,
     walletDatabaseState: WalletDisplayState,
     addWallet: () -> Unit,
-    onViewWalletDetail: (Int) -> Unit
+    onViewWalletDetail: (Int) -> Unit,
+    onClickVisibility: (Boolean) -> Unit,
+    amountVisibility: WalletInputState
 ) {
     LazyColumn(modifier) {
         item {
@@ -98,7 +101,9 @@ fun viewWalletWithBalance(
             showBalance(
                 modifier = Modifier.fillMaxWidth()
                     .background(color = surface),
-                totalBalance = walletDatabaseState.totalBalance
+                totalBalance = walletDatabaseState.totalBalance,
+                balanceVisibility = amountVisibility.hideBalance,
+                onClickVisibility = onClickVisibility
             )
             Spacer(Modifier.height(15.dp))
             showWallets(
@@ -106,14 +111,15 @@ fun viewWalletWithBalance(
                     .background(color = surface),
                 listOfWallet = walletDatabaseState.savedWallets,
                 addWallet = addWallet,
-                onViewWalletDetail = onViewWalletDetail
+                onViewWalletDetail = onViewWalletDetail,
+                amountVisibility = amountVisibility
             )
         }
     }
 }
 
 @Composable
-fun showBalance(modifier: Modifier, totalBalance: Float) {
+fun showBalance(modifier: Modifier, totalBalance: Float, balanceVisibility: Boolean,onClickVisibility:(Boolean)->Unit) {
     Column(modifier = modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = stringResource(R.string.account_balance),
@@ -129,12 +135,36 @@ fun showBalance(modifier: Modifier, totalBalance: Float) {
                 tint = inverseSurface
             )
             Text(
-                text = totalBalance.toString(),
+                text = if(balanceVisibility)
+                    totalBalance.toString()
+                else
+                    "*".repeat(totalBalance.toString().length),
                 style = MaterialTheme.typography.headlineMedium,
                 color = inverseSurface
             )
+            if(balanceVisibility) {
+                Icon(
+                    painter = painterResource(R.drawable.visibility_off_ic),
+                    contentDescription = stringResource(R.string.show),
+                    modifier = Modifier.clickable(onClick = {onClickVisibility(false)})
+                )
+            }
+            else{
+                Icon(
+                    painter = painterResource(R.drawable.visibility_ic),
+                    contentDescription = stringResource(R.string.hide),
+                    modifier = Modifier.clickable(onClick = {onClickVisibility(true)})
+                )
+            }
         }
     }
+}
+
+fun formatAmount(totalBalance: Double): String {
+    if((totalBalance%1).toInt() ==0)
+     return totalBalance.roundToInt().toString()
+    else
+        return totalBalance.toString()
 }
 
 @Composable
@@ -142,7 +172,8 @@ fun showWallets(
     modifier: Modifier,
     listOfWallet: List<Wallet>,
     addWallet: () -> Unit,
-    onViewWalletDetail: (Int) -> Unit
+    onViewWalletDetail: (Int) -> Unit,
+    amountVisibility: WalletInputState
 ) {
     Column(modifier = modifier.padding(horizontal = 10.dp, vertical = 10.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -172,7 +203,7 @@ fun showWallets(
             userScrollEnabled = false
         ) {
             items(items = listOfWallet) { wallet ->
-                wallet(wallet = wallet, onViewWalletDetail = onViewWalletDetail)
+                wallet(wallet = wallet, onViewWalletDetail = onViewWalletDetail,amountVisibility = amountVisibility)
             }
             item {
                 addWalletUi(addWallet = addWallet)
@@ -182,7 +213,7 @@ fun showWallets(
 }
 
 @Composable
-fun wallet(wallet: Wallet, onViewWalletDetail: (Int) -> Unit) {
+fun wallet(wallet: Wallet, onViewWalletDetail: (Int) -> Unit, amountVisibility: WalletInputState) {
     Card(
         modifier = Modifier.size(100.dp)
             .clickable(onClick = { onViewWalletDetail(wallet.walletId) })
@@ -219,7 +250,10 @@ fun wallet(wallet: Wallet, onViewWalletDetail: (Int) -> Unit) {
                     modifier = Modifier.size(15.dp)
                 )
                 Text(
-                    text = wallet.walletAmount.toString(),
+                    text = if(amountVisibility.hideBalance)
+                    wallet.walletAmount.toString()
+                    else
+                        "*".repeat(wallet.walletAmount.toString().length),
                     color = Color.White
                 )
             }
@@ -269,7 +303,8 @@ fun addWallet(
             .verticalScroll(scrollableState)
     ) {
         walletName(walletUiState, onNameChanged)
-        walletType(listOfWallet, expandDropDown, walletUiState, onSelectType)
+        if(!walletUiState.onEditWalletClick)
+            walletType(listOfWallet, expandDropDown, walletUiState, onSelectType)
         walletAmount(walletUiState, onWalletAmountChanged)
         walletColorWithIcon(walletUiState, onClickColorPicker, onSelectedColor, onIconClick)
     }

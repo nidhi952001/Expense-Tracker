@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.example.expensetracker.entity.Wallet
 import kotlinx.coroutines.flow.Flow
 
@@ -25,4 +26,7 @@ interface WalletDao {
     suspend fun updateWalletAmount(updateWalletAmount: Float, walletId: Int)
     @Query("select walletAmount from wallet where walletId=:walletId")
     suspend fun getWalletAmountById(walletId: Int): Float
+
+    @Update
+    suspend fun updateWallet(wallet:Wallet)
 }

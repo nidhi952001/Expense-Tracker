@@ -10,7 +10,6 @@ import com.example.expensetracker.repository.WalletRepository
 import com.example.expensetracker.utils.DisplayUIState.WalletDetailState
 import com.example.expensetracker.utils.DisplayUIState.WalletDisplayState
 import com.example.expensetracker.utils.InputUIState.WalletInputState
-import com.example.expensetracker.utils.StaticData.ListOfIcons
 import com.example.expensetracker.utils.StaticData.TypeOfWallet
 import com.example.expensetracker.utils.StaticData.listOfWalletColor
 import com.example.expensetracker.utils.StaticData.listOfWalletColor.coloCodeToColor
@@ -40,7 +39,8 @@ class WalletViewModel @Inject constructor(
 
     //from database
     val savedWallets: StateFlow<List<Wallet>> = walletRepository.showWallet()
-        .stateIn(viewModelScope,
+        .stateIn(
+            viewModelScope,
             SharingStarted.WhileSubscribed(),
             emptyList()
         )
@@ -97,8 +97,7 @@ class WalletViewModel @Inject constructor(
                     isWalletNameValid = true
                 )
             }
-        }
-        else{
+        } else {
             _tempWalletState.update {
                 it.copy(
                     isWalletNameValid = false
@@ -127,8 +126,7 @@ class WalletViewModel @Inject constructor(
                     isWalletAmountValid = true
                 )
             }
-        }
-        else{
+        } else {
             _tempWalletState.update {
                 it.copy(
                     isWalletAmountValid = false
@@ -174,7 +172,8 @@ class WalletViewModel @Inject constructor(
                 selectedIcon = R.drawable.account_wallet_ic,
                 showListOfColor = coloCodeToColor,
                 selectedColors = coloCodeToColor.getValue("sky_blue"),
-                showColorPicker = false
+                showColorPicker = false,
+                onEditWalletClick = false
             )
         }
     }
@@ -214,6 +213,7 @@ class WalletViewModel @Inject constructor(
         walletRepository.getWalletDataById(it)
     }
 
+    //this is for the wallet screen , in wallet screen , click on one wallet
     fun getSelectedWalletData(walletId: Int) {
         _tempWalletState.update {
             it.copy(
@@ -222,24 +222,25 @@ class WalletViewModel @Inject constructor(
         }
     }
 
+    //based on select wallet from wallet screen , show the details of wallet
     val selectedWallet_detail = _tempWalletState.map {
         it.selectedWalletId_detail
     }.distinctUntilChanged().flatMapLatest {
         walletRepository.getWalletDataById(it)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(0),null)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(0), null)
 
     val countSelectedWallet_expense = _tempWalletState.map {
         it.selectedWalletId_detail
     }.distinctUntilChanged().flatMapLatest {
-        transactionRepository.getExpenseCountById(it,TransactionType.Expense)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(0),0)
+        transactionRepository.getExpenseCountById(it, TransactionType.Expense)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(0), 0)
 
 
     val countselectedwalletIncome = _tempWalletState.map {
         it.selectedWalletId_detail
     }.distinctUntilChanged().flatMapLatest {
-        transactionRepository.getIncomeCountById(it,TransactionType.Income)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(0),0)
+        transactionRepository.getIncomeCountById(it, TransactionType.Income)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(0), 0)
 
     val transactionByWallet = _tempWalletState.map {
         it.selectedWalletId_detail
@@ -248,28 +249,68 @@ class WalletViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(0), emptyList())
 
     val getSelectedWalletDetails: StateFlow<WalletDetailState> =
-        combine(selectedWallet_detail,countSelectedWallet_expense, countselectedwalletIncome,transactionByWallet)
-        { wallet,countExp,countInc,transaction->
-            WalletDetailState(wallet,countExp,countInc,transaction)
+        combine(
+            selectedWallet_detail,
+            countSelectedWallet_expense,
+            countselectedwalletIncome,
+            transactionByWallet
+        )
+        { wallet, countExp, countInc, transaction ->
+            WalletDetailState(wallet, countExp, countInc, transaction)
         }.stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(0),
             WalletDetailState(null, 0, 0, emptyList())
         )
 
-    fun editWallet(){
+    fun showWallet_edit() {
         _tempWalletState.update {
             it.copy(
-                walletName = selectedWallet_detail.value?.walletName!!,
+                walletId = selectedWallet_detail.value?.walletId ?: 0,
+                walletName = selectedWallet_detail.value?.walletName.toString(),
                 walletAmount = selectedWallet_detail.value?.walletAmount.toString(),
-                 isWalletNameValid= true,
-             isWalletAmountValid = true,
-             showListOfColor = listOfWalletColor.coloCodeToColor,
-             selectedColors = selectedWallet_detail.value!!.walletColor,
-             showColorPicker = false,
-             walletIconName = selectedWallet_detail.value!!.walletIconDes,
-             listOfIcon = listOfWalletIcon.iconData,
-             selectedIcon= selectedWallet_detail.value!!.walletIcon,
+                isWalletNameValid = true,
+                isWalletAmountValid = true,
+                showListOfColor = coloCodeToColor,
+                selectedColors = selectedWallet_detail.value!!.walletColor,
+                showColorPicker = false,
+                walletIconName = selectedWallet_detail.value!!.walletIconDes,
+                listOfIcon = listOfWalletIcon.iconData,
+                selectedIcon = selectedWallet_detail.value!!.walletIcon,
+                onEditWalletClick = true
+            )
+        }
+    }
+
+    fun resetOnEditClick() {
+        _tempWalletState.update {
+            it.copy(
+                onEditWalletClick = false
+            )
+        }
+    }
+
+    fun editWallet() {
+        resetOnEditClick()
+        val wallet = Wallet(
+            walletId = _tempWalletState.value.walletId,
+            walletName = _tempWalletState.value.walletName,
+            walletType = _tempWalletState.value.selectType,
+            walletAmount = _tempWalletState.value.walletAmount.toFloat(),
+            walletIcon = _tempWalletState.value.selectedIcon,
+            walletIconDes = _tempWalletState.value.walletIconName,
+            walletColor = _tempWalletState.value.selectedColors
+        )
+        viewModelScope.launch(Dispatchers.IO) {
+            walletRepository.editWallet(wallet)
+
+        }
+    }
+
+    fun updateVisibility(visibility: Boolean) {
+        _tempWalletState.update {
+            it.copy(
+                hideBalance = visibility
             )
         }
     }

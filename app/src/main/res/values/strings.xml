@@ -47,6 +47,8 @@
     <string name="wallet_name">Wallet\'s name</string>
     <string name="arrow_down">Arrow Down</string>
     <string name="show_detail_of_wallet">Show Detail Of Wallet</string>
+    <string name="show">Show</string>
+    <string name="hide">Hide</string>
 
     <!--wallet icon-->
     <string name="bank">Bank</string>

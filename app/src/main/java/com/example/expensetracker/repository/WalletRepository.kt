@@ -49,4 +49,8 @@ class WalletRepository @Inject constructor(
         return walletDao.getWalletAmountById(walletId)
     }
 
+    suspend fun editWallet(wallet: Wallet) {
+        walletDao.updateWallet(wallet)
+    }
+
 }
