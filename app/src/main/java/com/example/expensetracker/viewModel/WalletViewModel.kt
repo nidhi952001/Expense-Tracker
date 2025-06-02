@@ -70,8 +70,6 @@ class WalletViewModel @Inject constructor(
         viewModelScope.launch {
             //saved in datastore
             walletRepository.saveInitialAmount(amount)
-            //saved in database
-            print("wallet color " + coloCodeToColor.getValue("sky_blue"))
             val initialWallet = Wallet(
                 walletId = 0,
                 walletName = "Cash",

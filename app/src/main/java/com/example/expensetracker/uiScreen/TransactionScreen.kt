@@ -227,13 +227,13 @@ fun allTransaction(transaction: transactionDetail, modifier: Modifier) {
         val annotedString = buildAnnotatedString {
             append(stringResource( R.string.ruppes_icon))
             append(" ")
-            append(transaction.transaction_amount.toString())
+            append(formatAmount(transaction.transaction_amount.toString()))
         }
         val annotedString1 = buildAnnotatedString {
             append(stringResource(R.string.minus_icon))
             append(stringResource( R.string.ruppes_icon))
             append(" ")
-            append(transaction.transaction_amount.toString())
+            append(formatAmount(transaction.transaction_amount.toString()))
         }
         Text(
             text =

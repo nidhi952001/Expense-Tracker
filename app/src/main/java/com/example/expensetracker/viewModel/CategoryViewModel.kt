@@ -52,6 +52,8 @@ class CategoryViewModel @Inject constructor(
         resetIncCategory()
         if(selectedCategory!=0) _temCatUiState.update { it.copy(validExpCategory = true) }
         else _temCatUiState.update { it.copy(validExpCategory = false) }
+
+        //this will update the category , which going to be use to save into database
         categoryRepository.updateselectedCategory(selectedCategory)
     }
     fun updateSelectedIncCategory(selectedCategory: Int){
@@ -63,10 +65,11 @@ class CategoryViewModel @Inject constructor(
         resetExpCategory()
         if(selectedCategory!=0) _temCatUiState.update { it.copy(validIncCategory = true) }
         else _temCatUiState.update { it.copy(validIncCategory = false) }
+        //this will update the category , which going to be use to save into database
         categoryRepository.updateselectedCategory(selectedCategory)
     }
 
-    //this both two show on expense screen
+    //this both show on expense screen
     val currentExpCategory = _temCatUiState.map {
         it.selectedExpCategoryId
     }.distinctUntilChanged().flatMapLatest {

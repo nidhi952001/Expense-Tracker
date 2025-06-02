@@ -37,7 +37,7 @@ import com.example.expensetracker.viewModel.WalletViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun AppNavigationScreen() {
+fun ExpenseTrackerNavHost() {
     //navigation
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()

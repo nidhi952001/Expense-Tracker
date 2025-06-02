@@ -44,7 +44,8 @@ class ExpenseIncomeViewModel @Inject constructor(
     // Your formatted string
     val format = SimpleDateFormat("MMM yyyy", Locale.getDefault())
     val date = format.parse(_currentMonthYear.value.selectedMonthYear)
-    val timestamp = date.time
+    val timestamp = date.date.inc()
+
 
     private val showExpenseTotal = transactionRepository.showTotalExpense(TransactionType.Expense)
     private val showIncomeTotal = transactionRepository.showTotalIncome(TransactionType.Income)

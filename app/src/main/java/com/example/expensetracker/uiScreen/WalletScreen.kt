@@ -78,7 +78,6 @@ import com.example.expensetracker.utils.DisplayUIState.transactionDetailByWallet
 import com.example.expensetracker.utils.InputUIState.WalletInputState
 import com.example.expensetracker.utils.StaticData.TypeOfWallet
 import com.example.transactionensetracker.entity.TransactionType
-import kotlin.math.floor
 import kotlin.math.roundToInt
 
 val listOfWallet = listOf(
@@ -136,9 +135,9 @@ fun showBalance(modifier: Modifier, totalBalance: Float, balanceVisibility: Bool
             )
             Text(
                 text = if(balanceVisibility)
-                    totalBalance.toString()
+                    formatAmount(totalBalance.toString())
                 else
-                    "*".repeat(totalBalance.toString().length),
+                    "*".repeat(formatAmount(totalBalance.toString()).length),
                 style = MaterialTheme.typography.headlineMedium,
                 color = inverseSurface
             )
@@ -251,9 +250,9 @@ fun wallet(wallet: Wallet, onViewWalletDetail: (Int) -> Unit, amountVisibility: 
                 )
                 Text(
                     text = if(amountVisibility.hideBalance)
-                    wallet.walletAmount.toString()
+                        formatAmount(wallet.walletAmount.toString())
                     else
-                        "*".repeat(wallet.walletAmount.toString().length),
+                        "*".repeat(formatAmount(wallet.walletAmount.toString()).length),
                     color = Color.White
                 )
             }
@@ -413,6 +412,20 @@ private fun walletAmount(
             onWalletAmountChanged(it)
         }
     )
+}
+
+fun formatAmount(input:String):String{
+    if(!input.isNullOrEmpty()) {
+        val num: Double = input.toDouble()
+        if ((num % 1) == 0.0) {
+            val integerNum = num.toInt()
+            return integerNum.toString()
+        } else {
+            return input
+        }
+    }
+    else
+        return input
 }
 
 @Composable
@@ -598,7 +611,7 @@ fun showListOfWallet(wallet: Wallet, selectedWallet: Wallet?, onSelectWallet: (I
                             modifier = Modifier.size(12.dp)
                         )
                         Text(
-                            text = wallet.walletAmount.toString(),
+                            text = formatAmount(wallet.walletAmount.toString()),
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Light
                         )

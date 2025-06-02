@@ -62,6 +62,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.core.text.buildSpannedString
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.expensetracker.R
 import com.example.expensetracker.entity.Wallet
 import com.example.expensetracker.ui.theme.AppColors.inputFieldBackgroundColors
@@ -74,6 +75,7 @@ import com.example.expensetracker.ui.theme.AppColors.onBackground
 import com.example.expensetracker.ui.theme.AppColors.onSurface
 import com.example.expensetracker.ui.theme.AppColors.surface
 import com.example.expensetracker.utils.InputUIState.ExpenseIncomeInputState
+import com.example.expensetracker.viewModel.ExpenseIncomeViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -99,6 +101,7 @@ fun ExpenseIncomeScreen(
 
     BackHandler(onBack = onBack)
     val scrollableState = rememberScrollState()
+    val expIncViewModel: ExpenseIncomeViewModel = hiltViewModel()
 
 
     val datePickerState = rememberDatePickerState()
@@ -223,7 +226,7 @@ private fun expenseWallet(expSelectedWallet: Wallet?,onClickListOfWallet:()->Uni
             append("•")
         }
         append("\u0020₹\u0020")
-        append(expSelectedWallet?.walletAmount.toString())
+        append(formatAmount(expSelectedWallet?.walletAmount.toString()))
     }
     label("Wallet")
     inputWithTrailingIcon(
