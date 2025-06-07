@@ -15,6 +15,7 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
@@ -40,11 +41,12 @@ import com.example.expensetracker.ui.theme.AppColors.surface
 import com.example.expensetracker.utils.TopLevelDestination
 
 data class BottomNavItem(
-    val route:String,
+    val route: String,
     val painter: Int,
-    val label:Int
+    val label: Int
 )
-object ListOfBottomButton  {
+
+object ListOfBottomButton {
     val BottomNavItems = listOf(
         BottomNavItem(
             route = TopLevelDestination.transaction.name,
@@ -65,33 +67,41 @@ object ListOfBottomButton  {
     )
 
 }
+
 @Composable
-fun appBottomBar(navHostController: NavHostController, currentRoute: String?){
-    if(currentRoute.equals(TopLevelDestination.transaction.name) ||
-        currentRoute.equals(TopLevelDestination.showWallet.name)) {
-        BottomAppBar(containerColor = surface , contentColor = onSurface , tonalElevation = 5.dp) {
+fun appBottomBar(navHostController: NavHostController, currentRoute: String?) {
+    if (currentRoute.equals(TopLevelDestination.transaction.name) ||
+        currentRoute.equals(TopLevelDestination.showWallet.name)
+    ) {
+        BottomAppBar(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest, contentColor = onSurface, tonalElevation = 5.dp) {
             var selectedBottomBar by remember { mutableStateOf(currentRoute) }
-            Row(modifier = Modifier.fillMaxSize() ,
+            Row(
+                modifier = Modifier.fillMaxSize(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween) {
-                ListOfBottomButton.BottomNavItems.forEach{
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                ListOfBottomButton.BottomNavItems.forEach {
                     Column(horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.clickable(indication = null, enabled = true,
-                                interactionSource = MutableInteractionSource()) {
+                        modifier = Modifier.clickable(
+                            indication = null, enabled = true,
+                            interactionSource = MutableInteractionSource()
+                        ) {
                             selectedBottomBar = it.route
                             navHostController.navigate(it.route)
-                        }.padding(10.dp)) {
+                        }.padding(10.dp)
+                    ) {
                         Icon(
                             painter = painterResource(it.painter),
                             contentDescription = stringResource(it.label),
                             /*tint =  if(selectedBottomBar == it.route) onSurface
                             else inverseOnSurface*/
                         )
-                        if(it.painter != R.drawable.add_ic)
-                        Text(text = stringResource(it.label),
-                            /*color = if(selectedBottomBar == it.route) onSurface
-                                    else inverseOnSurface*/
-                        )
+                        if (it.painter != R.drawable.add_ic)
+                            Text(
+                                text = stringResource(it.label),
+                                /*color = if(selectedBottomBar == it.route) onSurface
+                                        else inverseOnSurface*/
+                            )
                     }
                 }
             }
@@ -102,20 +112,24 @@ fun appBottomBar(navHostController: NavHostController, currentRoute: String?){
 }
 
 @Composable
-fun welcomeScreenBottom(modifier: Modifier, onGetStarted: () -> Unit, onNext:()->Unit, page: Int){
-        Row(modifier = modifier) {
-                when (page) {
-                    1 ->
-                        Button(modifier = Modifier.fillMaxWidth(), onClick = { onGetStarted() }) {
-                            Text(text = stringResource(R.string.get_started))
-                        }
-
-                    else ->
-                        Button(modifier = Modifier.fillMaxWidth(), onClick = { onNext() }) {
-                        Text(text = stringResource(R.string.next))
-                    }
-
+fun welcomeScreenBottom(
+    modifier: Modifier,
+    onGetStarted: () -> Unit,
+    onNext: () -> Unit,
+    page: Int
+) {
+    Row(modifier = modifier) {
+        when (page) {
+            1 ->
+                Button(modifier = Modifier.fillMaxWidth(), onClick = { onGetStarted() }) {
+                    Text(text = stringResource(R.string.get_started))
                 }
+            else ->
+                Button(modifier = Modifier.fillMaxWidth(), onClick = { onNext() }) {
+                    Text(text = stringResource(R.string.next))
+                }
+
         }
+    }
 
 }

@@ -3,6 +3,7 @@ package com.example.expensetracker.uiScreen
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -44,6 +45,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -77,6 +80,7 @@ import com.example.expensetracker.utils.DisplayUIState.WalletDisplayState
 import com.example.expensetracker.utils.DisplayUIState.transactionDetailByWallet
 import com.example.expensetracker.utils.InputUIState.WalletInputState
 import com.example.expensetracker.utils.StaticData.TypeOfWallet
+import com.example.expensetracker.viewModel.WalletViewModel
 import com.example.transactionensetracker.entity.TransactionType
 import kotlin.math.roundToInt
 
@@ -85,14 +89,41 @@ val listOfWallet = listOf(
     TypeOfWallet.CreditCard
 )
 
+
+@Composable
+fun viewWalletWithBalanceRoute(
+    addWallet: () -> Unit,
+    onClickWallet: () -> Unit,
+    walletViewModel: WalletViewModel
+) {
+    val walletScrollableState = rememberScrollState()
+    val walletDatabaseState by walletViewModel.persistedWalletState.collectAsState()
+    val amountVisibility by walletViewModel.tempWalletState.collectAsState()
+
+    viewWalletWithBalance(
+        modifier = Modifier.scrollable(
+            state = walletScrollableState,
+            orientation = Orientation.Vertical
+        ).fillMaxSize().background(color = inverseOnSurface),
+        walletDatabaseState = walletDatabaseState,
+        amountVisibility = amountVisibility,
+        onClickVisibility = { walletViewModel.updateVisibility(it) },
+        addWallet = addWallet,
+        onViewWalletDetail = {
+            walletViewModel.getSelectedWalletData(it)
+            onClickWallet()
+        }
+    )
+}
+
 @Composable
 fun viewWalletWithBalance(
     modifier: Modifier,
     walletDatabaseState: WalletDisplayState,
-    addWallet: () -> Unit,
-    onViewWalletDetail: (Int) -> Unit,
+    amountVisibility: WalletInputState,
     onClickVisibility: (Boolean) -> Unit,
-    amountVisibility: WalletInputState
+    addWallet: () -> Unit,
+    onViewWalletDetail: (Int) -> Unit
 ) {
     LazyColumn(modifier) {
         item {
@@ -118,7 +149,12 @@ fun viewWalletWithBalance(
 }
 
 @Composable
-fun showBalance(modifier: Modifier, totalBalance: Float, balanceVisibility: Boolean,onClickVisibility:(Boolean)->Unit) {
+fun showBalance(
+    modifier: Modifier,
+    totalBalance: Float,
+    balanceVisibility: Boolean,
+    onClickVisibility: (Boolean) -> Unit
+) {
     Column(modifier = modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = stringResource(R.string.account_balance),
@@ -134,36 +170,28 @@ fun showBalance(modifier: Modifier, totalBalance: Float, balanceVisibility: Bool
                 tint = inverseSurface
             )
             Text(
-                text = if(balanceVisibility)
+                text = if (balanceVisibility)
                     formatAmount(totalBalance.toString())
                 else
                     "*".repeat(formatAmount(totalBalance.toString()).length),
                 style = MaterialTheme.typography.headlineMedium,
                 color = inverseSurface
             )
-            if(balanceVisibility) {
+            if (balanceVisibility) {
                 Icon(
                     painter = painterResource(R.drawable.visibility_off_ic),
                     contentDescription = stringResource(R.string.show),
-                    modifier = Modifier.clickable(onClick = {onClickVisibility(false)})
+                    modifier = Modifier.clickable(onClick = { onClickVisibility(false) })
                 )
-            }
-            else{
+            } else {
                 Icon(
                     painter = painterResource(R.drawable.visibility_ic),
                     contentDescription = stringResource(R.string.hide),
-                    modifier = Modifier.clickable(onClick = {onClickVisibility(true)})
+                    modifier = Modifier.clickable(onClick = { onClickVisibility(true) })
                 )
             }
         }
     }
-}
-
-fun formatAmount(totalBalance: Double): String {
-    if((totalBalance%1).toInt() ==0)
-     return totalBalance.roundToInt().toString()
-    else
-        return totalBalance.toString()
 }
 
 @Composable
@@ -202,7 +230,11 @@ fun showWallets(
             userScrollEnabled = false
         ) {
             items(items = listOfWallet) { wallet ->
-                wallet(wallet = wallet, onViewWalletDetail = onViewWalletDetail,amountVisibility = amountVisibility)
+                wallet(
+                    wallet = wallet,
+                    onViewWalletDetail = onViewWalletDetail,
+                    amountVisibility = amountVisibility
+                )
             }
             item {
                 addWalletUi(addWallet = addWallet)
@@ -249,7 +281,7 @@ fun wallet(wallet: Wallet, onViewWalletDetail: (Int) -> Unit, amountVisibility: 
                     modifier = Modifier.size(15.dp)
                 )
                 Text(
-                    text = if(amountVisibility.hideBalance)
+                    text = if (amountVisibility.hideBalance)
                         formatAmount(wallet.walletAmount.toString())
                     else
                         "*".repeat(formatAmount(wallet.walletAmount.toString()).length),
@@ -281,33 +313,57 @@ fun addWalletUi(addWallet: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun addWallet(
+fun addWalletRoute(
+    onIconClick: () -> Unit,
+    onBackClick: () -> Unit,
+    walletViewModel: WalletViewModel
+) {
+    val scrollableState = rememberScrollState()
+    val walletUiState by walletViewModel.tempWalletState.collectAsState()
+
+    BackHandler(enabled = true,
+        onBack = {
+            walletViewModel.resetWalletUiState()
+            onBackClick()
+        }
+    )
+
+    addWallet(
+        scrollableState = scrollableState,
+        walletUiState = walletUiState,
+        onNameChanged = { walletViewModel.updateWalletName(it) },
+        expandDropDown = { walletViewModel.updateDropDown(it) },
+        onWalletAmountChanged = { walletViewModel.updateWalletAmount(it) },
+        onClickColorPicker = { walletViewModel.updateColorPicker(it) },
+        onSelectedColor = { walletViewModel.updateSelectedColor(it) },
+        onSelectType = { walletViewModel.updateWalletType(it) },
+        onIconClick
+    )
+
+}
+@Composable
+private fun addWallet(
+    scrollableState: ScrollState,
     walletUiState: WalletInputState,
     onNameChanged: (String) -> Unit,
-    onWalletAmountChanged: (String) -> Unit,
-    onSelectType: (TypeOfWallet) -> Unit,
     expandDropDown: (Boolean) -> Unit,
-    onIconClick: () -> Unit,
+    onWalletAmountChanged: (String) -> Unit,
     onClickColorPicker: (Boolean) -> Unit,
     onSelectedColor: (Color) -> Unit,
-    onBackClick: () -> Unit
+    onSelectType: (TypeOfWallet) -> Unit,
+    onIconClick: () -> Unit
 ) {
-
-    BackHandler(enabled = true, onBack = onBackClick)
-    val scrollableState = rememberScrollState()
-
     Column(
         modifier = Modifier.background(color = inverseOnSurface).fillMaxSize().padding(top = 15.dp)
             .background(color = surface).padding(start = 30.dp, end = 30.dp)
             .verticalScroll(scrollableState)
     ) {
         walletName(walletUiState, onNameChanged)
-        if(!walletUiState.onEditWalletClick)
+        if (!walletUiState.onEditWalletClick)
             walletType(listOfWallet, expandDropDown, walletUiState, onSelectType)
         walletAmount(walletUiState, onWalletAmountChanged)
         walletColorWithIcon(walletUiState, onClickColorPicker, onSelectedColor, onIconClick)
     }
-
 }
 
 @Composable
@@ -414,8 +470,8 @@ private fun walletAmount(
     )
 }
 
-fun formatAmount(input:String):String{
-    if(!input.isNullOrEmpty()) {
+fun formatAmount(input: String): String {
+    if (input!=null && input.isNotEmpty()) {
         val num: Double = input.toDouble()
         if ((num % 1) == 0.0) {
             val integerNum = num.toInt()
@@ -423,8 +479,7 @@ fun formatAmount(input:String):String{
         } else {
             return input
         }
-    }
-    else
+    } else
         return input
 }
 
@@ -529,7 +584,21 @@ fun colorPicker(onSelectedColor: (Color) -> Unit, listOfColors: List<Map.Entry<S
 }
 
 @Composable
-fun showIcon(walletUiState: WalletInputState, modifier: Modifier, onSelectedIcon: (Int) -> Unit) {
+fun showIconRoute(onSelectedIconNavigate: () -> Unit,walletViewModel: WalletViewModel) {
+    val walletUiState by walletViewModel.tempWalletState.collectAsState()
+    showIcon(modifier = Modifier.fillMaxSize(),
+        walletUiState = walletUiState,
+        onSelectedIcon =
+        {
+            walletViewModel.updateSelectedIcon(it)
+            onSelectedIconNavigate()
+        }
+    )
+
+}
+
+@Composable
+fun showIcon(modifier: Modifier, walletUiState: WalletInputState, onSelectedIcon: (Int) -> Unit) {
     Column(modifier = modifier) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = 50.dp),
@@ -565,10 +634,29 @@ fun showIcon(walletUiState: WalletInputState, modifier: Modifier, onSelectedIcon
 
 //show list of wallet for income and expense screen
 @Composable
-fun SelectWallet(walletDatabaseState: WalletDisplayState, selectedWallet: Wallet?,onSelectWallet:(Int)->Unit) {
-    LazyColumn(modifier = Modifier.fillMaxSize().background(color = inverseOnSurface).padding(top = 20.dp).background(color = surface)) {
+fun SelectWalletRoute(navigateUp: () -> Unit,walletViewModel: WalletViewModel) {
+    val walletDatabaseState by walletViewModel.persistedWalletState.collectAsState()
+    val selectedExpenseWallet by walletViewModel.selectedWallet.collectAsState(initial = null)
+
+    SelectWallet(walletDatabaseState = walletDatabaseState,
+        selectedExpenseWallet = selectedExpenseWallet,
+        onSelectWallet = {
+            walletViewModel.updateSelectedExpWallet(it)
+            navigateUp()
+        })
+}
+@Composable
+private fun SelectWallet(
+    walletDatabaseState: WalletDisplayState,
+    selectedExpenseWallet: Wallet?,
+    onSelectWallet: (Int) -> Unit
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().background(color = inverseOnSurface).padding(top = 20.dp)
+            .background(color = surface)
+    ) {
         items(walletDatabaseState.savedWallets) { wallet ->
-            showListOfWallet(wallet,selectedWallet,onSelectWallet)
+            showListOfWallet(wallet, selectedExpenseWallet, onSelectWallet)
         }
     }
 }
@@ -577,12 +665,12 @@ fun SelectWallet(walletDatabaseState: WalletDisplayState, selectedWallet: Wallet
 fun showListOfWallet(wallet: Wallet, selectedWallet: Wallet?, onSelectWallet: (Int) -> Unit) {
 
     val borderStroke =
-        if(selectedWallet?.walletId!=wallet.walletId) BorderStroke(1.dp,Color.Black)
-    else BorderStroke(0.dp,Color.Transparent)
+        if (selectedWallet?.walletId != wallet.walletId) BorderStroke(1.dp, Color.Black)
+        else BorderStroke(0.dp, Color.Transparent)
     Row(
         modifier = Modifier.padding(top = 10.dp).padding(horizontal = 30.dp).clickable(
-                enabled = true, onClick = {onSelectWallet(wallet.walletId)}
-            ),
+            enabled = true, onClick = { onSelectWallet(wallet.walletId) }
+        ),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
@@ -625,17 +713,16 @@ fun showListOfWallet(wallet: Wallet, selectedWallet: Wallet?, onSelectWallet: (I
                 .padding(5.dp)
                 .clip(CircleShape)
                 .background(
-                    if(selectedWallet?.walletId == wallet.walletId) {
+                    if (selectedWallet?.walletId == wallet.walletId) {
                         Color.Blue.copy(alpha = 0.6F)
-                    }else{
+                    } else {
                         Color.Unspecified
                     }
                 )
-                .border(borderStroke, CircleShape)
-            ,
+                .border(borderStroke, CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            if(selectedWallet?.walletId==wallet.walletId) {
+            if (selectedWallet?.walletId == wallet.walletId) {
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = "",
@@ -670,16 +757,23 @@ fun Check() {
 
 //wallet detail screen
 @Composable
-fun showWalletDetail(
-    walletData: WalletDetailState?,
-    modifier: Modifier
-) {
+fun showWalletDetailRoute(walletViewModel: WalletViewModel) {
     val scrollableState = rememberScrollState()
-    if (walletData?.selectedWallet_detail != null){
-        Box(modifier = modifier.fillMaxSize().padding(top = 20.dp).scrollable(scrollableState,Orientation.Vertical)) {
+    val walletData by walletViewModel.getSelectedWalletDetails.collectAsState()
+    showWalletDetail(walletData, scrollableState)
+}
+
+
+@Composable
+fun showWalletDetail(walletData: WalletDetailState, scrollableState: ScrollState) {
+    if (walletData.selectedWallet_detail != null) {
+        Box(
+            modifier = Modifier.fillMaxSize().background(color = inverseOnSurface)
+                .padding(top = 20.dp).scrollable(scrollableState, Orientation.Vertical)
+        ) {
             Column {
-                walletDetail(walletData.selectedWallet_detail, walletData)
-                if(walletData.transaction.isNotEmpty())
+                walletDetail(walletData.selectedWallet_detail!!, walletData)
+                if (walletData.transaction.isNotEmpty())
                     walletTransaction(walletData.transaction)
             }
         }
@@ -688,13 +782,18 @@ fun showWalletDetail(
 
 @Composable
 fun walletTransaction(transaction: List<transactionDetailByWallet>) {
-    LazyColumn(modifier = Modifier.wrapContentHeight().padding(top = 20.dp).background(
-        color = surface).padding(horizontal = 10.dp)) {
+    LazyColumn(
+        modifier = Modifier.wrapContentHeight().padding(top = 20.dp).background(
+            color = surface
+        ).padding(horizontal = 10.dp)
+    ) {
         item {
-            Text(text = "Transaction list" ,
+            Text(
+                text = "Transaction list",
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 10.dp))
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 10.dp)
+            )
         }
         items(transaction) {
             allWalletTransaction(it, modifier = Modifier)
@@ -745,7 +844,7 @@ private fun walletDetail(
             horizontalArrangement = Arrangement.Center
         ) {
             Text(
-                text = stringResource(R.string.ruppes_icon) + selectedWallet_detail.walletAmount.toString(),
+                text = stringResource(R.string.ruppes_icon) + formatAmount(selectedWallet_detail.walletAmount.toString()),
                 fontSize = MaterialTheme.typography.titleMedium.fontSize
             )
         }
@@ -780,7 +879,10 @@ private fun allWalletTransaction(
     transaction: transactionDetailByWallet,
     modifier: Modifier.Companion
 ) {
-    Row(modifier = modifier.fillMaxWidth().padding(vertical = 10.dp, horizontal = 10.dp) , verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = modifier.fillMaxWidth().padding(vertical = 10.dp, horizontal = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Column(modifier = Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(
@@ -794,31 +896,32 @@ private fun allWalletTransaction(
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Column {
-                    Text(text =
+                    Text(
+                        text =
                         stringResource(transaction.categoryName),
                         fontWeight = FontWeight.ExtraBold
                     )
-                    Text(text = transaction.total_transaction.toString()+" "+ stringResource(R.string.transactions))
+                    Text(text = transaction.total_transaction.toString() + " " + stringResource(R.string.transactions))
                 }
             }
         }
         val annotedString = buildAnnotatedString {
-            append(stringResource( R.string.ruppes_icon))
+            append(stringResource(R.string.ruppes_icon))
             append(" ")
-            append(transaction.transaction_total_amount.toString())
+            append(formatAmount(transaction.transaction_total_amount.toString()))
         }
         val annotedString1 = buildAnnotatedString {
             append(stringResource(R.string.minus_icon))
-            append(stringResource( R.string.ruppes_icon))
+            append(stringResource(R.string.ruppes_icon))
             append(" ")
-            append(transaction.transaction_total_amount.toString())
+            append(formatAmount(transaction.transaction_total_amount.toString()))
         }
         Text(
             text =
-            if(transaction.transaction_type == TransactionType.Income) annotedString
+            if (transaction.transaction_type == TransactionType.Income) annotedString
             else annotedString1,
             color =
-            if(transaction.transaction_type == TransactionType.Income)
+            if (transaction.transaction_type == TransactionType.Income)
                 Color.Blue.copy(alpha = 0.5F)
             else
                 Color.Red.copy(alpha = 0.5F),

@@ -26,6 +26,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,6 +50,7 @@ import com.example.expensetracker.utils.InputUIState.SelectedTopBar
 import com.example.expensetracker.utils.InputUIState.WalletInputState
 import com.example.expensetracker.utils.TopLevelDestination
 import com.example.expensetracker.utils.getScreenName
+import com.example.expensetracker.viewModel.WalletViewModel
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -177,15 +180,16 @@ fun topBarTrailingIcon(
 fun AppTopBar(
     userName: String,
     currentRoute: String?,
-    localWallet: WalletInputState,
     onActionClick: () -> Unit,
     onBackClick: () -> Unit,
     localExpIncState: ExpenseIncomeInputState,
     localCatState: CategoryInputState,
     selectedExpInc: SelectedTopBar,
     onSelectExpInc: (Int) -> Unit,
-    onEditWallet:()->Unit
+    onEditWallet:()->Unit,
+    walletViewModel: WalletViewModel
 ) {
+    val localWallet by walletViewModel.tempWalletState.collectAsState()
     when (currentRoute) {
         TopLevelDestination.expenseIncome.name,
         TopLevelDestination.selectWallet.name,

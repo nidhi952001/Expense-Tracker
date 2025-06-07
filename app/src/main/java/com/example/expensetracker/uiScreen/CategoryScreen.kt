@@ -22,6 +22,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,35 +33,75 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.expensetracker.R
 import com.example.expensetracker.entity.Category
 import com.example.expensetracker.ui.theme.AppColors.inverseOnSurface
 import com.example.expensetracker.ui.theme.AppColors.surface
 import com.example.expensetracker.utils.InputUIState.CategoryInputState
 import com.example.expensetracker.viewModel.CategoryViewModel
+import com.example.expensetracker.viewModel.HomeViewModel
 
 @Composable
-fun addCategory(categoryViewModel: CategoryViewModel = hiltViewModel()){
+fun addCategory(){
    // val category = Category(1,"Food", Icons.Default.ArrowBack.name.length, CategoryType.EXPENSE)
    // categoryViewModel.addCategory(category)
 }
 
 @Composable
-fun ShowCategoryList(
-    listOfExpCategory: List<Category>,
-    onSelectCategory: (Int) -> Unit,
-    selectedCategory: CategoryInputState
+fun ShowCategoryListRoute(
+    navigateUp:()->Unit,
+    homeViewModel: HomeViewModel,
+    categoryViewModel: CategoryViewModel
 ) {
-    LazyColumn(modifier = Modifier.fillMaxSize().background(color = inverseOnSurface).padding(top = 20.dp).background(color = surface)) {
-        items(listOfExpCategory){
+    val modifier = Modifier.fillMaxSize().background(color = inverseOnSurface).padding(top = 20.dp)
+        .background(color = surface)
+    val selectedExpInc by homeViewModel.selectedExpInc.collectAsState()
+    val listOfExpCategory by categoryViewModel.listOfExpCategory.collectAsState()
+    val listOfIncCategory by categoryViewModel.listOfIncCategory.collectAsState()
+    val inputCategoryState by categoryViewModel.tempCategoryState.collectAsState()
+
+    if (selectedExpInc.selectedExpInc == R.string.expense) {
+        ShowCategoryList(
+            modifier = modifier,
+            listOfExpCategory = listOfExpCategory,
+            selectedCategory = inputCategoryState,
+            onSelectCategory = {
+                categoryViewModel.updateSelectedCategory(it)
+                navigateUp()
+            }
+        )
+    }
+    else{
+        ShowCategoryList(
+            modifier = modifier,
+            listOfExpCategory = listOfIncCategory,
+            onSelectCategory = {
+                categoryViewModel.updateSelectedIncCategory(it)
+                navigateUp()
+            },
+            selectedCategory = inputCategoryState
+        )
+    }
+}
+@Composable
+private fun ShowCategoryList(
+    modifier: Modifier,
+    listOfExpCategory: List<Category>,
+    selectedCategory: CategoryInputState,
+    onSelectCategory: (Int) -> Unit
+) {
+    LazyColumn(
+        modifier = modifier
+    ) {
+        items(listOfExpCategory) {
             showCategory(
-                category =it,
+                category = it,
                 selectedCategory = selectedCategory,
-                onSelectCategory = {onSelectCategory(it)})
+                onSelectCategory = { onSelectCategory(it) })
         }
     }
-
 }
+
 @Composable
 fun showCategory(
     category: Category,

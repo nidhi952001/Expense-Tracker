@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -21,11 +22,12 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,14 +47,33 @@ import com.example.expensetracker.ui.theme.*
 import com.example.expensetracker.ui.theme.AppColors.inverseOnSurface
 import com.example.expensetracker.ui.theme.AppColors.inverseSurface
 import com.example.expensetracker.utils.InputUIState.HomeStateData
+import com.example.expensetracker.viewModel.HomeViewModel
+import com.example.expensetracker.viewModel.WalletViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun WelcomeScreen(modifier: Modifier, onGetStarted: () -> Unit) {
-    var pagerState = rememberPagerState { 2 }
+fun WelcomeScreenRoute(onGetStarted: () -> Unit) {
+    val pagerState = rememberPagerState { 2 }
     val scope = rememberCoroutineScope()
+    val modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp)
+    WelcomeScreen(
+        modifier = modifier,
+        pagerState = pagerState,
+        onGetStarted = onGetStarted,
+        scope = scope)
+
+}
+
+@Composable
+private fun WelcomeScreen(
+    modifier: Modifier,
+    pagerState: PagerState,
+    onGetStarted: () -> Unit,
+    scope: CoroutineScope
+) {
     Column(modifier = modifier, verticalArrangement = Arrangement.Center) {
-        horizontalScroller(pagerState, modifier = Modifier.weight(1f))
+        horizontalScroller(pagerState =pagerState, modifier = Modifier.weight(1f))
         welcomeScreenBottom(
             modifier = Modifier.padding(bottom = 10.dp),
             onGetStarted = onGetStarted,
@@ -66,7 +87,6 @@ fun WelcomeScreen(modifier: Modifier, onGetStarted: () -> Unit) {
             page = pagerState.currentPage
         )
     }
-
 }
 
 @Composable
@@ -153,11 +173,26 @@ fun pagerContent(
 
 
 @Composable
-fun userNameScreen(
-    uiState: HomeStateData,
-    onUserNameChange: (String) -> Unit,
-    saveUserName: (String) -> Unit,
-    modifier: Modifier
+fun userNameScreenRoute(
+    onNavigate: () -> Unit,
+    homeViewModel: HomeViewModel
+) {
+    val homeUiState by homeViewModel.homeUiStateData.collectAsState()
+    userNameScreen(
+        modifier=  Modifier.fillMaxSize(),
+        homeUiState = homeUiState,
+        onUserNameChange = { homeViewModel.updateUserName(it) },
+        saveUserName = {
+            homeViewModel.saveUserName(it)
+            onNavigate()
+        })
+}
+@Composable
+private fun userNameScreen(
+    modifier: Modifier,
+    homeUiState: HomeStateData,
+    onUserNameChange:(String)->Unit,
+    saveUserName: (String) -> Unit
 ) {
     Column(
         modifier = modifier.padding(top = 50.dp),
@@ -175,11 +210,12 @@ fun userNameScreen(
         )
         Spacer(Modifier.height(5.dp))
         TextField(
-            value = uiState.userName,
+            value = homeUiState.userName,
             onValueChange = { onUserNameChange(it) },
             placeholder = { Text(text = stringResource(R.string.name)) },
             singleLine = true,
-            modifier = Modifier.padding(start = 20.dp, end = 20.dp).fillMaxWidth().border(BorderStroke(1.dp, Color.Unspecified)),
+            modifier = Modifier.padding(start = 20.dp, end = 20.dp).fillMaxWidth()
+                .border(BorderStroke(1.dp, Color.Unspecified)),
             textStyle = TextStyle.Default.copy(
                 color = AppColors.onSurface,
                 fontWeight = AppColors.inputTextWeight,
@@ -192,15 +228,17 @@ fun userNameScreen(
                 unfocusedContainerColor = AppColors.inputFieldBackgroundColors,
                 unfocusedIndicatorColor = Color.Transparent,
                 focusedContainerColor = AppColors.inputFieldBackgroundColors
-            ), // if value is false then only it is clickable
+            ),
             keyboardOptions = KeyboardOptions.Default.copy(
                 capitalization = KeyboardCapitalization.Words,
             )
         )
         Spacer(Modifier.height(5.dp))
-        Button(onClick = { saveUserName(uiState.userName) },
-            enabled = if (uiState.userName.isNotEmpty()) true else false,
-            modifier = Modifier.padding(start = 20.dp, end = 20.dp).fillMaxWidth()) {
+        Button(
+            onClick = { saveUserName(homeUiState.userName) },
+            enabled = homeUiState.userName.isNotEmpty(),
+            modifier = Modifier.padding(start = 20.dp, end = 20.dp).fillMaxWidth()
+        ) {
             Text(text = stringResource(R.string.next))
         }
 
@@ -208,14 +246,27 @@ fun userNameScreen(
 }
 
 @Composable
-fun initialMoneyScreen(
-    modifier: Modifier,
-    saveInitialMoney: (String) -> Unit,
-    initialMoneyState: HomeStateData,
-    onInitialMoneyChange:(String)->Unit
-    ) {
+fun initialMoneyScreenRoute(onNavigate:()->Unit,homeViewModel: HomeViewModel,walletViewModel: WalletViewModel)
+{
+    val homeUiState by homeViewModel.homeUiStateData.collectAsState()
+
+    initialMoneyScreen(
+        homeUiState = homeUiState,
+        onInitialMoneyChange = { homeViewModel.updateInitalMoney(it) },
+        saveInitialMoney = {
+            walletViewModel.saveInitialAmount(it)
+            onNavigate()
+        }
+    )
+}
+@Composable
+private fun initialMoneyScreen(
+    homeUiState: HomeStateData,
+    onInitialMoneyChange: (String) -> Unit,
+    saveInitialMoney: (String) -> Unit
+) {
     Column(
-        modifier = modifier.padding(top = 50.dp),
+        modifier = Modifier.fillMaxSize().padding(top = 50.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -233,7 +284,7 @@ fun initialMoneyScreen(
             placeholder = {
                 Text(text = stringResource(R.string.zero))
             },
-            value = initialMoneyState.initialMoney,
+            value = homeUiState.initialMoney,
             onValueChange = {
                 onInitialMoneyChange(it)
             },
@@ -241,8 +292,8 @@ fun initialMoneyScreen(
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             keyboardActions = KeyboardActions(
                 onDone = {
-                    if(initialMoneyState.initialMoney!="") {
-                        saveInitialMoney(initialMoneyState.initialMoney)
+                    if (homeUiState.initialMoney != "") {
+                        saveInitialMoney(homeUiState.initialMoney)
                     }
                 }
             )

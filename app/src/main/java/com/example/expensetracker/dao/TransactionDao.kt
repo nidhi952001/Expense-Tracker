@@ -40,7 +40,7 @@ interface TransactionDao {
             "sum(t.transaction_amount) as transaction_total_amount," +
             "t.transaction_type,c.categoryName,c.categoryIcon,c.categoryColor" +
             " from `transaction` as t inner join category as c " +
-            "where t.transaction_category_id=c.categoryId and t.transaction_wallet_id=:walletId group by c.categoryType")
+            "where t.transaction_category_id=c.categoryId and t.transaction_wallet_id=:walletId group by c.categoryName")
     fun showTransactionByWallet(walletId: Int): Flow<List<transactionDetailByWallet>>
 
 }

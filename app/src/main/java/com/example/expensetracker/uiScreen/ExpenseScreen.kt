@@ -6,6 +6,7 @@ import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -19,8 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -42,12 +41,10 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -61,8 +58,6 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.core.text.buildSpannedString
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.expensetracker.R
 import com.example.expensetracker.entity.Wallet
 import com.example.expensetracker.ui.theme.AppColors.inputFieldBackgroundColors
@@ -75,8 +70,9 @@ import com.example.expensetracker.ui.theme.AppColors.onBackground
 import com.example.expensetracker.ui.theme.AppColors.onSurface
 import com.example.expensetracker.ui.theme.AppColors.surface
 import com.example.expensetracker.utils.InputUIState.ExpenseIncomeInputState
+import com.example.expensetracker.viewModel.CategoryViewModel
 import com.example.expensetracker.viewModel.ExpenseIncomeViewModel
-import kotlinx.coroutines.launch
+import com.example.expensetracker.viewModel.WalletViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -85,29 +81,66 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ExpenseIncomeScreen(
-    modifier: Modifier,
-    showDateDialogUI: (Boolean) -> Unit,
-    onDateSelected: (Long?) -> Unit,
-    inputUiState: ExpenseIncomeInputState,
-    onExpenseAmountChanged: (String) -> Unit,
-    onDescriptionChanged: (String) -> Unit,
+fun ExpenseIncomeScreenRoute(
     onClickListOfWallet: () -> Unit,
-    selectedExpWallet: Wallet?,
     onClickListOfCategory: () -> Unit,
     selectedCategory: Int?,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    expenseIncomeViewModel: ExpenseIncomeViewModel,
+    walletViewModel: WalletViewModel,
+    categoryViewModel: CategoryViewModel
 ) {
-
-    BackHandler(onBack = onBack)
     val scrollableState = rememberScrollState()
-    val expIncViewModel: ExpenseIncomeViewModel = hiltViewModel()
+    val inputUiState by expenseIncomeViewModel.tempExpeIncState.collectAsState()
+    val selectedExpenseWallet by walletViewModel.selectedWallet.collectAsState(
+        initial = null
+    )
+
+    BackHandler(onBack = {
+        expenseIncomeViewModel.resetUiState()
+        categoryViewModel.resetIncCategory()
+        categoryViewModel.resetExpCategory()
+        onBack()
+    })
 
 
     val datePickerState = rememberDatePickerState()
     val currentTime = Calendar.getInstance()
     var formattedTime:String = ""
+    var modifier = Modifier.fillMaxSize()
+    ExpenseIncomeScreen(
+        modifier = modifier,
+        scrollableState = scrollableState,
+        showDateDialogUI = { expenseIncomeViewModel.updateDateDialogState(it) },
+        inputUiState = inputUiState,
+        datePickerState =datePickerState,
+        onDateSelected = { expenseIncomeViewModel.updateSelectedDate(it) },
+        onExpenseAmountChanged = { expenseIncomeViewModel.updateExpenseAmount(it) },
+        onDescriptionChanged = { expenseIncomeViewModel.updateExpenseDes(it) },
+        selectedCategory =selectedCategory,
+        onClickListOfCategory =onClickListOfCategory,
+        selectedExpWallet =selectedExpenseWallet,
+        onClickListOfWallet =onClickListOfWallet
+    )
 
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ExpenseIncomeScreen(
+    modifier: Modifier,
+    scrollableState: ScrollState,
+    showDateDialogUI: (Boolean) -> Unit,
+    inputUiState: ExpenseIncomeInputState,
+    datePickerState: DatePickerState,
+    onDateSelected: (Long?) -> Unit,
+    onExpenseAmountChanged: (String) -> Unit,
+    onDescriptionChanged: (String) -> Unit,
+    selectedCategory: Int?,
+    onClickListOfCategory: () -> Unit,
+    selectedExpWallet: Wallet?,
+    onClickListOfWallet: () -> Unit
+) {
     Box(
         modifier = modifier.imePadding().background(color = inverseOnSurface).padding(top = 20.dp)
             .verticalScroll(scrollableState)
@@ -152,10 +185,10 @@ fun ExpenseIncomeScreen(
             )
             expenseWallet(
                 expSelectedWallet = selectedExpWallet,
-                onClickListOfWallet = onClickListOfWallet)
+                onClickListOfWallet = onClickListOfWallet
+            )
         }
     }
-
 }
 
 @Composable
@@ -226,7 +259,9 @@ private fun expenseWallet(expSelectedWallet: Wallet?,onClickListOfWallet:()->Uni
             append("•")
         }
         append("\u0020₹\u0020")
-        append(formatAmount(expSelectedWallet?.walletAmount.toString()))
+        if (expSelectedWallet != null) {
+            append(formatAmount(expSelectedWallet.walletAmount.toString()))
+        }
     }
     label("Wallet")
     inputWithTrailingIcon(

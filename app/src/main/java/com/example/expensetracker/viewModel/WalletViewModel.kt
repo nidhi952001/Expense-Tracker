@@ -7,6 +7,7 @@ import com.example.expensetracker.R
 import com.example.expensetracker.entity.Wallet
 import com.example.expensetracker.repository.TransactionRepository
 import com.example.expensetracker.repository.WalletRepository
+import com.example.expensetracker.uiScreen.formatAmount
 import com.example.expensetracker.utils.DisplayUIState.WalletDetailState
 import com.example.expensetracker.utils.DisplayUIState.WalletDisplayState
 import com.example.expensetracker.utils.InputUIState.WalletInputState
@@ -225,26 +226,26 @@ class WalletViewModel @Inject constructor(
         it.selectedWalletId_detail
     }.distinctUntilChanged().flatMapLatest {
         walletRepository.getWalletDataById(it)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(0), null)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
 
     val countSelectedWallet_expense = _tempWalletState.map {
         it.selectedWalletId_detail
     }.distinctUntilChanged().flatMapLatest {
         transactionRepository.getExpenseCountById(it, TransactionType.Expense)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(0), 0)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
 
 
     val countselectedwalletIncome = _tempWalletState.map {
         it.selectedWalletId_detail
     }.distinctUntilChanged().flatMapLatest {
         transactionRepository.getIncomeCountById(it, TransactionType.Income)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(0), 0)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
 
     val transactionByWallet = _tempWalletState.map {
         it.selectedWalletId_detail
     }.distinctUntilChanged().flatMapLatest {
         transactionRepository.showTransactionByWallet(it)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(0), emptyList())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     val getSelectedWalletDetails: StateFlow<WalletDetailState> =
         combine(
@@ -257,7 +258,7 @@ class WalletViewModel @Inject constructor(
             WalletDetailState(wallet, countExp, countInc, transaction)
         }.stateIn(
             viewModelScope,
-            SharingStarted.WhileSubscribed(0),
+            SharingStarted.WhileSubscribed(),
             WalletDetailState(null, 0, 0, emptyList())
         )
 
@@ -266,7 +267,7 @@ class WalletViewModel @Inject constructor(
             it.copy(
                 walletId = selectedWallet_detail.value?.walletId ?: 0,
                 walletName = selectedWallet_detail.value?.walletName.toString(),
-                walletAmount = selectedWallet_detail.value?.walletAmount.toString(),
+                walletAmount = formatAmount(selectedWallet_detail.value?.walletAmount.toString()),
                 isWalletNameValid = true,
                 isWalletAmountValid = true,
                 showListOfColor = coloCodeToColor,

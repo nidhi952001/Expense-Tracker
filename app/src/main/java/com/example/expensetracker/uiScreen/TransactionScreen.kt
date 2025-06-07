@@ -4,6 +4,7 @@ import android.app.Activity
 import android.icu.text.SimpleDateFormat
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -26,6 +28,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,33 +47,47 @@ import com.example.expensetracker.R
 import com.example.expensetracker.ui.theme.AppColors
 import com.example.expensetracker.utils.DisplayUIState.overViewDisplayState
 import com.example.expensetracker.utils.DisplayUIState.transactionDetail
+import com.example.expensetracker.viewModel.ExpenseIncomeViewModel
 import com.example.transactionensetracker.entity.TransactionType
 import java.util.Date
 import java.util.Locale
 
 @Composable
-fun TransactionScreen(
-    modifier: Modifier,
-    overviewUiState: overViewDisplayState,
-    showTransaction: List<transactionDetail>
-){
+fun TransactionScreenRoute(expenseIncomeViewModel: ExpenseIncomeViewModel)
+{
     val context = LocalContext.current
     val activity = context as Activity
     val scrollableState = rememberScrollState()
-
     BackHandler(enabled = true){
         activity.finish()
     }
+    val overViewState by expenseIncomeViewModel.showOverView.collectAsState()
+    val modifier = Modifier.fillMaxSize().background(color = AppColors.inverseOnSurface)
+    val showTransaction by expenseIncomeViewModel._showTransaction.collectAsState()
 
+    TransactionScreen(
+        modifier =modifier,
+        scrollableState = scrollableState,
+        overViewState = overViewState,
+        showTransaction = showTransaction)
 
+}
+@Composable
+private fun TransactionScreen(
+    modifier: Modifier,
+    scrollableState: ScrollState,
+    overViewState: overViewDisplayState,
+    showTransaction: List<transactionDetail>
+) {
     Column(
-        modifier = modifier.scrollable(scrollableState , orientation = Orientation.Vertical)
+        modifier = modifier.scrollable(scrollableState, orientation = Orientation.Vertical)
     ) {
-        TransactionDetail(modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp),
-            overviewUiState = overviewUiState,
-            showTransaction = showTransaction)
+        TransactionDetail(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp),
+            overviewUiState = overViewState,
+            showTransaction = showTransaction
+        )
     }
-
 }
 
 @Composable
@@ -93,7 +111,7 @@ fun TransactionSummary(modifier: Modifier, overviewUiState: overViewDisplayState
             val annotedString = buildAnnotatedString {
                 append(stringResource( R.string.ruppes_icon))
                 append(" ")
-                append(overviewUiState.totalIncome.toString())
+                append(formatAmount(overviewUiState.totalIncome.toString()))
             }
             Text(text = stringResource(R.string.income))
             Text(text = annotedString,
@@ -104,7 +122,7 @@ fun TransactionSummary(modifier: Modifier, overviewUiState: overViewDisplayState
                 append(stringResource(R.string.minus_icon))
                 append(stringResource( R.string.ruppes_icon))
                 append(" ")
-                append(overviewUiState.totalExpense.toString())
+                append(formatAmount(overviewUiState.totalExpense.toString()))
             }
             Text(text = stringResource(R.string.expense))
             Text(text =annotedString,
@@ -114,13 +132,13 @@ fun TransactionSummary(modifier: Modifier, overviewUiState: overViewDisplayState
             val annotedString = buildAnnotatedString {
                 append(stringResource( R.string.ruppes_icon))
                 append(" ")
-                append(overviewUiState.total.toString())
+                append(formatAmount(overviewUiState.total.toString()))
             }
             val annotedString1 = buildAnnotatedString {
                 append(stringResource(R.string.minus_icon))
                 append(stringResource( R.string.ruppes_icon))
                 append(" ")
-                append(overviewUiState.total.toString())
+                append(formatAmount(overviewUiState.total.toString()))
             }
             Text(text = stringResource(R.string.total))
             Text(text =
