@@ -29,8 +29,8 @@ class TransactionRepository @Inject constructor(
         return transactionDao.showTotalIncome(income)
     }
 
-    fun showExpenseTransaction():Flow<List<transactionDetail>>{
-        return transactionDao.showExpenseTransaction()
+    fun showExpenseTransaction(firstDayOfMonth: Long, lastDayOfMonth: Long):Flow<List<transactionDetail>>{
+        return transactionDao.showExpenseTransaction(firstDayOfMonth,lastDayOfMonth)
     }
 
     fun getExpenseCountById(walletId:Int,expense: TransactionType):Flow<Int>{

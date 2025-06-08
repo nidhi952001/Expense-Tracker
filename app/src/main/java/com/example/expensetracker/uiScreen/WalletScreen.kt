@@ -82,7 +82,6 @@ import com.example.expensetracker.utils.InputUIState.WalletInputState
 import com.example.expensetracker.utils.StaticData.TypeOfWallet
 import com.example.expensetracker.viewModel.WalletViewModel
 import com.example.transactionensetracker.entity.TransactionType
-import kotlin.math.roundToInt
 
 val listOfWallet = listOf(
     TypeOfWallet.General,
@@ -331,7 +330,7 @@ fun addWalletRoute(
     addWallet(
         scrollableState = scrollableState,
         walletUiState = walletUiState,
-        onNameChanged = { walletViewModel.updateWalletName(it) },
+        onWalletNameChanged = { walletViewModel.updateWalletName(it) },
         expandDropDown = { walletViewModel.updateDropDown(it) },
         onWalletAmountChanged = { walletViewModel.updateWalletAmount(it) },
         onClickColorPicker = { walletViewModel.updateColorPicker(it) },
@@ -345,7 +344,7 @@ fun addWalletRoute(
 private fun addWallet(
     scrollableState: ScrollState,
     walletUiState: WalletInputState,
-    onNameChanged: (String) -> Unit,
+    onWalletNameChanged: (String) -> Unit,
     expandDropDown: (Boolean) -> Unit,
     onWalletAmountChanged: (String) -> Unit,
     onClickColorPicker: (Boolean) -> Unit,
@@ -358,7 +357,7 @@ private fun addWallet(
             .background(color = surface).padding(start = 30.dp, end = 30.dp)
             .verticalScroll(scrollableState)
     ) {
-        walletName(walletUiState, onNameChanged)
+        walletName(walletUiState, onWalletNameChanged)
         if (!walletUiState.onEditWalletClick)
             walletType(listOfWallet, expandDropDown, walletUiState, onSelectType)
         walletAmount(walletUiState, onWalletAmountChanged)

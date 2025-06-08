@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.ArrowBack
@@ -36,6 +34,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.expensetracker.R
 import com.example.expensetracker.ui.theme.AppColors.errorColor
 import com.example.expensetracker.ui.theme.AppColors.onError
@@ -50,11 +49,8 @@ import com.example.expensetracker.utils.InputUIState.SelectedTopBar
 import com.example.expensetracker.utils.InputUIState.WalletInputState
 import com.example.expensetracker.utils.TopLevelDestination
 import com.example.expensetracker.utils.getScreenName
+import com.example.expensetracker.viewModel.ExpenseIncomeViewModel
 import com.example.expensetracker.viewModel.WalletViewModel
-import java.text.DateFormat
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -255,20 +251,25 @@ fun topBarWithoutBackArrow(userName: String, currentRoute: String?) {
 
 @Composable
 fun selectMonthTopBar() {
+    val expenseIncomeViewModel:ExpenseIncomeViewModel = hiltViewModel()
+    val currentMonthYearState by expenseIncomeViewModel.currentMonthYear.collectAsState()
     val formatMonthYear = android.icu.text.SimpleDateFormat("MMM yyyy", Locale.getDefault())
-    val date = Date()
+    val currentMonthYear = formatMonthYear.format(currentMonthYearState.currentMonthYear.time)
     Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp) , verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arrangement.SpaceBetween) {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-            contentDescription = stringResource(R.string.previous)
+            contentDescription = stringResource(R.string.previous),
+            modifier = Modifier.clickable(onClick = { expenseIncomeViewModel.previousMonthYear(currentMonthYearState.currentMonthYear) })
         )
         Text(
-            text = formatMonthYear.format(date),
+            text = currentMonthYear,
             fontWeight = FontWeight.ExtraBold
         )
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-            contentDescription = stringResource(R.string.next)
+            contentDescription = stringResource(R.string.next),
+            modifier = Modifier.clickable(onClick = {expenseIncomeViewModel.nextMonthYear(currentMonthYearState.currentMonthYear)})
+
         )
     }
 }

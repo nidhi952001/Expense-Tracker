@@ -1,6 +1,5 @@
 package com.example.expensetracker.dao
 
-import androidx.compose.ui.graphics.Color
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -29,8 +28,9 @@ interface TransactionDao {
             "w.walletName , c.categoryName , c.categoryIcon , c.categoryColor" +
             " from `transaction` as t inner join wallet as w inner join category as c where " +
             "t.transaction_wallet_id=w.walletId and t.transaction_category_id=c.categoryId " +
+            "and t.transaction_date between :firstDayOfMonth and :lastDayOfMonth " +
             "order by t.transaction_date desc")
-    fun showExpenseTransaction():Flow<List<transactionDetail>>
+    fun showExpenseTransaction(firstDayOfMonth: Long, lastDayOfMonth: Long):Flow<List<transactionDetail>>
     @Query("select count(transaction_id) from `transaction` where transaction_wallet_id=:walletId and transaction_type=:expense")
     fun getExpenseCountById(walletId: Int,expense:TransactionType): Flow<Int>
 

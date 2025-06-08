@@ -9,6 +9,7 @@ import com.example.expensetracker.utils.StaticData.TypeOfWallet
 import com.example.expensetracker.utils.StaticData.listOfWalletColor
 import com.example.expensetracker.utils.StaticData.listOfWalletIcon
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -49,7 +50,7 @@ data class SelectedTopBar(
 )
 
 data class SelectedMonthAndYear(
-    val selectedMonthYear: String = SimpleDateFormat("MMM yyyy", Locale.getDefault()).format(Date())
+    val currentMonthYear: Calendar = Calendar.getInstance()
 )
 
 data class ExpenseIncomeInputState(

@@ -32,7 +32,26 @@ data class transactionDetail(
     val walletName: String,
     val categoryName:Int,
     val categoryIcon:Int,
-    val categoryColor:Color,
+    val categoryColor:Color
+)
+
+data class transactionByDate(
+    val transaction_date: String,
+    val transaction_day:String,
+    val transaction_month:String,
+    val transaction_year:String,
+    val transaction_total_amount: Float,
+    val transaction_list:List<transactionByList>
+)
+
+data class transactionByList(
+    val transaction_amount: String,
+    val transaction_description: String?,
+    val transaction_color: Color,
+    val walletName: String,
+    val categoryName:Int,
+    val categoryIcon:Int,
+    val categoryColor:Color
 )
 
 data class transactionDetailByWallet(

@@ -1,7 +1,6 @@
 package com.example.expensetracker.uiScreen
 
 import android.app.Activity
-import android.icu.text.SimpleDateFormat
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
@@ -46,11 +45,9 @@ import androidx.compose.ui.unit.dp
 import com.example.expensetracker.R
 import com.example.expensetracker.ui.theme.AppColors
 import com.example.expensetracker.utils.DisplayUIState.overViewDisplayState
-import com.example.expensetracker.utils.DisplayUIState.transactionDetail
+import com.example.expensetracker.utils.DisplayUIState.transactionByDate
+import com.example.expensetracker.utils.DisplayUIState.transactionByList
 import com.example.expensetracker.viewModel.ExpenseIncomeViewModel
-import com.example.transactionensetracker.entity.TransactionType
-import java.util.Date
-import java.util.Locale
 
 @Composable
 fun TransactionScreenRoute(expenseIncomeViewModel: ExpenseIncomeViewModel)
@@ -63,13 +60,12 @@ fun TransactionScreenRoute(expenseIncomeViewModel: ExpenseIncomeViewModel)
     }
     val overViewState by expenseIncomeViewModel.showOverView.collectAsState()
     val modifier = Modifier.fillMaxSize().background(color = AppColors.inverseOnSurface)
-    val showTransaction by expenseIncomeViewModel._showTransaction.collectAsState()
-
+    val transactionGroupByDate by expenseIncomeViewModel.transactionGroupByDate.collectAsState()
     TransactionScreen(
         modifier =modifier,
         scrollableState = scrollableState,
         overViewState = overViewState,
-        showTransaction = showTransaction)
+        showTransaction = transactionGroupByDate)
 
 }
 @Composable
@@ -77,7 +73,7 @@ private fun TransactionScreen(
     modifier: Modifier,
     scrollableState: ScrollState,
     overViewState: overViewDisplayState,
-    showTransaction: List<transactionDetail>
+    showTransaction: List<transactionByDate>
 ) {
     Column(
         modifier = modifier.scrollable(scrollableState, orientation = Orientation.Vertical)
@@ -150,44 +146,34 @@ fun TransactionSummary(modifier: Modifier, overviewUiState: overViewDisplayState
 }
 
 @Composable
-fun TransactionDetail(modifier: Modifier,overviewUiState: overViewDisplayState, showTransaction: List<transactionDetail>){
-    val groupByDate = showTransaction.groupBy { it.transaction_date }
-    var uniqueDate = emptySet<String>()
-    val format = SimpleDateFormat("dd/MM/YYYY", Locale.getDefault())
-    val formatDate = SimpleDateFormat("dd", Locale.getDefault())
-    val formatDay = SimpleDateFormat("eeee", Locale.getDefault())
-    val formatMonthYear = SimpleDateFormat("MMM yyyy",Locale.getDefault())
-
+fun TransactionDetail(modifier: Modifier,overviewUiState: overViewDisplayState, showTransaction: List<transactionByDate>){
     LazyColumn(modifier= modifier) {
         item {
             TransactionSummary(modifier = Modifier.fillMaxWidth()
                 .background(color = AppColors.surface),
                 overviewUiState = overviewUiState)
         }
-        groupByDate.forEach { date, transactionDetails ->
-            items(items = transactionDetails) { transaction ->
-                    if (!uniqueDate.contains(format.format(date))) {
-                        TransactionDate(
-                            date,
-                            formatDate,
-                            formatDay,
-                            formatMonthYear,
-                            addUniqueDate = { uniqueDate = setOf(format.format(date)) }
-                        )
-                    }
-                    allTransaction(transaction, modifier = Modifier)
+            items(items = showTransaction) { transaction ->
+                TransactionDate(
+                    transactionDate = transaction.transaction_date,
+                    transactionDay = transaction.transaction_day,
+                    transactionMonth = transaction.transaction_month,
+                    transactionYear = transaction.transaction_year,
+                    totalOfTheDay = transaction.transaction_total_amount)
+                transaction.transaction_list.forEach {transactions->
+                    allTransaction(transactions, modifier = Modifier)
+                }
             }
-        }
     }
 }
 
 @Composable
 private fun TransactionDate(
-    date: Long?,
-    formatDate: SimpleDateFormat,
-    formatDay: SimpleDateFormat,
-    formatMonthYear: SimpleDateFormat,
-    addUniqueDate:(Date)->Unit
+    transactionDate: String,
+    transactionDay: String,
+    transactionMonth: String,
+    transactionYear: String,
+    totalOfTheDay: Float
 ) {
     Row(
         modifier = Modifier.fillMaxWidth()
@@ -197,8 +183,7 @@ private fun TransactionDate(
             ).padding(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val date = date?.let { Date(it) }
-        Text(text = formatDate.format(date),
+        Text(text = transactionDate,
             fontSize = MaterialTheme.typography.headlineLarge.fontSize,
             style = MaterialTheme.typography.titleMedium,
             color = AppColors.inverseSurface,
@@ -206,16 +191,18 @@ private fun TransactionDate(
             )
         Spacer(modifier = Modifier.width(10.dp))
         Column {
-            Text(text = formatDay.format(date))
-            Text(text = formatMonthYear.format(date))
+            Text(text = transactionDay)
+            Text(text = "$transactionMonth $transactionYear")
         }
-        addUniqueDate(date!!)
+        Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.End) {
+            Text(text = totalOfTheDay.toString())
+        }
     }
     Spacer(modifier = Modifier.height(2.dp))
 }
 
 @Composable
-fun allTransaction(transaction: transactionDetail, modifier: Modifier) {
+fun allTransaction(transaction: transactionByList, modifier: Modifier) {
     Row(modifier = modifier.fillMaxWidth().background(
         color = AppColors.surface).padding(10.dp) , verticalAlignment = Alignment.CenterVertically) {
         Column(modifier = Modifier.weight(1f)) {
@@ -245,23 +232,11 @@ fun allTransaction(transaction: transactionDetail, modifier: Modifier) {
         val annotedString = buildAnnotatedString {
             append(stringResource( R.string.ruppes_icon))
             append(" ")
-            append(formatAmount(transaction.transaction_amount.toString()))
-        }
-        val annotedString1 = buildAnnotatedString {
-            append(stringResource(R.string.minus_icon))
-            append(stringResource( R.string.ruppes_icon))
-            append(" ")
-            append(formatAmount(transaction.transaction_amount.toString()))
+            append(formatAmount(transaction.transaction_amount))
         }
         Text(
-            text =
-            if(transaction.transaction_type == TransactionType.Income) annotedString
-            else annotedString1,
-            color =
-            if(transaction.transaction_type == TransactionType.Income)
-                Color.Blue.copy(alpha = 0.5F)
-            else
-                Color.Red.copy(alpha = 0.5F),
+            text = annotedString,
+            color = transaction.transaction_color,
             textAlign = TextAlign.End
         )
     }
