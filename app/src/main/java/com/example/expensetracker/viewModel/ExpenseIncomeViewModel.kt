@@ -21,6 +21,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -48,7 +50,13 @@ class ExpenseIncomeViewModel @Inject constructor(
     var lastDayOfMonth:Long
     var firstDayOfMonth:Long
     init {
-        val selectedCalendar = _currentMonthYear.value.currentMonthYear.clone() as Calendar
+        val mapValue = getSelectedMonthRange(_currentMonthYear.value.currentMonthYear)
+        firstDayOfMonth= mapValue.keys.first()
+        lastDayOfMonth = mapValue.entries.first().value
+    }
+
+    private fun getSelectedMonthRange(currentMonthYear: Calendar):Map<Long,Long> {
+        val selectedCalendar = currentMonthYear.clone() as Calendar
 
         val firstDay = selectedCalendar.clone() as Calendar
         firstDay.set(Calendar.DAY_OF_MONTH, 1)
@@ -58,15 +66,41 @@ class ExpenseIncomeViewModel @Inject constructor(
         lastDay.add(Calendar.MONTH, 1)
         lastDay.set(Calendar.DAY_OF_MONTH, 1)
         lastDayOfMonth = lastDay.timeInMillis
+        return mapOf(firstDayOfMonth to lastDayOfMonth)
     }
 
 
-    private val showExpenseTotal = transactionRepository.showTotalExpense(TransactionType.Expense)
-    private val showIncomeTotal = transactionRepository.showTotalIncome(TransactionType.Income)
+    private val showExpenseTotal =
+        _currentMonthYear.map {
+            it.currentMonthYear
+            val mapValue = getSelectedMonthRange(it.currentMonthYear)
+            firstDayOfMonth= mapValue.keys.first()
+            lastDayOfMonth = mapValue.entries.first().value
+            transactionRepository.showTotalExpense(TransactionType.Expense,firstDayOfMonth, lastDayOfMonth)
+        }.distinctUntilChanged().flatMapLatest {
+            it
+        }
+    private val showIncomeTotal =
+        _currentMonthYear.map {
+            it.currentMonthYear
+            val mapValue = getSelectedMonthRange(it.currentMonthYear)
+            firstDayOfMonth= mapValue.keys.first()
+            lastDayOfMonth = mapValue.entries.first().value
+            transactionRepository.showTotalIncome(TransactionType.Income,firstDayOfMonth, lastDayOfMonth)
+        }.distinctUntilChanged().flatMapLatest {
+            it
+        }
 
     val _showTransaction =
-        transactionRepository.showExpenseTransaction(firstDayOfMonth, lastDayOfMonth)
-            .stateIn(
+        _currentMonthYear.map {
+            it.currentMonthYear
+            val mapValue = getSelectedMonthRange(it.currentMonthYear)
+            firstDayOfMonth= mapValue.keys.first()
+            lastDayOfMonth = mapValue.entries.first().value
+            transactionRepository.showExpenseTransaction(firstDayOfMonth, lastDayOfMonth)
+        }.distinctUntilChanged().flatMapLatest {
+            it
+        }.stateIn(
                 viewModelScope, SharingStarted.WhileSubscribed(), emptyList()
             )
 
@@ -155,7 +189,6 @@ class ExpenseIncomeViewModel @Inject constructor(
     fun previousMonthYear(currentMonthYear: Calendar) {
         val updatedCalendar = currentMonthYear.clone() as Calendar
         updatedCalendar.add(Calendar.MONTH, -1)
-
         _currentMonthYear.update {
             it.copy(currentMonthYear = updatedCalendar)
         }
@@ -172,11 +205,11 @@ class ExpenseIncomeViewModel @Inject constructor(
 
 
     val showOverView = combine(showExpenseTotal, showIncomeTotal) { expense, income ->
-        overViewDisplayState(expense, income, (income - expense))
+        overViewDisplayState(expense, income, (income - expense), isLoading = false)
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(),
-        overViewDisplayState(0F, 0F, 0F)
+        overViewDisplayState(isLoading = true)
     )
 
     fun updateDateDialogState(dateDialog: Boolean) {

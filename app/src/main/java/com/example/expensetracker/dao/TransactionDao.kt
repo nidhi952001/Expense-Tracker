@@ -18,11 +18,13 @@ interface TransactionDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addExpense(expense: Transaction)
 
-    @Query("select sum(transaction_amount) from `Transaction` where transaction_type=:income")
-    fun showTotalIncome(income: TransactionType): Flow<Float>
+    @Query("select sum(transaction_amount) from `Transaction` where transaction_type=:income and " +
+            "transaction_date between :firstDayOfMonth and :lastDayOfMonth")
+    fun showTotalIncome(income: TransactionType, firstDayOfMonth: Long, lastDayOfMonth: Long): Flow<Float>
 
-    @Query("Select sum(transaction_amount) from `Transaction` where transaction_type=:expense")
-    fun showTotalExpense(expense: TransactionType): Flow<Float>
+    @Query("Select sum(transaction_amount) from `Transaction` where transaction_type=:expense and " +
+            "transaction_date between :firstDayOfMonth and :lastDayOfMonth")
+    fun showTotalExpense(expense: TransactionType, firstDayOfMonth: Long, lastDayOfMonth: Long): Flow<Float>
 
     @Query("select t.transaction_id , t.transaction_date , t.transaction_amount , t.transaction_description , t.transaction_type ," +
             "w.walletName , c.categoryName , c.categoryIcon , c.categoryColor" +

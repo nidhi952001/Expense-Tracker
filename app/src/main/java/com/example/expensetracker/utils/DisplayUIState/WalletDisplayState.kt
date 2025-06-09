@@ -18,9 +18,10 @@ data class WalletDetailState(
 )
 
 data class overViewDisplayState(
-    val totalExpense: Float,
-    val totalIncome: Float,
-    val total:Float
+    val totalExpense: Float=0F,
+    val totalIncome: Float=0F,
+    val total:Float=0F,
+    val isLoading:Boolean = true
 )
 
 data class transactionDetail(

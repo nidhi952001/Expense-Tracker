@@ -61,13 +61,38 @@ fun TransactionScreenRoute(expenseIncomeViewModel: ExpenseIncomeViewModel)
     val overViewState by expenseIncomeViewModel.showOverView.collectAsState()
     val modifier = Modifier.fillMaxSize().background(color = AppColors.inverseOnSurface)
     val transactionGroupByDate by expenseIncomeViewModel.transactionGroupByDate.collectAsState()
-    TransactionScreen(
-        modifier =modifier,
-        scrollableState = scrollableState,
-        overViewState = overViewState,
-        showTransaction = transactionGroupByDate)
+    if(!overViewState.isLoading){
+        if(overViewState.total!=0F /*&& transactionGroupByDate.isNotEmpty()*/){
+            TransactionScreen(
+                modifier = modifier,
+                scrollableState = scrollableState,
+                overViewState = overViewState,
+                showTransaction = transactionGroupByDate
+            )
+        }
+        else{
+            noTransactionScreen(modifier)
+        }
+    }
+
 
 }
+
+@Composable
+fun noTransactionScreen(modifier: Modifier) {
+    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        Image(
+            painter = painterResource(R.drawable.empty_transaction_ic),
+            contentDescription = stringResource(R.string.no_record)
+        )
+        Text(text = stringResource(R.string.no_record),
+            fontSize = MaterialTheme.typography.headlineSmall.fontSize,
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(top = 2.dp))
+
+    }
+}
+
 @Composable
 private fun TransactionScreen(
     modifier: Modifier,

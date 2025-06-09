@@ -17,16 +17,16 @@ class TransactionRepository @Inject constructor(
         transactionDao.addExpense(transaction)
     }
 
-    fun showTotalExpense(expense: TransactionType):Flow<Float>{
-        return transactionDao.showTotalExpense(expense)
+    fun showTotalExpense(expense: TransactionType, firstDayOfMonth: Long, lastDayOfMonth: Long):Flow<Float>{
+        return transactionDao.showTotalExpense(expense,firstDayOfMonth,lastDayOfMonth)
     }
 
     suspend fun addIncome(income: Transaction){
         transactionDao.addIncome(income)
     }
 
-    fun showTotalIncome(income: TransactionType): Flow<Float> {
-        return transactionDao.showTotalIncome(income)
+    fun showTotalIncome(income: TransactionType, firstDayOfMonth: Long, lastDayOfMonth: Long): Flow<Float> {
+        return transactionDao.showTotalIncome(income,firstDayOfMonth,lastDayOfMonth)
     }
 
     fun showExpenseTransaction(firstDayOfMonth: Long, lastDayOfMonth: Long):Flow<List<transactionDetail>>{
