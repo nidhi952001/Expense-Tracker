@@ -10,6 +10,8 @@ import com.example.expensetracker.repository.WalletRepository
 import com.example.expensetracker.uiScreen.formatAmount
 import com.example.expensetracker.utils.DisplayUIState.WalletDetailState
 import com.example.expensetracker.utils.DisplayUIState.WalletDisplayState
+import com.example.expensetracker.utils.DisplayUIState.transactionByCatForSelectedWallet
+import com.example.expensetracker.utils.DisplayUIState.transactionByDate
 import com.example.expensetracker.utils.InputUIState.WalletInputState
 import com.example.expensetracker.utils.StaticData.TypeOfWallet
 import com.example.expensetracker.utils.StaticData.listOfWalletColor
@@ -313,4 +315,25 @@ class WalletViewModel @Inject constructor(
             )
         }
     }
+
+    private val _tempCatForWallet = MutableStateFlow(transactionByCatForSelectedWallet())
+    val tempCatForWallet = _tempCatForWallet.asStateFlow()
+    fun selectedCategoryForWallet(categoryId: Int) {
+        _tempCatForWallet.update {
+            it.copy(selectedCatForWallet = categoryId)
+        }
+    }
+
+    val _catTransactionForWallet =
+        _tempCatForWallet.map {
+            it.selectedCatForWallet
+            transactionRepository.getTransaction_selectedWallet_ByCat(it.selectedCatForWallet)
+        }.distinctUntilChanged().flatMapLatest {
+            it
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+
+
+    /*val transactionGroupByDate: StateFlow<List<transactionByDate>> =
+        _catTransactionForWallet.map { transactionRepository.transformByDate(it) }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())*/
 }

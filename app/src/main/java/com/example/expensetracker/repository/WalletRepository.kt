@@ -1,8 +1,10 @@
 package com.example.expensetracker.repository
 
+import androidx.room.Query
 import com.example.expensetracker.dao.WalletDao
 import com.example.expensetracker.entity.Wallet
 import com.example.expensetracker.utils.DatastoreManager
+import com.example.expensetracker.utils.DisplayUIState.transactionByDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -52,5 +54,6 @@ class WalletRepository @Inject constructor(
     suspend fun editWallet(wallet: Wallet) {
         walletDao.updateWallet(wallet)
     }
+
 
 }

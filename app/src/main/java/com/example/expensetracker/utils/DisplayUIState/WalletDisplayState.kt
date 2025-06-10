@@ -60,7 +60,13 @@ data class transactionDetailByWallet(
     val total_transaction:Int?,
     val transaction_total_amount:Float,
     val transaction_type: TransactionType,
+    val categoryId:Int,
     val categoryName:Int,
     val categoryIcon:Int,
     val categoryColor:Color,
 )
+
+data class transactionByCatForSelectedWallet(
+    val selectedCatForWallet:Int=0
+)
+

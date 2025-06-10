@@ -756,15 +756,18 @@ fun Check() {
 
 //wallet detail screen
 @Composable
-fun showWalletDetailRoute(walletViewModel: WalletViewModel) {
+fun showWalletDetailRoute(walletViewModel: WalletViewModel,onClickTransactionFromWallet: () -> Unit) {
     val scrollableState = rememberScrollState()
     val walletData by walletViewModel.getSelectedWalletDetails.collectAsState()
-    showWalletDetail(walletData, scrollableState)
+    showWalletDetail(walletData, scrollableState, onClickTransactionFromWallet = {
+        walletViewModel.selectedCategoryForWallet(it)
+        onClickTransactionFromWallet
+    })
 }
 
 
 @Composable
-fun showWalletDetail(walletData: WalletDetailState, scrollableState: ScrollState) {
+fun showWalletDetail(walletData: WalletDetailState, scrollableState: ScrollState,onClickTransactionFromWallet: (Int) -> Unit) {
     if (walletData.selectedWallet_detail != null) {
         Box(
             modifier = Modifier.fillMaxSize().background(color = inverseOnSurface)
@@ -773,14 +776,14 @@ fun showWalletDetail(walletData: WalletDetailState, scrollableState: ScrollState
             Column {
                 walletDetail(walletData.selectedWallet_detail!!, walletData)
                 if (walletData.transaction.isNotEmpty())
-                    walletTransaction(walletData.transaction)
+                    walletTransaction(walletData.transaction , onClickTransactionFromWallet = onClickTransactionFromWallet)
             }
         }
     }
 }
 
 @Composable
-fun walletTransaction(transaction: List<transactionDetailByWallet>) {
+fun walletTransaction(transaction: List<transactionDetailByWallet>, onClickTransactionFromWallet: (Int) -> Unit) {
     LazyColumn(
         modifier = Modifier.wrapContentHeight().padding(top = 20.dp).background(
             color = surface
@@ -795,7 +798,7 @@ fun walletTransaction(transaction: List<transactionDetailByWallet>) {
             )
         }
         items(transaction) {
-            allWalletTransaction(it, modifier = Modifier)
+            walletAllTransaction(it, onClickTransactionFromWallet = onClickTransactionFromWallet, modifier = Modifier)
         }
     }
 }
@@ -874,12 +877,15 @@ private fun walletDetail(
 
 
 @Composable
-private fun allWalletTransaction(
+private fun walletAllTransaction(
     transaction: transactionDetailByWallet,
+    onClickTransactionFromWallet:(Int)->Unit,
     modifier: Modifier.Companion
 ) {
     Row(
-        modifier = modifier.fillMaxWidth().padding(vertical = 10.dp, horizontal = 10.dp),
+        modifier = modifier.fillMaxWidth()
+            .clickable(onClick = {onClickTransactionFromWallet(transaction.categoryId)})
+        .padding(vertical = 10.dp, horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {

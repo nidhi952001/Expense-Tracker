@@ -190,7 +190,10 @@ fun ExpenseTrackerNavHost() {
                     showIconRoute(onSelectedIconNavigate = { navController.popBackStack() }, walletViewModel = walletViewModel)
                 }
                 composable(route = TopLevelDestination.showDetailOfWallet.name) {
-                    showWalletDetailRoute(walletViewModel = walletViewModel)
+                    showWalletDetailRoute(walletViewModel = walletViewModel,
+                        onClickTransactionFromWallet = {
+                            navController.navigate(TopLevelDestination.transactionByWallet.name)
+                        })
                 }
             }
         }

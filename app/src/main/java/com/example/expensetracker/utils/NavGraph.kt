@@ -21,7 +21,8 @@ enum class TopLevelDestination(@StringRes val route: Int) {
     pickWalletIcon(route =R.string.pickIcon),
     showDetailOfWallet(route = R.string.show_detail_of_wallet),
     selectWallet(route = R.string.select_wallet),
-    selectCategory(route = R.string.selectCategory)
+    selectCategory(route = R.string.selectCategory),
+    transactionByWallet(route = R.string.transactionByWallet)
 }
 
 @Composable

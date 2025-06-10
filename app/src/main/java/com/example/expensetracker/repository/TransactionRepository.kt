@@ -1,11 +1,14 @@
 package com.example.expensetracker.repository
 
+import androidx.room.Query
 import com.example.expensetracker.dao.TransactionDao
+import com.example.expensetracker.utils.DisplayUIState.transactionByDate
 import com.example.expensetracker.utils.DisplayUIState.transactionDetail
 import com.example.expensetracker.utils.DisplayUIState.transactionDetailByWallet
 import com.example.transactionensetracker.entity.Transaction
 import com.example.transactionensetracker.entity.TransactionType
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -43,5 +46,13 @@ class TransactionRepository @Inject constructor(
 
     fun showTransactionByWallet(walletId: Int): Flow<List<transactionDetailByWallet>> {
         return transactionDao.showTransactionByWallet(walletId)
+    }
+
+    fun getTransaction_selectedWallet_ByCat(categoryId: Int):StateFlow<List<transactionDetail>> {
+        return transactionDao.getTransaction_selectedWallet_ByCat(categoryId)
+    }
+
+    suspend fun getTotalAmountForCatByWallet(walletId: Int,categoryId: Int):Float{
+        return transactionDao.getTotalAmountForCatByWallet(walletId,categoryId)
     }
 }

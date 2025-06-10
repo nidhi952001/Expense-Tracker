@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.expensetracker.entity.Wallet
+import com.example.expensetracker.utils.DisplayUIState.transactionByDate
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -29,4 +30,5 @@ interface WalletDao {
 
     @Update
     suspend fun updateWallet(wallet:Wallet)
+
 }

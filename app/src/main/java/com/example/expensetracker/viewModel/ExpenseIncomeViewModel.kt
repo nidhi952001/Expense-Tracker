@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 
@@ -55,17 +56,26 @@ class ExpenseIncomeViewModel @Inject constructor(
         lastDayOfMonth = mapValue.entries.first().value
     }
 
-    private fun getSelectedMonthRange(currentMonthYear: Calendar):Map<Long,Long> {
+    private fun getSelectedMonthRange(currentMonthYear: Calendar): Map<Long, Long> {
         val selectedCalendar = currentMonthYear.clone() as Calendar
 
         val firstDay = selectedCalendar.clone() as Calendar
         firstDay.set(Calendar.DAY_OF_MONTH, 1)
+        firstDay.set(Calendar.HOUR_OF_DAY, 0)
+        firstDay.set(Calendar.MINUTE, 0)
+        firstDay.set(Calendar.SECOND, 0)
+        firstDay.set(Calendar.MILLISECOND, 0)
         firstDayOfMonth = firstDay.timeInMillis
 
         val lastDay = selectedCalendar.clone() as Calendar
-        lastDay.add(Calendar.MONTH, 1)
         lastDay.set(Calendar.DAY_OF_MONTH, 1)
+        lastDay.add(Calendar.MONTH, 1)
+        lastDay.set(Calendar.HOUR_OF_DAY, 0)
+        lastDay.set(Calendar.MINUTE, 0)
+        lastDay.set(Calendar.SECOND, 0)
+        lastDay.set(Calendar.MILLISECOND, 0)
         lastDayOfMonth = lastDay.timeInMillis
+
         return mapOf(firstDayOfMonth to lastDayOfMonth)
     }
 
@@ -189,6 +199,7 @@ class ExpenseIncomeViewModel @Inject constructor(
     fun previousMonthYear(currentMonthYear: Calendar) {
         val updatedCalendar = currentMonthYear.clone() as Calendar
         updatedCalendar.add(Calendar.MONTH, -1)
+        Log.d("the current Month year changed now ",updatedCalendar.toString())
         _currentMonthYear.update {
             it.copy(currentMonthYear = updatedCalendar)
         }
