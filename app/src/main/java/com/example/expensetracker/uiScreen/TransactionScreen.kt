@@ -84,7 +84,7 @@ fun TransactionScreenRoute(expenseIncomeViewModel: ExpenseIncomeViewModel)
 }
 
 @Composable
-fun noTransactionScreen(modifier: Modifier) {
+fun NoTransactionScreen(modifier: Modifier) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         Image(
             painter = painterResource(R.drawable.empty_transaction_ic),
@@ -232,7 +232,7 @@ private fun TransactionDate(
 }
 
 @Composable
-fun allTransaction(transaction: transactionByList, modifier: Modifier) {
+fun AllTransaction(transaction: transactionByList, modifier: Modifier) {
     Row(modifier = modifier.fillMaxWidth().background(
         color = AppColors.surface).padding(10.dp) , verticalAlignment = Alignment.CenterVertically) {
         Column(modifier = Modifier.weight(1f)) {

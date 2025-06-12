@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.example.expensetracker.repository.CategoryRepository
 import com.example.expensetracker.repository.TransactionRepository
@@ -18,9 +17,9 @@ import com.example.expensetracker.utils.InputUIState.SelectedMonthAndYear
 import com.example.transactionensetracker.entity.Transaction
 import com.example.transactionensetracker.entity.TransactionType
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -30,7 +29,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 
@@ -82,6 +80,7 @@ class ExpenseIncomeViewModel @Inject constructor(
     }
 
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private val showExpenseTotal =
         _currentMonthYear.map {
             it.currentMonthYear
@@ -92,6 +91,7 @@ class ExpenseIncomeViewModel @Inject constructor(
         }.distinctUntilChanged().flatMapLatest {
             it
         }
+    @OptIn(ExperimentalCoroutinesApi::class)
     private val showIncomeTotal =
         _currentMonthYear.map {
             it.currentMonthYear
@@ -103,6 +103,7 @@ class ExpenseIncomeViewModel @Inject constructor(
             it
         }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     val _showTransaction =
         _currentMonthYear.map {
             it.currentMonthYear

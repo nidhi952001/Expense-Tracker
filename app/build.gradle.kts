@@ -69,7 +69,7 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.paging.compose)
-    implementation("androidx.room:room-paging:2.6.1")
+    implementation(libs.androidx.room.paging)
     implementation(libs.accompanist.permissions)
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)

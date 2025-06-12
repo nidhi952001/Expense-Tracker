@@ -3,15 +3,12 @@ package com.example.expensetracker.repository
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.room.Query
 import com.example.expensetracker.dao.TransactionDao
-import com.example.expensetracker.utils.DisplayUIState.transactionByDate
 import com.example.expensetracker.utils.DisplayUIState.transactionDetail
 import com.example.expensetracker.utils.DisplayUIState.transactionDetailByWallet
 import com.example.transactionensetracker.entity.Transaction
 import com.example.transactionensetracker.entity.TransactionType
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
