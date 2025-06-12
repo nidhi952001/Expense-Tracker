@@ -1,5 +1,8 @@
 package com.example.expensetracker.repository
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import androidx.room.Query
 import com.example.expensetracker.dao.TransactionDao
 import com.example.expensetracker.utils.DisplayUIState.transactionByDate
@@ -32,8 +35,11 @@ class TransactionRepository @Inject constructor(
         return transactionDao.showTotalIncome(income,firstDayOfMonth,lastDayOfMonth)
     }
 
-    fun showExpenseTransaction(firstDayOfMonth: Long, lastDayOfMonth: Long):Flow<List<transactionDetail>>{
-        return transactionDao.showExpenseTransaction(firstDayOfMonth,lastDayOfMonth)
+    fun showExpenseTransaction(firstDayOfMonth: Long, lastDayOfMonth: Long):Flow<PagingData<transactionDetail>>{
+        return Pager(
+            config = PagingConfig(pageSize = 10)){
+                    transactionDao.showExpenseTransaction(firstDayOfMonth,lastDayOfMonth)
+            }.flow
     }
 
     fun getExpenseCountById(walletId:Int,expense: TransactionType):Flow<Int>{
@@ -48,11 +54,11 @@ class TransactionRepository @Inject constructor(
         return transactionDao.showTransactionByWallet(walletId)
     }
 
-    fun getTransaction_selectedWallet_ByCat(categoryId: Int):StateFlow<List<transactionDetail>> {
+   /* fun getTransaction_selectedWallet_ByCat(categoryId: Int):StateFlow<List<transactionDetail>> {
         return transactionDao.getTransaction_selectedWallet_ByCat(categoryId)
     }
 
     suspend fun getTotalAmountForCatByWallet(walletId: Int,categoryId: Int):Float{
         return transactionDao.getTotalAmountForCatByWallet(walletId,categoryId)
-    }
+    }*/
 }

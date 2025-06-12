@@ -324,14 +324,14 @@ class WalletViewModel @Inject constructor(
         }
     }
 
-    val _catTransactionForWallet =
+   /* val _catTransactionForWallet =
         _tempCatForWallet.map {
             it.selectedCatForWallet
             transactionRepository.getTransaction_selectedWallet_ByCat(it.selectedCatForWallet)
         }.distinctUntilChanged().flatMapLatest {
             it
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
-
+*/
 
     /*val transactionGroupByDate: StateFlow<List<transactionByDate>> =
         _catTransactionForWallet.map { transactionRepository.transformByDate(it) }

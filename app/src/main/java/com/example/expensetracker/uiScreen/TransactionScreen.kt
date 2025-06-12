@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,6 +43,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.expensetracker.R
 import com.example.expensetracker.ui.theme.AppColors
 import com.example.expensetracker.utils.DisplayUIState.overViewDisplayState
@@ -60,7 +62,10 @@ fun TransactionScreenRoute(expenseIncomeViewModel: ExpenseIncomeViewModel)
     }
     val overViewState by expenseIncomeViewModel.showOverView.collectAsState()
     val modifier = Modifier.fillMaxSize().background(color = AppColors.inverseOnSurface)
-    val transactionGroupByDate by expenseIncomeViewModel.transactionGroupByDate.collectAsState()
+    val transaction = expenseIncomeViewModel._showTransaction.collectAsLazyPagingItems().itemSnapshotList.items
+    val transactionGroupByDate = remember(transaction) {
+        expenseIncomeViewModel.transformByDate(transaction)
+    }
     if(!overViewState.isLoading){
         if(overViewState.total!=0F /*&& transactionGroupByDate.isNotEmpty()*/){
             TransactionScreen(

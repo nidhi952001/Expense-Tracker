@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.example.expensetracker.repository.CategoryRepository
 import com.example.expensetracker.repository.TransactionRepository
 import com.example.expensetracker.repository.WalletRepository
@@ -110,15 +112,9 @@ class ExpenseIncomeViewModel @Inject constructor(
             transactionRepository.showExpenseTransaction(firstDayOfMonth, lastDayOfMonth)
         }.distinctUntilChanged().flatMapLatest {
             it
-        }.stateIn(
-                viewModelScope, SharingStarted.WhileSubscribed(), emptyList()
-            )
+        }.cachedIn(viewModelScope)
 
-    val transactionGroupByDate: StateFlow<List<transactionByDate>> =
-        _showTransaction.map { transformByDate(it) }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
-
-    private fun transformByDate(transactions: List<transactionDetail>): List<transactionByDate> {
+    fun transformByDate(transactions: List<transactionDetail>): List<transactionByDate> {
         val listOfTransaction = mutableListOf<transactionByDate>()
         val transaction = transactions.groupBy {
             getNormalizedDate(it.transaction_date)
