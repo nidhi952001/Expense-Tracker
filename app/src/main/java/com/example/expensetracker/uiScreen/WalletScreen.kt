@@ -63,6 +63,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachIndexed
 import com.example.expensetracker.R
 import com.example.expensetracker.entity.Wallet
+import com.example.expensetracker.ui.theme.AppColors
 import com.example.expensetracker.ui.theme.AppColors.inputFieldBackgroundColors
 import com.example.expensetracker.ui.theme.AppColors.inputFieldShape
 import com.example.expensetracker.ui.theme.AppColors.inputTextSize
@@ -761,7 +762,7 @@ fun showWalletDetailRoute(walletViewModel: WalletViewModel,onClickTransactionFro
     val walletData by walletViewModel.getSelectedWalletDetails.collectAsState()
     showWalletDetail(walletData, scrollableState, onClickTransactionFromWallet = {
         walletViewModel.selectedCategoryForWallet(it)
-        onClickTransactionFromWallet
+        onClickTransactionFromWallet()
     })
 }
 
@@ -933,6 +934,21 @@ private fun walletAllTransaction(
             textAlign = TextAlign.End
         )
     }
+}
+
+
+@Composable
+fun showWalletTransaction(walletViewModel: WalletViewModel) {
+    val modifier = Modifier.fillMaxSize().background(color = inverseOnSurface)
+    val scrollableState = rememberScrollState()
+    val overViewState by walletViewModel.showOverView.collectAsState()
+    val transactionGroupByDate by walletViewModel.transactionGroupByDate.collectAsState()
+    TransactionScreen(
+        modifier = modifier,
+        scrollableState = scrollableState,
+        overViewState = overViewState,
+        showTransaction = transactionGroupByDate
+    )
 }
 
 

@@ -49,6 +49,7 @@ import com.example.expensetracker.ui.theme.AppColors
 import com.example.expensetracker.utils.DisplayUIState.overViewDisplayState
 import com.example.expensetracker.utils.DisplayUIState.transactionByDate
 import com.example.expensetracker.utils.DisplayUIState.transactionByList
+import com.example.expensetracker.utils.transformByDate
 import com.example.expensetracker.viewModel.ExpenseIncomeViewModel
 
 @Composable
@@ -64,7 +65,7 @@ fun TransactionScreenRoute(expenseIncomeViewModel: ExpenseIncomeViewModel)
     val modifier = Modifier.fillMaxSize().background(color = AppColors.inverseOnSurface)
     val transaction = expenseIncomeViewModel._showTransaction.collectAsLazyPagingItems().itemSnapshotList.items
     val transactionGroupByDate = remember(transaction) {
-        expenseIncomeViewModel.transformByDate(transaction)
+        transformByDate(transaction)
     }
     if(!overViewState.isLoading){
         if(overViewState.total!=0F /*&& transactionGroupByDate.isNotEmpty()*/){
@@ -76,7 +77,7 @@ fun TransactionScreenRoute(expenseIncomeViewModel: ExpenseIncomeViewModel)
             )
         }
         else{
-            noTransactionScreen(modifier)
+            NoTransactionScreen(modifier)
         }
     }
 
@@ -99,7 +100,7 @@ fun NoTransactionScreen(modifier: Modifier) {
 }
 
 @Composable
-private fun TransactionScreen(
+fun TransactionScreen(
     modifier: Modifier,
     scrollableState: ScrollState,
     overViewState: overViewDisplayState,
@@ -133,26 +134,38 @@ fun TransactionSummary(modifier: Modifier, overviewUiState: overViewDisplayState
                 contentDescription = stringResource(R.string.info),
             )
         }
-        Row(modifier = Modifier.fillMaxWidth(),horizontalArrangement = Arrangement.SpaceBetween) {
-            val annotedString = buildAnnotatedString {
-                append(stringResource( R.string.ruppes_icon))
-                append(" ")
-                append(formatAmount(overviewUiState.totalIncome.toString()))
+        if(overviewUiState.showAll) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                val annotedString = buildAnnotatedString {
+                    append(stringResource(R.string.ruppes_icon))
+                    append(" ")
+                    append(formatAmount(overviewUiState.totalIncome.toString()))
+                }
+                Text(text = stringResource(R.string.income))
+                Text(
+                    text = annotedString,
+                    color = Color.Blue.copy(alpha = 0.5F)
+                )
             }
-            Text(text = stringResource(R.string.income))
-            Text(text = annotedString,
-                color = Color.Blue.copy(alpha = 0.5F))
-        }
-        Row(modifier = Modifier.fillMaxWidth(),horizontalArrangement = Arrangement.SpaceBetween) {
-            val annotedString = buildAnnotatedString {
-                append(stringResource(R.string.minus_icon))
-                append(stringResource( R.string.ruppes_icon))
-                append(" ")
-                append(formatAmount(overviewUiState.totalExpense.toString()))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                val annotedString = buildAnnotatedString {
+                    append(stringResource(R.string.minus_icon))
+                    append(stringResource(R.string.ruppes_icon))
+                    append(" ")
+                    append(formatAmount(overviewUiState.totalExpense.toString()))
+                }
+                Text(text = stringResource(R.string.expense))
+                Text(
+                    text = annotedString,
+                    color = Color.Red.copy(alpha = 0.5F)
+                )
             }
-            Text(text = stringResource(R.string.expense))
-            Text(text =annotedString,
-                color = Color.Red.copy(alpha = 0.5F))
         }
         Row(modifier = Modifier.fillMaxWidth(),horizontalArrangement = Arrangement.SpaceBetween) {
             val annotedString = buildAnnotatedString {
@@ -191,7 +204,7 @@ fun TransactionDetail(modifier: Modifier,overviewUiState: overViewDisplayState, 
                     transactionYear = transaction.transaction_year,
                     totalOfTheDay = transaction.transaction_total_amount)
                 transaction.transaction_list.forEach {transactions->
-                    allTransaction(transactions, modifier = Modifier)
+                    AllTransaction(transactions, modifier = Modifier)
                 }
             }
     }

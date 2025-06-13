@@ -10,6 +10,7 @@ import com.example.expensetracker.repository.WalletRepository
 import com.example.expensetracker.uiScreen.formatAmount
 import com.example.expensetracker.utils.DisplayUIState.WalletDetailState
 import com.example.expensetracker.utils.DisplayUIState.WalletDisplayState
+import com.example.expensetracker.utils.DisplayUIState.overViewDisplayState
 import com.example.expensetracker.utils.DisplayUIState.transactionByCatForSelectedWallet
 import com.example.expensetracker.utils.DisplayUIState.transactionByDate
 import com.example.expensetracker.utils.InputUIState.WalletInputState
@@ -17,6 +18,7 @@ import com.example.expensetracker.utils.StaticData.TypeOfWallet
 import com.example.expensetracker.utils.StaticData.listOfWalletColor
 import com.example.expensetracker.utils.StaticData.listOfWalletColor.coloCodeToColor
 import com.example.expensetracker.utils.StaticData.listOfWalletIcon
+import com.example.expensetracker.utils.transformByDate
 import com.example.transactionensetracker.entity.TransactionType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -28,6 +30,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -324,16 +327,35 @@ class WalletViewModel @Inject constructor(
         }
     }
 
-   /* val _catTransactionForWallet =
+    val _catTransactionForWallet =
         _tempCatForWallet.map {
             it.selectedCatForWallet
             transactionRepository.getTransaction_selectedWallet_ByCat(it.selectedCatForWallet)
         }.distinctUntilChanged().flatMapLatest {
             it
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
-*/
 
-    /*val transactionGroupByDate: StateFlow<List<transactionByDate>> =
-        _catTransactionForWallet.map { transactionRepository.transformByDate(it) }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())*/
+    val transactionGroupByDate: StateFlow<List<transactionByDate>> =
+        _catTransactionForWallet.map { transformByDate(it) }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+
+    val showTotal =
+        _tempCatForWallet.map {
+            it.selectedCatForWallet
+            transactionRepository.getTotalAmountForCatByWallet(
+                _tempWalletState.value.selectedWalletId_detail,
+                _tempCatForWallet.value.selectedCatForWallet)
+        }.distinctUntilChanged().flatMapLatest {
+            it
+        }
+
+    val showOverView = showTotal.map {
+        overViewDisplayState(
+            total = it,
+            isLoading = true,
+            showAll = false
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(),overViewDisplayState())
+
+
 }

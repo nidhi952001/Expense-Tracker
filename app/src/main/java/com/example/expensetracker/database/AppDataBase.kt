@@ -25,4 +25,8 @@ abstract class AppDataBase : RoomDatabase() {
     abstract val categoryDao: CategoryDao
     abstract val walletDao: WalletDao
     abstract val transactionDao: TransactionDao
+
+    companion object {
+        var INSTANCE: AppDataBase? = null
+    }
 }

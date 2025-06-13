@@ -21,7 +21,8 @@ data class overViewDisplayState(
     val totalExpense: Float=0F,
     val totalIncome: Float=0F,
     val total:Float=0F,
-    val isLoading:Boolean = true
+    val isLoading:Boolean = true,
+    val showAll:Boolean = true
 )
 
 data class transactionDetail(

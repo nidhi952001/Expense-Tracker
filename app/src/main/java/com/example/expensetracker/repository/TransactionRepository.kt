@@ -4,11 +4,13 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.example.expensetracker.dao.TransactionDao
+import com.example.expensetracker.utils.DisplayUIState.overViewDisplayState
 import com.example.expensetracker.utils.DisplayUIState.transactionDetail
 import com.example.expensetracker.utils.DisplayUIState.transactionDetailByWallet
 import com.example.transactionensetracker.entity.Transaction
 import com.example.transactionensetracker.entity.TransactionType
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -51,11 +53,11 @@ class TransactionRepository @Inject constructor(
         return transactionDao.showTransactionByWallet(walletId)
     }
 
-   /* fun getTransaction_selectedWallet_ByCat(categoryId: Int):StateFlow<List<transactionDetail>> {
+    fun getTransaction_selectedWallet_ByCat(categoryId: Int): Flow<List<transactionDetail>> {
         return transactionDao.getTransaction_selectedWallet_ByCat(categoryId)
     }
 
-    suspend fun getTotalAmountForCatByWallet(walletId: Int,categoryId: Int):Float{
+    fun getTotalAmountForCatByWallet(walletId: Int,categoryId: Int):Flow<Float>{
         return transactionDao.getTotalAmountForCatByWallet(walletId,categoryId)
-    }*/
+    }
 }

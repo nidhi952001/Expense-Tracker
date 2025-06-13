@@ -195,6 +195,9 @@ fun ExpenseTrackerNavHost() {
                             navController.navigate(TopLevelDestination.transactionByWallet.name)
                         })
                 }
+                composable(route = TopLevelDestination.transactionByWallet.name){
+                    showWalletTransaction(walletViewModel = walletViewModel)
+                }
             }
         }
     }
