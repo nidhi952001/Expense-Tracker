@@ -254,7 +254,7 @@ fun initialMoneyScreenRoute(onNavigate:()->Unit,homeViewModel: HomeViewModel,wal
         homeUiState = homeUiState,
         onInitialMoneyChange = { homeViewModel.updateInitalMoney(it) },
         saveInitialMoney = {
-            walletViewModel.saveInitialAmount(it)
+            walletViewModel.initializeWalletWithAmount(it)
             onNavigate()
         }
     )

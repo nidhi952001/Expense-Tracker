@@ -53,7 +53,7 @@ fun topBarAction(
 ) {
     when(currentRoute){
         TopLevelDestination.addWallet.name->{
-            if(walletViewModel.tempWalletState.value.onEditWalletClick){
+            if(walletViewModel.walletInputState.value.onEditWalletClick){
                 walletViewModel.editWallet()
             }
             else {
@@ -84,16 +84,16 @@ fun topBarBackAction(
 ){
     when(currentRoute){
         TopLevelDestination.addWallet.name->{
-            walletViewModel.resetWalletUiState()
+            walletViewModel.clearWalletInputState()
             navController.navigateUp()
         }
         TopLevelDestination.showDetailOfWallet.name->{
             if(onBackClick) {
-                walletViewModel.resetOnEditClick()
+                walletViewModel.clearEditMode()
                 navController.navigateUp()
             }
             else{
-                walletViewModel.showWallet_edit()
+                walletViewModel.populateWalletEditState()
                 navController.navigate(TopLevelDestination.addWallet.name)
             }
         }

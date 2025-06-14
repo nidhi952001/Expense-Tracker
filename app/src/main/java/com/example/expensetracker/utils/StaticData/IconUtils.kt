@@ -7,6 +7,12 @@ enum class TypeOfWallet {
     General, CreditCard
 }
 
+val listOfWallet = listOf(
+    TypeOfWallet.General,
+    TypeOfWallet.CreditCard
+)
+
+
 data class ListOfIcons(
     val icon:Int,
     val iconName:Int

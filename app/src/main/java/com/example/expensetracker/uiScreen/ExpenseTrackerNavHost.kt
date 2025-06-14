@@ -20,6 +20,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.expensetracker.R
 import com.example.expensetracker.ui.theme.AppColors.surface
+import com.example.expensetracker.uiScreen.walletScreens.SelectWalletRoute
+import com.example.expensetracker.uiScreen.walletScreens.ShowIconScreen
+import com.example.expensetracker.uiScreen.walletScreens.WalletScreenEntry
+import com.example.expensetracker.uiScreen.walletScreens.addWalletScreenEntry
+import com.example.expensetracker.uiScreen.walletScreens.showWalletDetailRoute
+import com.example.expensetracker.uiScreen.walletScreens.showWalletTransaction
 import com.example.expensetracker.utils.TopLevelDestination
 import com.example.expensetracker.utils.topBarAction
 import com.example.expensetracker.utils.topBarBackAction
@@ -169,17 +175,17 @@ fun ExpenseTrackerNavHost() {
                 }
                 //wallet screen
                 composable(route = TopLevelDestination.showWallet.name) {
-                    viewWalletWithBalanceRoute(
+                    WalletScreenEntry(
                         addWallet = {
                             navController.navigate(TopLevelDestination.addWallet.name)
                         },
-                        onClickWallet = {
+                        onWalletClick = {
                             navController.navigate(TopLevelDestination.showDetailOfWallet.name)
                         }, walletViewModel = walletViewModel
                     )
                 }
                 composable(route = TopLevelDestination.addWallet.name) {
-                    addWalletRoute(onIconClick = {
+                    addWalletScreenEntry(onIconClick = {
                         navController.navigate(TopLevelDestination.pickWalletIcon.name)
                     }, onBackClick = {
                         navController.popBackStack()
@@ -187,7 +193,7 @@ fun ExpenseTrackerNavHost() {
                     )
                 }
                 composable(route = TopLevelDestination.pickWalletIcon.name) {
-                    showIconRoute(onSelectedIconNavigate = { navController.popBackStack() }, walletViewModel = walletViewModel)
+                    ShowIconScreen(onSelectedIconNavigate = { navController.popBackStack() }, walletViewModel = walletViewModel)
                 }
                 composable(route = TopLevelDestination.showDetailOfWallet.name) {
                     showWalletDetailRoute(walletViewModel = walletViewModel,

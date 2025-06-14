@@ -5,9 +5,10 @@ import com.example.expensetracker.entity.Wallet
 import com.example.transactionensetracker.entity.TransactionType
 
 data class WalletDisplayState(
-    val savedWallets: List<Wallet>,
-    val totalBalance:Float
+    val userWallets: List<Wallet>,
+    val totalWalletBalance:Float
 )
+
 
 data class WalletDetailState(
     val selectedWallet_detail: Wallet?,

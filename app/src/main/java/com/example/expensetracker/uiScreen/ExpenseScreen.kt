@@ -69,6 +69,7 @@ import com.example.expensetracker.ui.theme.AppColors.inverseOnSurface
 import com.example.expensetracker.ui.theme.AppColors.onBackground
 import com.example.expensetracker.ui.theme.AppColors.onSurface
 import com.example.expensetracker.ui.theme.AppColors.surface
+import com.example.expensetracker.uiScreen.walletScreens.formatWalletAmount
 import com.example.expensetracker.utils.InputUIState.ExpenseIncomeInputState
 import com.example.expensetracker.viewModel.CategoryViewModel
 import com.example.expensetracker.viewModel.ExpenseIncomeViewModel
@@ -260,7 +261,7 @@ private fun expenseWallet(expSelectedWallet: Wallet?,onClickListOfWallet:()->Uni
         }
         append("\u0020₹\u0020")
         if (expSelectedWallet != null) {
-            append(formatAmount(expSelectedWallet.walletAmount.toString()))
+            append(formatWalletAmount(expSelectedWallet.walletAmount.toString()))
         }
     }
     label("Wallet")

@@ -185,7 +185,7 @@ fun AppTopBar(
     onEditWallet:()->Unit,
     walletViewModel: WalletViewModel
 ) {
-    val localWallet by walletViewModel.tempWalletState.collectAsState()
+    val localWallet by walletViewModel.walletInputState.collectAsState()
     when (currentRoute) {
         TopLevelDestination.expenseIncome.name,
         TopLevelDestination.selectWallet.name,

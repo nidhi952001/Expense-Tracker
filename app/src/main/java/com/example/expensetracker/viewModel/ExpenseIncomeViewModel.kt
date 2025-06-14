@@ -1,7 +1,6 @@
 package com.example.expensetracker.viewModel
 
 import android.util.Log
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
@@ -9,9 +8,6 @@ import com.example.expensetracker.repository.CategoryRepository
 import com.example.expensetracker.repository.TransactionRepository
 import com.example.expensetracker.repository.WalletRepository
 import com.example.expensetracker.utils.DisplayUIState.overViewDisplayState
-import com.example.expensetracker.utils.DisplayUIState.transactionByDate
-import com.example.expensetracker.utils.DisplayUIState.transactionByList
-import com.example.expensetracker.utils.DisplayUIState.transactionDetail
 import com.example.expensetracker.utils.InputUIState.ExpenseIncomeInputState
 import com.example.expensetracker.utils.InputUIState.SelectedMonthAndYear
 import com.example.transactionensetracker.entity.Transaction
@@ -29,7 +25,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Calendar
-import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -43,7 +38,7 @@ class ExpenseIncomeViewModel @Inject constructor(
     val tempExpeIncState = _expenseTempState.asStateFlow()
 
     val currentCategory = categoryRepository.selectedCategory
-    val currentWallet = walletRepository.selectedWallet
+    val currentWallet = walletRepository.selectedWalletId
 
     private val _currentMonthYear = MutableStateFlow(SelectedMonthAndYear())
     val currentMonthYear = _currentMonthYear.asStateFlow()
@@ -190,13 +185,13 @@ class ExpenseIncomeViewModel @Inject constructor(
         viewModelScope.launch {
             transactionRepository.addExpense(expense)
             //fetch current wallet amount
-            val currentWalletAmount = walletRepository.getWalletAmountById(currentWallet.value)
+            val currentWalletAmount = walletRepository.fetchWalletAmountById(currentWallet.value)
             //update the wallet
             if (!_expenseTempState.value.expIncAmount.isNullOrEmpty()) {
                 val updateWalletAmount = currentWalletAmount -
                         _expenseTempState.value.expIncAmount.toFloat()
 
-                walletRepository.updateWalletBalance(updateWalletAmount, currentWallet.value)
+                walletRepository.updateWalletAmount(updateWalletAmount, currentWallet.value)
 
                 //now reset the value foe UI
                 resetUiState()
@@ -223,13 +218,13 @@ class ExpenseIncomeViewModel @Inject constructor(
         viewModelScope.launch {
             transactionRepository.addIncome(income)
             //fetch current wallet amount
-            val currentWalletAmount = walletRepository.getWalletAmountById(currentWallet.value)
+            val currentWalletAmount = walletRepository.fetchWalletAmountById(currentWallet.value)
             //update the wallet
             if (!_expenseTempState.value.expIncAmount.isNullOrEmpty()) {
                 val updateWalletAmount = currentWalletAmount +
                         _expenseTempState.value.expIncAmount.toFloat()
 
-                walletRepository.updateWalletBalance(updateWalletAmount, currentWallet.value)
+                walletRepository.updateWalletAmount(updateWalletAmount, currentWallet.value)
 
                 //now reset the value foe UI
                 resetUiState()

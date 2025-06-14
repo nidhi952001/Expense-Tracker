@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.expensetracker.R
 import com.example.expensetracker.ui.theme.AppColors
+import com.example.expensetracker.uiScreen.walletScreens.formatWalletAmount
 import com.example.expensetracker.utils.DisplayUIState.overViewDisplayState
 import com.example.expensetracker.utils.DisplayUIState.transactionByDate
 import com.example.expensetracker.utils.DisplayUIState.transactionByList
@@ -142,7 +143,7 @@ fun TransactionSummary(modifier: Modifier, overviewUiState: overViewDisplayState
                 val annotedString = buildAnnotatedString {
                     append(stringResource(R.string.ruppes_icon))
                     append(" ")
-                    append(formatAmount(overviewUiState.totalIncome.toString()))
+                    append(formatWalletAmount(overviewUiState.totalIncome.toString()))
                 }
                 Text(text = stringResource(R.string.income))
                 Text(
@@ -158,7 +159,7 @@ fun TransactionSummary(modifier: Modifier, overviewUiState: overViewDisplayState
                     append(stringResource(R.string.minus_icon))
                     append(stringResource(R.string.ruppes_icon))
                     append(" ")
-                    append(formatAmount(overviewUiState.totalExpense.toString()))
+                    append(formatWalletAmount(overviewUiState.totalExpense.toString()))
                 }
                 Text(text = stringResource(R.string.expense))
                 Text(
@@ -171,13 +172,13 @@ fun TransactionSummary(modifier: Modifier, overviewUiState: overViewDisplayState
             val annotedString = buildAnnotatedString {
                 append(stringResource( R.string.ruppes_icon))
                 append(" ")
-                append(formatAmount(overviewUiState.total.toString()))
+                append(formatWalletAmount(overviewUiState.total.toString()))
             }
             val annotedString1 = buildAnnotatedString {
                 append(stringResource(R.string.minus_icon))
                 append(stringResource( R.string.ruppes_icon))
                 append(" ")
-                append(formatAmount(overviewUiState.total.toString()))
+                append(formatWalletAmount(overviewUiState.total.toString()))
             }
             Text(text = stringResource(R.string.total))
             Text(text =
@@ -275,7 +276,7 @@ fun AllTransaction(transaction: transactionByList, modifier: Modifier) {
         val annotedString = buildAnnotatedString {
             append(stringResource( R.string.ruppes_icon))
             append(" ")
-            append(formatAmount(transaction.transaction_amount))
+            append(formatWalletAmount(transaction.transaction_amount))
         }
         Text(
             text = annotedString,
