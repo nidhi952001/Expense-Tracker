@@ -4,13 +4,11 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.example.expensetracker.dao.TransactionDao
-import com.example.expensetracker.utils.DisplayUIState.overViewDisplayState
-import com.example.expensetracker.utils.DisplayUIState.transactionDetail
-import com.example.expensetracker.utils.DisplayUIState.transactionDetailByWallet
+import com.example.expensetracker.uiScreen.uiState.TransactionDetailSelectedWalletState
+import com.example.expensetracker.uiScreen.uiState.TransactionDetailState
 import com.example.transactionensetracker.entity.Transaction
 import com.example.transactionensetracker.entity.TransactionType
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -34,7 +32,7 @@ class TransactionRepository @Inject constructor(
         return transactionDao.showTotalIncome(income,firstDayOfMonth,lastDayOfMonth)
     }
 
-    fun showExpenseTransaction(firstDayOfMonth: Long, lastDayOfMonth: Long):Flow<PagingData<transactionDetail>>{
+    fun showExpenseTransaction(firstDayOfMonth: Long, lastDayOfMonth: Long):Flow<PagingData<TransactionDetailState>>{
         return Pager(
             config = PagingConfig(pageSize = 10)){
                     transactionDao.showExpenseTransaction(firstDayOfMonth,lastDayOfMonth)
@@ -49,11 +47,11 @@ class TransactionRepository @Inject constructor(
         return transactionDao.getIncomeCountById(walletId, income)
     }
 
-    fun showTransactionByWallet(walletId: Int): Flow<List<transactionDetailByWallet>> {
+    fun showTransactionByWallet(walletId: Int): Flow<List<TransactionDetailSelectedWalletState>> {
         return transactionDao.showTransactionByWallet(walletId)
     }
 
-    fun getTransaction_selectedWallet_ByCat(categoryId: Int): Flow<List<transactionDetail>> {
+    fun getTransaction_selectedWallet_ByCat(categoryId: Int): Flow<List<TransactionDetailState>> {
         return transactionDao.getTransaction_selectedWallet_ByCat(categoryId)
     }
 

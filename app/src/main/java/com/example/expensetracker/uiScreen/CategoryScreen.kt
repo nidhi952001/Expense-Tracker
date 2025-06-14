@@ -37,7 +37,7 @@ import com.example.expensetracker.R
 import com.example.expensetracker.entity.Category
 import com.example.expensetracker.ui.theme.AppColors.inverseOnSurface
 import com.example.expensetracker.ui.theme.AppColors.surface
-import com.example.expensetracker.utils.InputUIState.CategoryInputState
+import com.example.expensetracker.uiScreen.uiState.CategoryInputState
 import com.example.expensetracker.viewModel.CategoryViewModel
 import com.example.expensetracker.viewModel.HomeViewModel
 

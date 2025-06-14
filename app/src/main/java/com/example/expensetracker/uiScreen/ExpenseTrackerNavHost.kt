@@ -198,10 +198,10 @@ fun ExpenseTrackerNavHost() {
                 composable(route = TopLevelDestination.showDetailOfWallet.name) {
                     showWalletDetailRoute(walletViewModel = walletViewModel,
                         onClickTransactionFromWallet = {
-                            navController.navigate(TopLevelDestination.transactionByWallet.name)
+                            navController.navigate(TopLevelDestination.transactionsForSelectedWallet.name)
                         })
                 }
-                composable(route = TopLevelDestination.transactionByWallet.name){
+                composable(route = TopLevelDestination.transactionsForSelectedWallet.name){
                     showWalletTransaction(walletViewModel = walletViewModel)
                 }
             }

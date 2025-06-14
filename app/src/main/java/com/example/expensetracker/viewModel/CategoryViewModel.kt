@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.expensetracker.entity.Category
 import com.example.expensetracker.entity.CategoryType
 import com.example.expensetracker.repository.CategoryRepository
-import com.example.expensetracker.utils.InputUIState.CategoryInputState
+import com.example.expensetracker.uiScreen.uiState.CategoryInputState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -50,8 +50,8 @@ class CategoryViewModel @Inject constructor(
             )
         }
         resetIncCategory()
-        if(selectedCategory!=0) _temCatUiState.update { it.copy(validExpCategory = true) }
-        else _temCatUiState.update { it.copy(validExpCategory = false) }
+        if(selectedCategory!=0) _temCatUiState.update { it.copy(isExpenseCategoryValid = true) }
+        else _temCatUiState.update { it.copy(isExpenseCategoryValid = false) }
 
         //this will update the category , which going to be use to save into database
         categoryRepository.updateselectedCategory(selectedCategory)
@@ -63,8 +63,8 @@ class CategoryViewModel @Inject constructor(
             )
         }
         resetExpCategory()
-        if(selectedCategory!=0) _temCatUiState.update { it.copy(validIncCategory = true) }
-        else _temCatUiState.update { it.copy(validIncCategory = false) }
+        if(selectedCategory!=0) _temCatUiState.update { it.copy(isIncomeCategoryValid = true) }
+        else _temCatUiState.update { it.copy(isIncomeCategoryValid = false) }
         //this will update the category , which going to be use to save into database
         categoryRepository.updateselectedCategory(selectedCategory)
     }
@@ -86,7 +86,7 @@ class CategoryViewModel @Inject constructor(
         _temCatUiState.update {
             it.copy(
                 selectedIncCategoryId = 0,
-                validIncCategory = false,
+                isIncomeCategoryValid = false,
             )
         }
     }
@@ -95,7 +95,7 @@ class CategoryViewModel @Inject constructor(
         _temCatUiState.update {
             it.copy(
                 selectedExpCategoryId = 0,
-                validExpCategory = false
+                isExpenseCategoryValid = false
             )
         }
     }

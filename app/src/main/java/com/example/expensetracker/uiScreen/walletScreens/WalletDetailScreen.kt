@@ -43,8 +43,8 @@ import com.example.expensetracker.R
 import com.example.expensetracker.entity.Wallet
 import com.example.expensetracker.ui.theme.AppColors
 import com.example.expensetracker.uiScreen.TransactionScreen
-import com.example.expensetracker.utils.DisplayUIState.WalletDetailState
-import com.example.expensetracker.utils.DisplayUIState.transactionDetailByWallet
+import com.example.expensetracker.uiScreen.uiState.WalletDetailState
+import com.example.expensetracker.uiScreen.uiState.TransactionDetailSelectedWalletState
 import com.example.expensetracker.viewModel.WalletViewModel
 import com.example.transactionensetracker.entity.TransactionType
 
@@ -69,13 +69,13 @@ fun showWalletDetail(
     scrollableState: ScrollState,
     onClickTransactionFromWallet: (Int) -> Unit
 ) {
-    if (walletData.selectedWallet_detail != null) {
+    if (walletData.selectedWalletDetails != null) {
         Box(
             modifier = Modifier.fillMaxSize().background(color = AppColors.inverseOnSurface)
                 .padding(top = 20.dp).scrollable(scrollableState, Orientation.Vertical)
         ) {
             Column {
-                walletDetail(walletData.selectedWallet_detail!!, walletData)
+                walletDetail(walletData.selectedWalletDetails!!, walletData)
                 if (walletData.transaction.isNotEmpty())
                     walletTransaction(
                         walletData.transaction,
@@ -88,7 +88,7 @@ fun showWalletDetail(
 
 @Composable
 fun walletTransaction(
-    transaction: List<transactionDetailByWallet>,
+    transaction: List<TransactionDetailSelectedWalletState>,
     onClickTransactionFromWallet: (Int) -> Unit
 ) {
     LazyColumn(
@@ -169,7 +169,7 @@ private fun walletDetail(
         ) {
             Text(text = stringResource(R.string.income))
             Text(
-                text = walletData.countSelectedWallet_income.toString() + "  " +
+                text = walletData.selectedWalletIncomeCount.toString() + "  " +
                         stringResource(R.string.transactions),
                 color = Color.Blue.copy(alpha = 0.5F)
             )
@@ -180,7 +180,7 @@ private fun walletDetail(
         ) {
             Text(text = stringResource(R.string.expense))
             Text(
-                text = walletData.countSelectedWallet_expense.toString() + "  " +
+                text = walletData.selectedWalletExpenseCount.toString() + "  " +
                         stringResource(R.string.transactions),
                 color = Color.Red.copy(alpha = 0.5F)
             )
@@ -190,7 +190,7 @@ private fun walletDetail(
 
 @Composable
 fun walletAllTransaction(
-    transaction: transactionDetailByWallet,
+    transaction: TransactionDetailSelectedWalletState,
     onClickTransactionFromWallet: (Int) -> Unit,
     modifier: Modifier.Companion
 ) {
@@ -218,27 +218,27 @@ fun walletAllTransaction(
                         stringResource(transaction.categoryName),
                         fontWeight = FontWeight.ExtraBold
                     )
-                    Text(text = transaction.total_transaction.toString() + " " + stringResource(R.string.transactions))
+                    Text(text = transaction.totalTransaction.toString() + " " + stringResource(R.string.transactions))
                 }
             }
         }
         val annotedString = buildAnnotatedString {
             append(stringResource(R.string.ruppes_icon))
             append(" ")
-            append(formatWalletAmount(transaction.transaction_total_amount.toString()))
+            append(formatWalletAmount(transaction.transactionTotalAmount.toString()))
         }
         val annotedString1 = buildAnnotatedString {
             append(stringResource(R.string.minus_icon))
             append(stringResource(R.string.ruppes_icon))
             append(" ")
-            append(formatWalletAmount(transaction.transaction_total_amount.toString()))
+            append(formatWalletAmount(transaction.transactionTotalAmount.toString()))
         }
         Text(
             text =
-            if (transaction.transaction_type == TransactionType.Income) annotedString
+            if (transaction.transactionType == TransactionType.Income) annotedString
             else annotedString1,
             color =
-            if (transaction.transaction_type == TransactionType.Income)
+            if (transaction.transactionType == TransactionType.Income)
                 Color.Blue.copy(alpha = 0.5F)
             else
                 Color.Red.copy(alpha = 0.5F),

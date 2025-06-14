@@ -1,19 +1,17 @@
 package com.example.expensetracker.utils
 
-import android.util.Log
 import androidx.compose.ui.graphics.Color
-import com.example.expensetracker.utils.DisplayUIState.transactionByDate
-import com.example.expensetracker.utils.DisplayUIState.transactionByList
-import com.example.expensetracker.utils.DisplayUIState.transactionDetail
+import com.example.expensetracker.uiScreen.uiState.TransactionByDateState
+import com.example.expensetracker.uiScreen.uiState.TransactionListState
+import com.example.expensetracker.uiScreen.uiState.TransactionDetailState
 import com.example.transactionensetracker.entity.TransactionType
-import kotlinx.coroutines.flow.update
 import java.util.Calendar
 import java.util.Locale
 
-fun transformByDate(transactions: List<transactionDetail>): List<transactionByDate> {
-    val listOfTransaction = mutableListOf<transactionByDate>()
+fun transformByDate(transactions: List<TransactionDetailState>): List<TransactionByDateState> {
+    val listOfTransaction = mutableListOf<TransactionByDateState>()
     val transaction = transactions.groupBy {
-        getNormalizedDate(it.transaction_date)
+        getNormalizedDate(it.transactionDate)
     }
     transaction.forEach { date, transactionDetails ->
         listOfTransaction.add(formatDate(date, transactionDetails))
@@ -35,35 +33,35 @@ private fun getNormalizedDate(timestamp: Long?): Long {
 
 private fun formatDate(
     date: Long?,
-    transactionDetails: List<transactionDetail>
-): transactionByDate {
+    transactionDetailStates: List<TransactionDetailState>
+): TransactionByDateState {
     val formatDate = android.icu.text.SimpleDateFormat("dd", Locale.getDefault())
     val formatDay = android.icu.text.SimpleDateFormat("eeee", Locale.getDefault())
     val formatMonth = android.icu.text.SimpleDateFormat("MMM ", Locale.getDefault())
     val formatYear = android.icu.text.SimpleDateFormat("YYYY ", Locale.getDefault())
-    return transactionByDate(
-        transaction_date = formatDate.format(date),
-        transaction_day = formatDay.format(date),
-        transaction_month = formatMonth.format(date),
-        transaction_year = formatYear.format(date),
-        transaction_total_amount = totalForDay(transactionDetails),
-        transaction_list = formatTransaction(transactionDetails)
+    return TransactionByDateState(
+        transactionDate = formatDate.format(date),
+        transactionDay = formatDay.format(date),
+        transactionMonth = formatMonth.format(date),
+        transactionYear = formatYear.format(date),
+        transactionTotalAmount = totalForDay(transactionDetailStates),
+        transactionList = formatTransaction(transactionDetailStates)
     )
 }
 
 
-private fun formatTransaction(transactionDetails: List<transactionDetail>): List<transactionByList> {
-    val transaction = mutableListOf<transactionByList>()
-    transactionDetails.forEach {
-        val transactions = transactionByList(
-            transaction_amount =
-            if (it.transaction_type == TransactionType.Expense)
-                "-${it.transaction_amount}"
+private fun formatTransaction(transactionDetailStates: List<TransactionDetailState>): List<TransactionListState> {
+    val transaction = mutableListOf<TransactionListState>()
+    transactionDetailStates.forEach {
+        val transactions = TransactionListState(
+            transactionAmount =
+            if (it.transactionType == TransactionType.Expense)
+                "-${it.transactionAmount}"
             else
-                it.transaction_amount.toString(),
-            transaction_description = it.transaction_description,
-            transaction_color =
-            if (it.transaction_type == TransactionType.Expense)
+                it.transactionAmount.toString(),
+            transactionDescription = it.transactionDescription,
+            transactionColor =
+            if (it.transactionType == TransactionType.Expense)
                 Color.Red.copy(alpha = 0.5F)
             else
                 Color.Blue.copy(alpha = 0.5F),
@@ -77,13 +75,13 @@ private fun formatTransaction(transactionDetails: List<transactionDetail>): List
     return transaction
 }
 
-private fun totalForDay(transactionDetails: List<transactionDetail>): Float {
+private fun totalForDay(transactionDetailStates: List<TransactionDetailState>): Float {
     var dayTotal = 0F
-    transactionDetails.forEach {
-        dayTotal += if (it.transaction_type == TransactionType.Expense)
-            -it.transaction_amount
+    transactionDetailStates.forEach {
+        dayTotal += if (it.transactionType == TransactionType.Expense)
+            -it.transactionAmount
         else
-            it.transaction_amount
+            it.transactionAmount
     }
     return dayTotal
 }

@@ -9,7 +9,7 @@
     <string name="pickIcon">Pick Icon</string>
     <string name="select_wallet">Select wallet</string>
     <string name="selectCategory">Select Category</string>
-    <string name="transactionByWallet"> Transaction By Wallet</string>
+    <string name="transactionsForSelectedWallet"> Transaction By Wallet</string>
 
     <!--top bar -->
     <string name="go_back">GO Back</string>

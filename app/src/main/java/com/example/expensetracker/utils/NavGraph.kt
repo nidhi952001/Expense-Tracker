@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import com.example.expensetracker.R
-import com.example.expensetracker.utils.InputUIState.SelectedTopBar
+import com.example.expensetracker.uiScreen.uiState.SelectedTopBar
 import com.example.expensetracker.viewModel.CategoryViewModel
 import com.example.expensetracker.viewModel.ExpenseIncomeViewModel
 import com.example.expensetracker.viewModel.WalletViewModel
@@ -22,7 +22,7 @@ enum class TopLevelDestination(@StringRes val route: Int) {
     showDetailOfWallet(route = R.string.show_detail_of_wallet),
     selectWallet(route = R.string.select_wallet),
     selectCategory(route = R.string.selectCategory),
-    transactionByWallet(route = R.string.transactionByWallet)
+    transactionsForSelectedWallet(route = R.string.transactionsForSelectedWallet)
 }
 
 @Composable
@@ -53,11 +53,11 @@ fun topBarAction(
 ) {
     when(currentRoute){
         TopLevelDestination.addWallet.name->{
-            if(walletViewModel.walletInputState.value.onEditWalletClick){
+            if(walletViewModel.walletInputState.value.isEditWalletClicked){
                 walletViewModel.editWallet()
             }
             else {
-                walletViewModel.saveIntoWallet()
+                walletViewModel.saveNewWallet()
             }
             navController.navigateUp()
         }

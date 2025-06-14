@@ -47,9 +47,9 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.expensetracker.R
 import com.example.expensetracker.ui.theme.AppColors
 import com.example.expensetracker.uiScreen.walletScreens.formatWalletAmount
-import com.example.expensetracker.utils.DisplayUIState.overViewDisplayState
-import com.example.expensetracker.utils.DisplayUIState.transactionByDate
-import com.example.expensetracker.utils.DisplayUIState.transactionByList
+import com.example.expensetracker.uiScreen.uiState.OverViewDisplayState
+import com.example.expensetracker.uiScreen.uiState.TransactionByDateState
+import com.example.expensetracker.uiScreen.uiState.TransactionListState
 import com.example.expensetracker.utils.transformByDate
 import com.example.expensetracker.viewModel.ExpenseIncomeViewModel
 
@@ -104,8 +104,8 @@ fun NoTransactionScreen(modifier: Modifier) {
 fun TransactionScreen(
     modifier: Modifier,
     scrollableState: ScrollState,
-    overViewState: overViewDisplayState,
-    showTransaction: List<transactionByDate>
+    overViewState: OverViewDisplayState,
+    showTransaction: List<TransactionByDateState>
 ) {
     Column(
         modifier = modifier.scrollable(scrollableState, orientation = Orientation.Vertical)
@@ -119,7 +119,7 @@ fun TransactionScreen(
 }
 
 @Composable
-fun TransactionSummary(modifier: Modifier, overviewUiState: overViewDisplayState){
+fun TransactionSummary(modifier: Modifier, overviewUiState: OverViewDisplayState){
     Column(modifier= modifier.padding(horizontal = 10.dp, vertical = 15.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),verticalAlignment = Alignment.CenterVertically) {
             Text(
@@ -190,7 +190,7 @@ fun TransactionSummary(modifier: Modifier, overviewUiState: overViewDisplayState
 }
 
 @Composable
-fun TransactionDetail(modifier: Modifier,overviewUiState: overViewDisplayState, showTransaction: List<transactionByDate>){
+fun TransactionDetail(modifier: Modifier, overviewUiState: OverViewDisplayState, showTransaction: List<TransactionByDateState>){
     LazyColumn(modifier= modifier) {
         item {
             TransactionSummary(modifier = Modifier.fillMaxWidth()
@@ -199,12 +199,12 @@ fun TransactionDetail(modifier: Modifier,overviewUiState: overViewDisplayState, 
         }
             items(items = showTransaction) { transaction ->
                 TransactionDate(
-                    transactionDate = transaction.transaction_date,
-                    transactionDay = transaction.transaction_day,
-                    transactionMonth = transaction.transaction_month,
-                    transactionYear = transaction.transaction_year,
-                    totalOfTheDay = transaction.transaction_total_amount)
-                transaction.transaction_list.forEach {transactions->
+                    transactionDate = transaction.transactionDate,
+                    transactionDay = transaction.transactionDay,
+                    transactionMonth = transaction.transactionMonth,
+                    transactionYear = transaction.transactionYear,
+                    totalOfTheDay = transaction.transactionTotalAmount)
+                transaction.transactionList.forEach { transactions->
                     AllTransaction(transactions, modifier = Modifier)
                 }
             }
@@ -246,7 +246,7 @@ private fun TransactionDate(
 }
 
 @Composable
-fun AllTransaction(transaction: transactionByList, modifier: Modifier) {
+fun AllTransaction(transaction: TransactionListState, modifier: Modifier) {
     Row(modifier = modifier.fillMaxWidth().background(
         color = AppColors.surface).padding(10.dp) , verticalAlignment = Alignment.CenterVertically) {
         Column(modifier = Modifier.weight(1f)) {
@@ -263,8 +263,8 @@ fun AllTransaction(transaction: transactionByList, modifier: Modifier) {
                 Spacer(modifier = Modifier.width(10.dp))
                 Column {
                     Text(text =
-                    (if(transaction.transaction_description!="")
-                        transaction.transaction_description
+                    (if(transaction.transactionDescription!=null)
+                        transaction.transactionDescription
                     else
                         stringResource(transaction.categoryName))!!,
                         fontWeight = FontWeight.ExtraBold
@@ -276,11 +276,11 @@ fun AllTransaction(transaction: transactionByList, modifier: Modifier) {
         val annotedString = buildAnnotatedString {
             append(stringResource( R.string.ruppes_icon))
             append(" ")
-            append(formatWalletAmount(transaction.transaction_amount))
+            append(formatWalletAmount(transaction.transactionAmount))
         }
         Text(
             text = annotedString,
-            color = transaction.transaction_color,
+            color = transaction.transactionColor,
             textAlign = TextAlign.End
         )
     }

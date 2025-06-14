@@ -7,9 +7,9 @@ import androidx.paging.cachedIn
 import com.example.expensetracker.repository.CategoryRepository
 import com.example.expensetracker.repository.TransactionRepository
 import com.example.expensetracker.repository.WalletRepository
-import com.example.expensetracker.utils.DisplayUIState.overViewDisplayState
-import com.example.expensetracker.utils.InputUIState.ExpenseIncomeInputState
-import com.example.expensetracker.utils.InputUIState.SelectedMonthAndYear
+import com.example.expensetracker.uiScreen.uiState.OverViewDisplayState
+import com.example.expensetracker.uiScreen.uiState.ExpenseIncomeInputState
+import com.example.expensetracker.uiScreen.uiState.SelectedMonthAndYear
 import com.example.transactionensetracker.entity.Transaction
 import com.example.transactionensetracker.entity.TransactionType
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -130,11 +130,11 @@ class ExpenseIncomeViewModel @Inject constructor(
     }
 
     val showOverView = combine(showExpenseTotal, showIncomeTotal) { expense, income ->
-        overViewDisplayState(expense, income, (income - expense), isLoading = false)
+        OverViewDisplayState(expense, income, (income - expense), isLoading = false)
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(),
-        overViewDisplayState(isLoading = true)
+        OverViewDisplayState(isLoading = true)
     )
 
     fun updateDateDialogState(dateDialog: Boolean) {
@@ -158,10 +158,10 @@ class ExpenseIncomeViewModel @Inject constructor(
         Log.d("TAG", "updateExpenseAmount: $expenseAmount")
         if (expenseAmount.isNotEmpty() && expenseAmount.isNotBlank()) _expenseTempState.update {
             it.copy(
-                validExpIncAmount = true
+                isExpenseIncomeAmountValid = true
             )
         }
-        else _expenseTempState.update { it.copy(validExpIncAmount = false) }
+        else _expenseTempState.update { it.copy(isExpenseIncomeAmountValid = false) }
     }
 
     fun updateExpenseDes(description: String) {
@@ -238,7 +238,7 @@ class ExpenseIncomeViewModel @Inject constructor(
                 showDateDialogUI = false,
                 expIncDescription = "",
                 expIncAmount = "",
-                validExpIncAmount = false
+                isExpenseIncomeAmountValid = false
             )
         }
     }

@@ -70,7 +70,7 @@ import com.example.expensetracker.ui.theme.AppColors.onBackground
 import com.example.expensetracker.ui.theme.AppColors.onSurface
 import com.example.expensetracker.ui.theme.AppColors.surface
 import com.example.expensetracker.uiScreen.walletScreens.formatWalletAmount
-import com.example.expensetracker.utils.InputUIState.ExpenseIncomeInputState
+import com.example.expensetracker.uiScreen.uiState.ExpenseIncomeInputState
 import com.example.expensetracker.viewModel.CategoryViewModel
 import com.example.expensetracker.viewModel.ExpenseIncomeViewModel
 import com.example.expensetracker.viewModel.WalletViewModel

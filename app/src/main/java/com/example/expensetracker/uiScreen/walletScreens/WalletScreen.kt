@@ -40,8 +40,8 @@ import com.example.expensetracker.ui.theme.AppColors.inverseSurface
 import com.example.expensetracker.ui.theme.AppColors.secondary
 import com.example.expensetracker.ui.theme.AppColors.secondaryContainer
 import com.example.expensetracker.ui.theme.AppColors.surface
-import com.example.expensetracker.utils.DisplayUIState.WalletDisplayState
-import com.example.expensetracker.utils.InputUIState.WalletInputState
+import com.example.expensetracker.uiScreen.uiState.WalletDisplayState
+import com.example.expensetracker.uiScreen.uiState.WalletInputState
 import com.example.expensetracker.viewModel.WalletViewModel
 
 

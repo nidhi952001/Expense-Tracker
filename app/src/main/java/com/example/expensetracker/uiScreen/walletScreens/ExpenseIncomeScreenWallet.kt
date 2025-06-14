@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.dp
 import com.example.expensetracker.R
 import com.example.expensetracker.entity.Wallet
 import com.example.expensetracker.ui.theme.AppColors
-import com.example.expensetracker.utils.DisplayUIState.WalletDisplayState
+import com.example.expensetracker.uiScreen.uiState.WalletDisplayState
 import com.example.expensetracker.viewModel.WalletViewModel
 
 //show list of wallet for income and expense screen

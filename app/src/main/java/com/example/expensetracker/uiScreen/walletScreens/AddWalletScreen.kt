@@ -51,7 +51,7 @@ import com.example.expensetracker.ui.theme.AppColors
 import com.example.expensetracker.uiScreen.inputWithLeadingIcon
 import com.example.expensetracker.uiScreen.inputWithNoIcon
 import com.example.expensetracker.uiScreen.label
-import com.example.expensetracker.utils.InputUIState.WalletInputState
+import com.example.expensetracker.uiScreen.uiState.WalletInputState
 import com.example.expensetracker.utils.StaticData.TypeOfWallet
 import com.example.expensetracker.utils.StaticData.listOfWallet
 import com.example.expensetracker.viewModel.WalletViewModel
@@ -108,7 +108,7 @@ private fun addWalletScreen(
             .verticalScroll(scrollableState)
     ) {
         WalletName(walletInputState, onWalletNameChanged)
-        if (!walletInputState.onEditWalletClick)
+        if (!walletInputState.isEditWalletClicked)
             WalletType(listOfWallet, onDropdownExpandedChanged, walletInputState, onSelectType)
         WalletAmount(walletInputState, onAmountChanged)
         WalletColorWithIcon(walletInputState, setColorPickerExpanded, onSelectedColor, onIconClick)

@@ -46,7 +46,7 @@ import com.example.expensetracker.R
 import com.example.expensetracker.ui.theme.*
 import com.example.expensetracker.ui.theme.AppColors.inverseOnSurface
 import com.example.expensetracker.ui.theme.AppColors.inverseSurface
-import com.example.expensetracker.utils.InputUIState.HomeStateData
+import com.example.expensetracker.uiScreen.uiState.HomeStateData
 import com.example.expensetracker.viewModel.HomeViewModel
 import com.example.expensetracker.viewModel.WalletViewModel
 import kotlinx.coroutines.CoroutineScope

@@ -43,10 +43,10 @@ import com.example.expensetracker.ui.theme.AppColors.onSurface
 import com.example.expensetracker.ui.theme.AppColors.outlineVariant
 import com.example.expensetracker.ui.theme.AppColors.primaryContainer
 import com.example.expensetracker.ui.theme.AppColors.surface
-import com.example.expensetracker.utils.InputUIState.CategoryInputState
-import com.example.expensetracker.utils.InputUIState.ExpenseIncomeInputState
-import com.example.expensetracker.utils.InputUIState.SelectedTopBar
-import com.example.expensetracker.utils.InputUIState.WalletInputState
+import com.example.expensetracker.uiScreen.uiState.CategoryInputState
+import com.example.expensetracker.uiScreen.uiState.ExpenseIncomeInputState
+import com.example.expensetracker.uiScreen.uiState.SelectedTopBar
+import com.example.expensetracker.uiScreen.uiState.WalletInputState
 import com.example.expensetracker.utils.TopLevelDestination
 import com.example.expensetracker.utils.getScreenName
 import com.example.expensetracker.viewModel.ExpenseIncomeViewModel
@@ -135,9 +135,9 @@ fun topBarTrailingIcon(
     if(currentRoute== TopLevelDestination.expenseIncome.name &&
         (selectedExpInc.selectedExpInc == R.string.expense || selectedExpInc.selectedExpInc == R.string.income)){
         val enable = if(selectedExpInc.selectedExpInc == R.string.expense)
-                (localExp.validExpIncAmount && localCategory.validExpCategory)
+                (localExp.isExpenseIncomeAmountValid && localCategory.isExpenseCategoryValid)
         else
-                (localExp.validExpIncAmount && localCategory.validIncCategory)
+                (localExp.isExpenseIncomeAmountValid && localCategory.isIncomeCategoryValid)
         IconButton(
             onClick = { onActionClick() },
             enabled =  enable,
