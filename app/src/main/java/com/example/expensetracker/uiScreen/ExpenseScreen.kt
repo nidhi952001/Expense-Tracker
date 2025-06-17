@@ -70,9 +70,9 @@ import com.example.expensetracker.ui.theme.AppColors.onBackground
 import com.example.expensetracker.ui.theme.AppColors.onSurface
 import com.example.expensetracker.ui.theme.AppColors.surface
 import com.example.expensetracker.uiScreen.walletScreens.formatWalletAmount
-import com.example.expensetracker.uiScreen.uiState.ExpenseIncomeInputState
+import com.example.expensetracker.uiScreen.uiState.FinanceInputState
 import com.example.expensetracker.viewModel.CategoryViewModel
-import com.example.expensetracker.viewModel.ExpenseIncomeViewModel
+import com.example.expensetracker.viewModel.FinanceViewModel
 import com.example.expensetracker.viewModel.WalletViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -82,23 +82,23 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ExpenseIncomeScreenRoute(
+fun FinanceScreenRoute(
     onClickListOfWallet: () -> Unit,
     onClickListOfCategory: () -> Unit,
     selectedCategory: Int?,
     onBack: () -> Unit,
-    expenseIncomeViewModel: ExpenseIncomeViewModel,
+    financeViewModel: FinanceViewModel,
     walletViewModel: WalletViewModel,
     categoryViewModel: CategoryViewModel
 ) {
     val scrollableState = rememberScrollState()
-    val inputUiState by expenseIncomeViewModel.tempExpeIncState.collectAsState()
-    val selectedExpenseWallet by walletViewModel.selectedWallet.collectAsState(
+    val inputUiState by financeViewModel.tempFinanceState.collectAsState()
+    val selectedFinanceWallet by walletViewModel.selectedWallet.collectAsState(
         initial = null
     )
 
     BackHandler(onBack = {
-        expenseIncomeViewModel.resetUiState()
+        financeViewModel.resetUiState()
         categoryViewModel.resetIncCategory()
         categoryViewModel.resetExpCategory()
         onBack()
@@ -109,18 +109,18 @@ fun ExpenseIncomeScreenRoute(
     val currentTime = Calendar.getInstance()
     var formattedTime:String = ""
     var modifier = Modifier.fillMaxSize()
-    ExpenseIncomeScreen(
+    FinanceScreen(
         modifier = modifier,
         scrollableState = scrollableState,
-        showDateDialogUI = { expenseIncomeViewModel.updateDateDialogState(it) },
+        showDateDialogUI = { financeViewModel.updateDateDialogState(it) },
         inputUiState = inputUiState,
         datePickerState =datePickerState,
-        onDateSelected = { expenseIncomeViewModel.updateSelectedDate(it) },
-        onExpenseAmountChanged = { expenseIncomeViewModel.updateExpenseAmount(it) },
-        onDescriptionChanged = { expenseIncomeViewModel.updateExpenseDes(it) },
+        onDateSelected = { financeViewModel.updateSelectedDate(it) },
+        onAmountChanged = { financeViewModel.updateFinanceAmount(it) },
+        onDescriptionChanged = { financeViewModel.updateFinanceDes(it) },
         selectedCategory =selectedCategory,
         onClickListOfCategory =onClickListOfCategory,
-        selectedExpWallet =selectedExpenseWallet,
+        selectedWallet =selectedFinanceWallet,
         onClickListOfWallet =onClickListOfWallet
     )
 
@@ -128,18 +128,18 @@ fun ExpenseIncomeScreenRoute(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ExpenseIncomeScreen(
+private fun FinanceScreen(
     modifier: Modifier,
     scrollableState: ScrollState,
     showDateDialogUI: (Boolean) -> Unit,
-    inputUiState: ExpenseIncomeInputState,
+    inputUiState: FinanceInputState,
     datePickerState: DatePickerState,
     onDateSelected: (Long?) -> Unit,
-    onExpenseAmountChanged: (String) -> Unit,
+    onAmountChanged: (String) -> Unit,
     onDescriptionChanged: (String) -> Unit,
     selectedCategory: Int?,
     onClickListOfCategory: () -> Unit,
-    selectedExpWallet: Wallet?,
+    selectedWallet: Wallet?,
     onClickListOfWallet: () -> Unit
 ) {
     Box(
@@ -174,18 +174,18 @@ private fun ExpenseIncomeScreen(
                     onDateSelected = { onDateSelected(it) },
                     onDismiss = { showDateDialogUI(false) })
             }
-            expenseAmount(
-                expenseAmount = inputUiState.expIncAmount,
-                onExpenseValueChange = { onExpenseAmountChanged(it) })
-            expenseDescription(
-                description = inputUiState.expIncDescription,
+            financeAmount(
+                financeAmount = inputUiState.financeAmount,
+                onAmountValueChange = { onAmountChanged(it) })
+            financeDescription(
+                description = inputUiState.financeDescription,
                 onDescriptionChanged = { onDescriptionChanged(it) })
             category(
                 selectedCat = selectedCategory,
                 onClickListOfCategory = onClickListOfCategory
             )
-            expenseWallet(
-                expSelectedWallet = selectedExpWallet,
+            financeWallet(
+                selectedWallet = selectedWallet,
                 onClickListOfWallet = onClickListOfWallet
             )
         }
@@ -213,19 +213,19 @@ private fun dateUi(showDateDialogUI: (Boolean) -> Unit, selectedDate: Long?) {
 }
 
 @Composable
-private fun expenseAmount(expenseAmount: String, onExpenseValueChange: (String) -> Unit) {
+private fun financeAmount(financeAmount: String, onAmountValueChange: (String) -> Unit) {
     label("Amount")
     inputWithLeadingIcon(
-        value = expenseAmount,
+        value = financeAmount,
         placeholder = "0",
         leadingIcon = R.drawable.currency_rupee_ui,
         isReadOnly = false,
-        onValueChange = { onExpenseValueChange(it) },
+        onValueChange = { onAmountValueChange(it) },
     )
 }
 
 @Composable
-private fun expenseDescription(description: String, onDescriptionChanged: (String) -> Unit) {
+private fun financeDescription(description: String, onDescriptionChanged: (String) -> Unit) {
     label("Description")
     inputWithNoIcon(
         value = description,
@@ -250,9 +250,9 @@ private fun category(selectedCat: Int?, onClickListOfCategory:()->Unit) {
 }
 
 @Composable
-private fun expenseWallet(expSelectedWallet: Wallet?,onClickListOfWallet:()->Unit) {
+private fun financeWallet(selectedWallet: Wallet?, onClickListOfWallet:()->Unit) {
     val annotedString = buildAnnotatedString {
-        append(expSelectedWallet?.walletName)
+        append(selectedWallet?.walletName)
         append("\u0020")
         withStyle(
             style = SpanStyle(fontWeight = FontWeight.Bold, color = Color.Black,)
@@ -260,8 +260,8 @@ private fun expenseWallet(expSelectedWallet: Wallet?,onClickListOfWallet:()->Uni
             append("•")
         }
         append("\u0020₹\u0020")
-        if (expSelectedWallet != null) {
-            append(formatWalletAmount(expSelectedWallet.walletAmount.toString()))
+        if (selectedWallet != null) {
+            append(formatWalletAmount(selectedWallet.walletAmount.toString()))
         }
     }
     label("Wallet")

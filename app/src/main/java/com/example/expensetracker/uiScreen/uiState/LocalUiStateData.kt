@@ -35,7 +35,7 @@ data class WalletInputState(
 
 
     //wallet expense
-    val selectedExpWalletId: Int = 1,
+    val selectedFinanceWalletId: Int = 1,
 
     //selected wallet for details screen
     val selectedwalletIdDetail: Int = 0,
@@ -43,19 +43,19 @@ data class WalletInputState(
 )
 
 data class SelectedTopBar(
-    val selectedExpInc: Int = R.string.expense
+    val selectedFinance: Int = R.string.expense
 )
 
 data class SelectedMonthAndYear(
     val currentMonthYear: Calendar = Calendar.getInstance()
 )
 
-data class ExpenseIncomeInputState(
+data class FinanceInputState(
     val showDateDialogUI: Boolean = false,
     val selectedDate: Long? = System.currentTimeMillis(),
-    val expIncDescription: String = "",
-    val expIncAmount: String = "",
-    val isExpenseIncomeAmountValid: Boolean = false,
+    val financeDescription: String = "",
+    val financeAmount: String = "",
+    val isFinanceAmountValid: Boolean = false,
 )
 
 data class CategoryInputState(

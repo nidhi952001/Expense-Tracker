@@ -2,7 +2,7 @@
     <string name="app_name">ExpenseTracker</string>
     <string name="income">Income</string>
     <string name="expense">Expense</string>
-    <string name="expenseIncome">Expense Income</string>
+    <string name="finance">Finance</string>
     <string name="home">Home</string>
     <string name="add_name">Add Name</string>
     <string name="numericInput">Numeric Input</string>

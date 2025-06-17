@@ -30,7 +30,7 @@ import com.example.expensetracker.utils.TopLevelDestination
 import com.example.expensetracker.utils.topBarAction
 import com.example.expensetracker.utils.topBarBackAction
 import com.example.expensetracker.viewModel.CategoryViewModel
-import com.example.expensetracker.viewModel.ExpenseIncomeViewModel
+import com.example.expensetracker.viewModel.FinanceViewModel
 import com.example.expensetracker.viewModel.HomeViewModel
 import com.example.expensetracker.viewModel.WalletViewModel
 
@@ -44,17 +44,17 @@ fun ExpenseTrackerNavHost() {
     val currentRoute = navBackStackEntry?.destination?.route
 
     //view model
-    val expIncViewModel: ExpenseIncomeViewModel = hiltViewModel()
+    val financeViewModel: FinanceViewModel = hiltViewModel()
     val walletViewModel: WalletViewModel = hiltViewModel()
     val homeViewModel: HomeViewModel = hiltViewModel()
     val categoryViewModel: CategoryViewModel = hiltViewModel()
 
     //uiState
-    val selectedExpInc by homeViewModel.selectedExpInc.collectAsState()
-    val inputExpeIncState by expIncViewModel.tempExpeIncState.collectAsState()
+    val selectedFinanceType by homeViewModel.selectedFinance.collectAsState()
+    val inputFinanceState by financeViewModel.tempFinanceState.collectAsState()
 
     val inputCategoryState by categoryViewModel.tempCategoryState.collectAsState()
-    val selectedExpCategory by categoryViewModel.currentExpCategory.collectAsState(initial = null)
+    val selectedFinanceCategory by categoryViewModel.currentFinanceCategory.collectAsState(initial = null)
     val selectedIncCategory by categoryViewModel.currentIncCategory.collectAsState(initial = null)
 
     var userName by rememberSaveable { mutableStateOf("User") }
@@ -80,18 +80,18 @@ fun ExpenseTrackerNavHost() {
             AppTopBar(
                 userName = userName,
                 currentRoute = currentRoute, //todo need to rewrite this logic , it can crash the app
-                localExpIncState = inputExpeIncState,
+                localFinanceState = inputFinanceState,
                 localCatState = inputCategoryState,
-                selectedExpInc = selectedExpInc,
-                onSelectExpInc = { homeViewModel.updateSelectedInExp(it) },
+                selectedFinanceType = selectedFinanceType,
+                onSelectFinance = { homeViewModel.updateSelectedFinance(it) },
                 onActionClick = {
                     topBarAction(
                         currentRoute = currentRoute,
                         walletViewModel = walletViewModel,
-                        expViewModel = expIncViewModel,
+                        financeViewModel = financeViewModel,
                         catViewModel = categoryViewModel,
                         navController = navController,
-                        selectedExpInc = selectedExpInc,
+                        selectedFinanceType = selectedFinanceType,
                     )
                 },
                 onBackClick = {
@@ -143,18 +143,18 @@ fun ExpenseTrackerNavHost() {
                     )
                 }
                 composable(route = TopLevelDestination.transaction.name) {
-                    TransactionScreenRoute(expenseIncomeViewModel = expIncViewModel)
+                    TransactionScreenRoute(financeViewModel = financeViewModel)
                 }
-                composable(route = TopLevelDestination.expenseIncome.name) {
-                    ExpenseIncomeScreenRoute(
+                composable(route = TopLevelDestination.Finance.name) {
+                    FinanceScreenRoute(
                         onClickListOfWallet = { navController.navigate(TopLevelDestination.selectWallet.name) },
-                        selectedCategory = if (selectedExpInc.selectedExpInc == R.string.expense) selectedExpCategory
+                        selectedCategory = if (selectedFinanceType.selectedFinance == R.string.expense) selectedFinanceCategory
                         else selectedIncCategory,
                         onClickListOfCategory = { navController.navigate(TopLevelDestination.selectCategory.name) },
                         onBack = {
                             navController.navigateUp()
                         },
-                        expenseIncomeViewModel = expIncViewModel,
+                        financeViewModel = financeViewModel,
                         walletViewModel = walletViewModel,
                         categoryViewModel = categoryViewModel
                     )

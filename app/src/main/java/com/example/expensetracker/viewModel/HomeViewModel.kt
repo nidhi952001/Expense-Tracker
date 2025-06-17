@@ -20,8 +20,8 @@ class HomeViewModel @Inject constructor(
         //data = store
         val savedUsername = homeRepository.savedUserName
         //selected top bar for income and expesnse
-        private val _selectedExpInc = MutableStateFlow(SelectedTopBar())
-        val selectedExpInc = _selectedExpInc.asStateFlow()
+        private val _selectedFinanceType = MutableStateFlow(SelectedTopBar())
+        val selectedFinance = _selectedFinanceType.asStateFlow()
 
         //ui state for home
         private val _homeUiState = MutableStateFlow(HomeStateData())
@@ -51,9 +51,9 @@ class HomeViewModel @Inject constructor(
                 }
         }
 
-        fun updateSelectedInExp(selected:Int) {
-                _selectedExpInc.update {
-                        it.copy(selectedExpInc = selected)
+        fun updateSelectedFinance(selected:Int) {
+                _selectedFinanceType.update {
+                        it.copy(selectedFinance = selected)
                 }
         }
 

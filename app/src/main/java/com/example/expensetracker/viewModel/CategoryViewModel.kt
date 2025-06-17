@@ -70,7 +70,7 @@ class CategoryViewModel @Inject constructor(
     }
 
     //this both show on expense screen
-    val currentExpCategory = _temCatUiState.map {
+    val currentFinanceCategory = _temCatUiState.map {
         it.selectedExpCategoryId
     }.distinctUntilChanged().flatMapLatest {
         categoryRepository.getCategoryNameById(it)

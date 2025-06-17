@@ -45,10 +45,10 @@ interface TransactionDao {
             "sum(t.transaction_amount) as transactionTotalAmount," +
             "t.transaction_type as transactionType,c.categoryId,c.categoryName,c.categoryIcon,c.categoryColor" +
             " from `transaction` as t inner join category as c " +
-            "where t.transaction_category_id=c.categoryId and t.transaction_wallet_id=:walletId group by c.categoryName")
+            "where t.transaction_category_id=c.categoryId and t.transaction_wallet_id=:walletId group by c.categoryName,t.transaction_type")
     fun showTransactionByWallet(walletId: Int): Flow<List<TransactionDetailSelectedWalletState>>
 
-    @Query("select t.transaction_id as transactionId, t.transaction_date , t.transaction_amount as transactionAmount , t.transaction_description , t.transaction_type as transactionType ," +
+    @Query("select t.transaction_id as transactionId, t.transaction_date as transactionDate , t.transaction_amount as transactionAmount , t.transaction_description , t.transaction_type as transactionType ," +
         "w.walletName , c.categoryName , c.categoryIcon , c.categoryColor" +
                 " from `transaction` as t inner join wallet as w inner join category as c where " +
                 "t.transaction_wallet_id=w.walletId and t.transaction_category_id=c.categoryId " +

@@ -7,7 +7,7 @@ import androidx.navigation.NavController
 import com.example.expensetracker.R
 import com.example.expensetracker.uiScreen.uiState.SelectedTopBar
 import com.example.expensetracker.viewModel.CategoryViewModel
-import com.example.expensetracker.viewModel.ExpenseIncomeViewModel
+import com.example.expensetracker.viewModel.FinanceViewModel
 import com.example.expensetracker.viewModel.WalletViewModel
 
 enum class TopLevelDestination(@StringRes val route: Int) {
@@ -15,7 +15,7 @@ enum class TopLevelDestination(@StringRes val route: Int) {
     userName(route = R.string.add_name),
     initialAmount(route = R.string.initial_amount),
     transaction(route = R.string.transaction),
-    expenseIncome(route = R.string.expenseIncome),
+    Finance(route = R.string.finance),
     showWallet(route = R.string.showWallet),
     addWallet(route = R.string.addWallet),
     pickWalletIcon(route =R.string.pickIcon),
@@ -26,12 +26,12 @@ enum class TopLevelDestination(@StringRes val route: Int) {
 }
 
 @Composable
-fun getScreenName(currentRoute: String, selectedExpInc: SelectedTopBar):String {
+fun getScreenName(currentRoute: String, selectedFinanceType: SelectedTopBar):String {
     return when(currentRoute){
         TopLevelDestination.userName.name -> stringResource(R.string.add_name)
         TopLevelDestination.initialAmount.name -> stringResource(R.string.initial_amount)
-        TopLevelDestination.expenseIncome.name ->
-            if(selectedExpInc.selectedExpInc == R.string.expense)
+        TopLevelDestination.Finance.name ->
+            if(selectedFinanceType.selectedFinance == R.string.expense)
                 stringResource(R.string.expense)
             else
                 stringResource(R.string.income)
@@ -47,8 +47,8 @@ fun topBarAction(
     currentRoute: String?,
     walletViewModel: WalletViewModel,
     navController: NavController,
-    expViewModel: ExpenseIncomeViewModel,
-    selectedExpInc: SelectedTopBar,
+    financeViewModel: FinanceViewModel,
+    selectedFinanceType: SelectedTopBar,
     catViewModel: CategoryViewModel
 ) {
     when(currentRoute){
@@ -61,13 +61,13 @@ fun topBarAction(
             }
             navController.navigateUp()
         }
-        TopLevelDestination.expenseIncome.name->{
-            if(selectedExpInc.selectedExpInc == R.string.expense) {
-                expViewModel.saveIntoExpense()
+        TopLevelDestination.Finance.name->{
+            if(selectedFinanceType.selectedFinance == R.string.expense) {
+                financeViewModel.saveIntoExpense()
                 navController.navigateUp()
                 catViewModel.resetExpCategory()
             }else{
-                expViewModel.saveIntoIncome()
+                financeViewModel.saveIntoIncome()
                 navController.navigateUp()
                 catViewModel.resetIncCategory()
             }

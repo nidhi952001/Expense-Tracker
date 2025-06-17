@@ -42,12 +42,12 @@ import com.example.expensetracker.viewModel.WalletViewModel
 @Composable
 fun SelectWalletRoute(navigateUp: () -> Unit, walletViewModel: WalletViewModel) {
     val walletDatabaseState by walletViewModel.walletUiState.collectAsState()
-    val selectedExpenseWallet by walletViewModel.selectedWallet.collectAsState(initial = null)
+    val selectedWallet by walletViewModel.selectedWallet.collectAsState(initial = null)
 
     SelectWallet(walletDatabaseState = walletDatabaseState,
-        selectedExpenseWallet = selectedExpenseWallet,
+        selectedWallet = selectedWallet,
         onSelectWallet = {
-            walletViewModel.updateSelectedExpWallet(it)
+            walletViewModel.updateSelectedWallet(it)
             navigateUp()
         })
 }
@@ -55,7 +55,7 @@ fun SelectWalletRoute(navigateUp: () -> Unit, walletViewModel: WalletViewModel) 
 @Composable
 private fun SelectWallet(
     walletDatabaseState: WalletDisplayState,
-    selectedExpenseWallet: Wallet?,
+    selectedWallet: Wallet?,
     onSelectWallet: (Int) -> Unit
 ) {
     LazyColumn(
@@ -63,7 +63,7 @@ private fun SelectWallet(
             .background(color = AppColors.surface)
     ) {
         items(walletDatabaseState.userWallets) { wallet ->
-            showListOfWallet(wallet, selectedExpenseWallet, onSelectWallet)
+            showListOfWallet(wallet, selectedWallet, onSelectWallet)
         }
     }
 }

@@ -1,6 +1,5 @@
 package com.example.expensetracker.uiScreen
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -9,15 +8,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AddCircle
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,18 +20,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.expensetracker.R
-import com.example.expensetracker.ui.theme.AppColors
-import com.example.expensetracker.ui.theme.AppColors.inverseOnSurface
-import com.example.expensetracker.ui.theme.AppColors.onError
 import com.example.expensetracker.ui.theme.AppColors.onSurface
-import com.example.expensetracker.ui.theme.AppColors.surface
 import com.example.expensetracker.utils.TopLevelDestination
 
 data class BottomNavItem(
@@ -54,7 +42,7 @@ object ListOfBottomButton {
             label = R.string.transaction
         ),
         BottomNavItem(
-            route = TopLevelDestination.expenseIncome.name,
+            route = TopLevelDestination.Finance.name,
             painter = R.drawable.add_ic,
             label = R.string.add
         ),

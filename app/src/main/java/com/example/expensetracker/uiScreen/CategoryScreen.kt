@@ -55,15 +55,15 @@ fun ShowCategoryListRoute(
 ) {
     val modifier = Modifier.fillMaxSize().background(color = inverseOnSurface).padding(top = 20.dp)
         .background(color = surface)
-    val selectedExpInc by homeViewModel.selectedExpInc.collectAsState()
+    val selectedFinance by homeViewModel.selectedFinance.collectAsState()
     val listOfExpCategory by categoryViewModel.listOfExpCategory.collectAsState()
     val listOfIncCategory by categoryViewModel.listOfIncCategory.collectAsState()
     val inputCategoryState by categoryViewModel.tempCategoryState.collectAsState()
 
-    if (selectedExpInc.selectedExpInc == R.string.expense) {
+    if (selectedFinance.selectedFinance == R.string.expense) {
         ShowCategoryList(
             modifier = modifier,
-            listOfExpCategory = listOfExpCategory,
+            listOfCategory = listOfExpCategory,
             selectedCategory = inputCategoryState,
             onSelectCategory = {
                 categoryViewModel.updateSelectedCategory(it)
@@ -74,7 +74,7 @@ fun ShowCategoryListRoute(
     else{
         ShowCategoryList(
             modifier = modifier,
-            listOfExpCategory = listOfIncCategory,
+            listOfCategory = listOfIncCategory,
             onSelectCategory = {
                 categoryViewModel.updateSelectedIncCategory(it)
                 navigateUp()
@@ -86,14 +86,14 @@ fun ShowCategoryListRoute(
 @Composable
 private fun ShowCategoryList(
     modifier: Modifier,
-    listOfExpCategory: List<Category>,
+    listOfCategory: List<Category>,
     selectedCategory: CategoryInputState,
     onSelectCategory: (Int) -> Unit
 ) {
     LazyColumn(
         modifier = modifier
     ) {
-        items(listOfExpCategory) {
+        items(listOfCategory) {
             showCategory(
                 category = it,
                 selectedCategory = selectedCategory,

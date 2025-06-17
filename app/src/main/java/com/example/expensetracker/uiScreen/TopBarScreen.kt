@@ -44,12 +44,12 @@ import com.example.expensetracker.ui.theme.AppColors.outlineVariant
 import com.example.expensetracker.ui.theme.AppColors.primaryContainer
 import com.example.expensetracker.ui.theme.AppColors.surface
 import com.example.expensetracker.uiScreen.uiState.CategoryInputState
-import com.example.expensetracker.uiScreen.uiState.ExpenseIncomeInputState
+import com.example.expensetracker.uiScreen.uiState.FinanceInputState
 import com.example.expensetracker.uiScreen.uiState.SelectedTopBar
 import com.example.expensetracker.uiScreen.uiState.WalletInputState
 import com.example.expensetracker.utils.TopLevelDestination
 import com.example.expensetracker.utils.getScreenName
-import com.example.expensetracker.viewModel.ExpenseIncomeViewModel
+import com.example.expensetracker.viewModel.FinanceViewModel
 import com.example.expensetracker.viewModel.WalletViewModel
 import java.util.Locale
 
@@ -60,12 +60,12 @@ fun topBarWithBackArrow(
     localWallet: WalletInputState,
     onActionClick: () -> Unit,
     onBackClick: () -> Unit,
-    localExp: ExpenseIncomeInputState,
+    localFinance: FinanceInputState,
     localCat: CategoryInputState,
-    selectedExpInc: SelectedTopBar,
+    selectedFinance: SelectedTopBar,
     onEditWallet: () -> Unit
 ) {
-    val currentScreenName = getScreenName(currentRoute!!,selectedExpInc)
+    val currentScreenName = getScreenName(currentRoute!!,selectedFinance)
     CenterAlignedTopAppBar(
         modifier = Modifier.background(color = Color.Transparent),
         title = {
@@ -86,9 +86,9 @@ fun topBarWithBackArrow(
             topBarTrailingIcon(
                 currentRoute = currentRoute,
                 localWallet = localWallet,
-                localExp = localExp,
+                localFinance = localFinance,
                 localCategory = localCat,
-                selectedExpInc = selectedExpInc,
+                selectedFinance = selectedFinance,
                 onActionClick = onActionClick,
                 onEditWallet = onEditWallet
             )
@@ -103,9 +103,9 @@ fun topBarTrailingIcon(
     currentRoute: String?,
     localWallet: WalletInputState,
     onActionClick: () -> Unit,
-    localExp: ExpenseIncomeInputState,
+    localFinance: FinanceInputState,
     localCategory: CategoryInputState,
-    selectedExpInc: SelectedTopBar,
+    selectedFinance: SelectedTopBar,
     onEditWallet:()->Unit
 ) {
     if (currentRoute!! == TopLevelDestination.addWallet.name) {
@@ -132,12 +132,12 @@ fun topBarTrailingIcon(
             modifier = Modifier.size(40.dp).padding(end = 15.dp)
         )
     }
-    if(currentRoute== TopLevelDestination.expenseIncome.name &&
-        (selectedExpInc.selectedExpInc == R.string.expense || selectedExpInc.selectedExpInc == R.string.income)){
-        val enable = if(selectedExpInc.selectedExpInc == R.string.expense)
-                (localExp.isExpenseIncomeAmountValid && localCategory.isExpenseCategoryValid)
+    if(currentRoute== TopLevelDestination.Finance.name &&
+        (selectedFinance.selectedFinance == R.string.expense || selectedFinance.selectedFinance == R.string.income)){
+        val enable = if(selectedFinance.selectedFinance == R.string.expense)
+                (localFinance.isFinanceAmountValid && localCategory.isExpenseCategoryValid)
         else
-                (localExp.isExpenseIncomeAmountValid && localCategory.isIncomeCategoryValid)
+                (localFinance.isFinanceAmountValid && localCategory.isIncomeCategoryValid)
         IconButton(
             onClick = { onActionClick() },
             enabled =  enable,
@@ -178,16 +178,16 @@ fun AppTopBar(
     currentRoute: String?,
     onActionClick: () -> Unit,
     onBackClick: () -> Unit,
-    localExpIncState: ExpenseIncomeInputState,
+    localFinanceState: FinanceInputState,
     localCatState: CategoryInputState,
-    selectedExpInc: SelectedTopBar,
-    onSelectExpInc: (Int) -> Unit,
+    selectedFinanceType: SelectedTopBar,
+    onSelectFinance: (Int) -> Unit,
     onEditWallet:()->Unit,
     walletViewModel: WalletViewModel
 ) {
     val localWallet by walletViewModel.walletInputState.collectAsState()
     when (currentRoute) {
-        TopLevelDestination.expenseIncome.name,
+        TopLevelDestination.Finance.name,
         TopLevelDestination.selectWallet.name,
         TopLevelDestination.selectCategory.name,
         TopLevelDestination.addWallet.name,
@@ -203,19 +203,19 @@ fun AppTopBar(
                     topBarWithBackArrow(
                         currentRoute = currentRoute,
                         localWallet = localWallet,
-                        localExp = localExpIncState,
+                        localFinance = localFinanceState,
                         localCat = localCatState,
-                        selectedExpInc = selectedExpInc,
+                        selectedFinance = selectedFinanceType,
                         onActionClick = onActionClick,
                         onBackClick = onBackClick,
                         onEditWallet = onEditWallet
                     )
-                    if (currentRoute == TopLevelDestination.expenseIncome.name
+                    if (currentRoute == TopLevelDestination.Finance.name
                     ) {
                         categoryTopBar(
                             modifier = Modifier.fillMaxWidth(),
-                            selectedExpInc = selectedExpInc,
-                            onSelectExpInc = onSelectExpInc)
+                            selectedTopBar = selectedFinanceType,
+                            onSelectFinanceType = onSelectFinance)
                     }
                 }
             }
@@ -251,15 +251,15 @@ fun topBarWithoutBackArrow(userName: String, currentRoute: String?) {
 
 @Composable
 fun selectMonthTopBar() {
-    val expenseIncomeViewModel:ExpenseIncomeViewModel = hiltViewModel()
-    val currentMonthYearState by expenseIncomeViewModel.currentMonthYear.collectAsState()
+    val financeViewModel:FinanceViewModel = hiltViewModel()
+    val currentMonthYearState by financeViewModel.currentMonthYear.collectAsState()
     val formatMonthYear = android.icu.text.SimpleDateFormat("MMM yyyy", Locale.getDefault())
     val currentMonthYear = formatMonthYear.format(currentMonthYearState.currentMonthYear.time)
     Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp) , verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arrangement.SpaceBetween) {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
             contentDescription = stringResource(R.string.previous),
-            modifier = Modifier.clickable(onClick = { expenseIncomeViewModel.previousMonthYear(currentMonthYearState.currentMonthYear) })
+            modifier = Modifier.clickable(onClick = { financeViewModel.previousMonthYear(currentMonthYearState.currentMonthYear) })
         )
         Text(
             text = currentMonthYear,
@@ -268,7 +268,7 @@ fun selectMonthTopBar() {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = stringResource(R.string.next),
-            modifier = Modifier.clickable(onClick = {expenseIncomeViewModel.nextMonthYear(currentMonthYearState.currentMonthYear)})
+            modifier = Modifier.clickable(onClick = {financeViewModel.nextMonthYear(currentMonthYearState.currentMonthYear)})
 
         )
     }
@@ -278,8 +278,8 @@ fun selectMonthTopBar() {
 @Composable
 fun categoryTopBar(
     modifier: Modifier,
-    selectedExpInc: SelectedTopBar,
-    onSelectExpInc:(Int)->Unit
+    selectedTopBar: SelectedTopBar,
+    onSelectFinanceType:(Int)->Unit
 ) {
     Row(
         modifier = modifier,
@@ -287,12 +287,12 @@ fun categoryTopBar(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Button(
-            onClick = { onSelectExpInc(R.string.income) },
+            onClick = { onSelectFinanceType(R.string.income) },
             modifier = Modifier.weight(1f),
             colors = ButtonDefaults.buttonColors(
-                containerColor = if (selectedExpInc.selectedExpInc == R.string.income) primaryContainer
+                containerColor = if (selectedTopBar.selectedFinance == R.string.income) primaryContainer
                 else surface,
-                contentColor = if (selectedExpInc.selectedExpInc == R.string.income) onPrimaryContainer else onSurface
+                contentColor = if (selectedTopBar.selectedFinance == R.string.income) onPrimaryContainer else onSurface
             ),
             shape = RectangleShape,
         ) {
@@ -303,14 +303,14 @@ fun categoryTopBar(
             )
         }
         Button(
-            onClick = { onSelectExpInc(R.string.expense) },
+            onClick = { onSelectFinanceType(R.string.expense) },
             modifier = Modifier.weight(1f),
             colors = ButtonDefaults.buttonColors(
                 containerColor =
-                if (selectedExpInc.selectedExpInc == R.string.expense) errorColor.copy(alpha = 0.8F)
+                if (selectedTopBar.selectedFinance == R.string.expense) errorColor.copy(alpha = 0.8F)
                 else surface,
                 contentColor =
-                if (selectedExpInc.selectedExpInc == R.string.expense) onError
+                if (selectedTopBar.selectedFinance == R.string.expense) onError
                 else onSurface
             ),
             shape = RectangleShape

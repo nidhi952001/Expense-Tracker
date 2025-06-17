@@ -8,7 +8,7 @@ import com.example.expensetracker.repository.CategoryRepository
 import com.example.expensetracker.repository.TransactionRepository
 import com.example.expensetracker.repository.WalletRepository
 import com.example.expensetracker.uiScreen.uiState.OverViewDisplayState
-import com.example.expensetracker.uiScreen.uiState.ExpenseIncomeInputState
+import com.example.expensetracker.uiScreen.uiState.FinanceInputState
 import com.example.expensetracker.uiScreen.uiState.SelectedMonthAndYear
 import com.example.transactionensetracker.entity.Transaction
 import com.example.transactionensetracker.entity.TransactionType
@@ -28,14 +28,14 @@ import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
-class ExpenseIncomeViewModel @Inject constructor(
+class FinanceViewModel @Inject constructor(
     private val transactionRepository: TransactionRepository,
     categoryRepository: CategoryRepository,
     private val walletRepository: WalletRepository,
 ) : ViewModel() {
 
-    private val _expenseTempState = MutableStateFlow(ExpenseIncomeInputState())
-    val tempExpeIncState = _expenseTempState.asStateFlow()
+    private val _financeTempState = MutableStateFlow(FinanceInputState())
+    val tempFinanceState = _financeTempState.asStateFlow()
 
     val currentCategory = categoryRepository.selectedCategory
     val currentWallet = walletRepository.selectedWalletId
@@ -105,7 +105,7 @@ class ExpenseIncomeViewModel @Inject constructor(
             val mapValue = getSelectedMonthRange(it.currentMonthYear)
             firstDayOfMonth= mapValue.keys.first()
             lastDayOfMonth = mapValue.entries.first().value
-            transactionRepository.showExpenseTransaction(firstDayOfMonth, lastDayOfMonth)
+            transactionRepository.showTransaction(firstDayOfMonth, lastDayOfMonth)
         }.distinctUntilChanged().flatMapLatest {
             it
         }.cachedIn(viewModelScope)
@@ -138,35 +138,35 @@ class ExpenseIncomeViewModel @Inject constructor(
     )
 
     fun updateDateDialogState(dateDialog: Boolean) {
-        _expenseTempState.update {
+        _financeTempState.update {
             it.copy(showDateDialogUI = dateDialog)
         }
 
     }
 
     fun updateSelectedDate(date: Long?) {
-        _expenseTempState.update {
+        _financeTempState.update {
             it.copy(selectedDate = date)
         }
 
     }
 
-    fun updateExpenseAmount(expenseAmount: String) {
-        _expenseTempState.update {
-            it.copy(expIncAmount = expenseAmount)
+    fun updateFinanceAmount(amount: String) {
+        _financeTempState.update {
+            it.copy(financeAmount = amount)
         }
-        Log.d("TAG", "updateExpenseAmount: $expenseAmount")
-        if (expenseAmount.isNotEmpty() && expenseAmount.isNotBlank()) _expenseTempState.update {
+        Log.d("TAG", "updateExpenseAmount: $amount")
+        if (amount.isNotEmpty() && amount.isNotBlank()) _financeTempState.update {
             it.copy(
-                isExpenseIncomeAmountValid = true
+                isFinanceAmountValid = true
             )
         }
-        else _expenseTempState.update { it.copy(isExpenseIncomeAmountValid = false) }
+        else _financeTempState.update { it.copy(isFinanceAmountValid = false) }
     }
 
-    fun updateExpenseDes(description: String) {
-        _expenseTempState.update {
-            it.copy(expIncDescription = description)
+    fun updateFinanceDes(description: String) {
+        _financeTempState.update {
+            it.copy(financeDescription = description)
         }
 
     }
@@ -175,9 +175,9 @@ class ExpenseIncomeViewModel @Inject constructor(
         val expense = Transaction(
             transactionId = 0,
             transactionTime = 0L,
-            transactionDate = _expenseTempState.value.selectedDate,
-            transactionAmount = _expenseTempState.value.expIncAmount.toFloat(),
-            transactionDescription = _expenseTempState.value.expIncDescription,
+            transactionDate = _financeTempState.value.selectedDate,
+            transactionAmount = _financeTempState.value.financeAmount.toFloat(),
+            transactionDescription = _financeTempState.value.financeDescription,
             transactionType = TransactionType.Expense,
             transactionCategory = currentCategory.value,
             transactionWallet = currentWallet.value
@@ -187,9 +187,9 @@ class ExpenseIncomeViewModel @Inject constructor(
             //fetch current wallet amount
             val currentWalletAmount = walletRepository.fetchWalletAmountById(currentWallet.value)
             //update the wallet
-            if (!_expenseTempState.value.expIncAmount.isNullOrEmpty()) {
+            if (!_financeTempState.value.financeAmount.isNullOrEmpty()) {
                 val updateWalletAmount = currentWalletAmount -
-                        _expenseTempState.value.expIncAmount.toFloat()
+                        _financeTempState.value.financeAmount.toFloat()
 
                 walletRepository.updateWalletAmount(updateWalletAmount, currentWallet.value)
 
@@ -203,14 +203,14 @@ class ExpenseIncomeViewModel @Inject constructor(
 
 
     fun saveIntoIncome() {
-        Log.d("DEBUG", "Current state: ${_expenseTempState.value}")
+        Log.d("DEBUG", "Current state: ${_financeTempState.value}")
 
         val income = Transaction(
             transactionId = 0,
-            transactionDate = _expenseTempState.value.selectedDate,
+            transactionDate = _financeTempState.value.selectedDate,
             transactionTime = 0L,
-            transactionAmount = _expenseTempState.value.expIncAmount.toFloat(),
-            transactionDescription = _expenseTempState.value.expIncDescription,
+            transactionAmount = _financeTempState.value.financeAmount.toFloat(),
+            transactionDescription = _financeTempState.value.financeDescription,
             transactionType = TransactionType.Income,
             transactionCategory = currentCategory.value,
             transactionWallet = currentWallet.value
@@ -220,9 +220,9 @@ class ExpenseIncomeViewModel @Inject constructor(
             //fetch current wallet amount
             val currentWalletAmount = walletRepository.fetchWalletAmountById(currentWallet.value)
             //update the wallet
-            if (!_expenseTempState.value.expIncAmount.isNullOrEmpty()) {
+            if (!_financeTempState.value.financeAmount.isNullOrEmpty()) {
                 val updateWalletAmount = currentWalletAmount +
-                        _expenseTempState.value.expIncAmount.toFloat()
+                        _financeTempState.value.financeAmount.toFloat()
 
                 walletRepository.updateWalletAmount(updateWalletAmount, currentWallet.value)
 
@@ -233,12 +233,12 @@ class ExpenseIncomeViewModel @Inject constructor(
     }
 
     fun resetUiState() {
-        _expenseTempState.update {
+        _financeTempState.update {
             it.copy(
                 showDateDialogUI = false,
-                expIncDescription = "",
-                expIncAmount = "",
-                isExpenseIncomeAmountValid = false
+                financeDescription = "",
+                financeAmount = "",
+                isFinanceAmountValid = false
             )
         }
     }

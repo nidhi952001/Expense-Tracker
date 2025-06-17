@@ -51,10 +51,10 @@ import com.example.expensetracker.uiScreen.uiState.OverViewDisplayState
 import com.example.expensetracker.uiScreen.uiState.TransactionByDateState
 import com.example.expensetracker.uiScreen.uiState.TransactionListState
 import com.example.expensetracker.utils.transformByDate
-import com.example.expensetracker.viewModel.ExpenseIncomeViewModel
+import com.example.expensetracker.viewModel.FinanceViewModel
 
 @Composable
-fun TransactionScreenRoute(expenseIncomeViewModel: ExpenseIncomeViewModel)
+fun TransactionScreenRoute(financeViewModel: FinanceViewModel)
 {
     val context = LocalContext.current
     val activity = context as Activity
@@ -62,9 +62,9 @@ fun TransactionScreenRoute(expenseIncomeViewModel: ExpenseIncomeViewModel)
     BackHandler(enabled = true){
         activity.finish()
     }
-    val overViewState by expenseIncomeViewModel.showOverView.collectAsState()
+    val overViewState by financeViewModel.showOverView.collectAsState()
     val modifier = Modifier.fillMaxSize().background(color = AppColors.inverseOnSurface)
-    val transaction = expenseIncomeViewModel._showTransaction.collectAsLazyPagingItems().itemSnapshotList.items
+    val transaction = financeViewModel._showTransaction.collectAsLazyPagingItems().itemSnapshotList.items
     val transactionGroupByDate = remember(transaction) {
         transformByDate(transaction)
     }

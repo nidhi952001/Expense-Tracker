@@ -32,7 +32,7 @@ class TransactionRepository @Inject constructor(
         return transactionDao.showTotalIncome(income,firstDayOfMonth,lastDayOfMonth)
     }
 
-    fun showExpenseTransaction(firstDayOfMonth: Long, lastDayOfMonth: Long):Flow<PagingData<TransactionDetailState>>{
+    fun showTransaction(firstDayOfMonth: Long, lastDayOfMonth: Long):Flow<PagingData<TransactionDetailState>>{
         return Pager(
             config = PagingConfig(pageSize = 10)){
                     transactionDao.showExpenseTransaction(firstDayOfMonth,lastDayOfMonth)

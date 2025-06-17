@@ -188,16 +188,16 @@ class WalletViewModel @Inject constructor(
     }
 
     //in expense / income screen user selected wallet
-    fun updateSelectedExpWallet(walletId: Int) {
+    fun updateSelectedWallet(walletId: Int) {
         _walletInputState.update {
-            it.copy(selectedExpWalletId = walletId)
+            it.copy(selectedFinanceWalletId = walletId)
         }
         walletRepository.selectWalletById(walletId)
     }
 
     //expense/income screen based on user selected wallet , show wallet amount
     val selectedWallet = _walletInputState.map {
-        it.selectedExpWalletId
+        it.selectedFinanceWalletId
     }.distinctUntilChanged().flatMapLatest {
         walletRepository.getWalletDataById(it)
     }
