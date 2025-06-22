@@ -18,7 +18,7 @@ enum class TopLevelDestination(@StringRes val route: Int) {
     Finance(route = R.string.finance),
     showWallet(route = R.string.showWallet),
     addWallet(route = R.string.addWallet),
-    pickWalletIcon(route =R.string.pickIcon),
+    pickWalletIcon(route = R.string.pickIcon),
     showDetailOfWallet(route = R.string.show_detail_of_wallet),
     selectWallet(route = R.string.select_wallet),
     selectCategory(route = R.string.selectCategory),
@@ -26,19 +26,30 @@ enum class TopLevelDestination(@StringRes val route: Int) {
 }
 
 @Composable
-fun getScreenName(currentRoute: String, selectedFinanceType: SelectedTopBar):String {
-    return when(currentRoute){
-        TopLevelDestination.userName.name -> stringResource(R.string.add_name)
-        TopLevelDestination.initialAmount.name -> stringResource(R.string.initial_amount)
-        TopLevelDestination.Finance.name ->
-            if(selectedFinanceType.selectedFinance == R.string.expense)
-                stringResource(R.string.expense)
-            else
-                stringResource(R.string.income)
-        TopLevelDestination.addWallet.name-> stringResource(R.string.addWallet)
-        TopLevelDestination.pickWalletIcon.name -> stringResource(R.string.pickIcon)
-        TopLevelDestination.selectCategory.name -> stringResource(R.string.selectCategory)
-        else -> currentRoute
+fun getScreenName(currentRoute: String, selectedFinanceType: SelectedTopBar): String {
+    return if (currentRoute == TopLevelDestination.userName.name) {
+        stringResource(R.string.add_name)
+    } else if (currentRoute == TopLevelDestination.initialAmount.name) {
+        stringResource(R.string.initial_amount)
+    } else if (currentRoute == TopLevelDestination.Finance.name) {
+        if (selectedFinanceType.selectedFinance == R.string.expense)
+            stringResource(R.string.expense)
+        else if (selectedFinanceType.selectedFinance == R.string.expense)
+            stringResource(R.string.income)
+        else
+            stringResource(R.string.transfer)
+    } else if (currentRoute == TopLevelDestination.addWallet.name) {
+        stringResource(R.string.addWallet)
+    } else if (currentRoute == TopLevelDestination.pickWalletIcon.name) {
+        stringResource(R.string.pickIcon)
+    } else if (currentRoute == TopLevelDestination.selectCategory.name) {
+        stringResource(R.string.selectCategory)
+    }
+    else if(currentRoute.contains(TopLevelDestination.selectWallet.name)){
+        stringResource(R.string.select_wallet)
+    }else {
+        currentRoute
+
     }
 }
 
@@ -51,25 +62,28 @@ fun topBarAction(
     selectedFinanceType: SelectedTopBar,
     catViewModel: CategoryViewModel
 ) {
-    when(currentRoute){
-        TopLevelDestination.addWallet.name->{
-            if(walletViewModel.walletInputState.value.isEditWalletClicked){
+    when (currentRoute) {
+        TopLevelDestination.addWallet.name -> {
+            if (walletViewModel.walletInputState.value.isEditWalletClicked) {
                 walletViewModel.editWallet()
-            }
-            else {
+            } else {
                 walletViewModel.saveNewWallet()
             }
             navController.navigateUp()
         }
-        TopLevelDestination.Finance.name->{
-            if(selectedFinanceType.selectedFinance == R.string.expense) {
-                financeViewModel.saveIntoExpense()
+
+        TopLevelDestination.Finance.name -> {
+            if (selectedFinanceType.selectedFinance == R.string.expense) {
+                financeViewModel.dataOfExpense()
                 navController.navigateUp()
                 catViewModel.resetExpCategory()
-            }else{
-                financeViewModel.saveIntoIncome()
+            } else if (selectedFinanceType.selectedFinance == R.string.income) {
+                financeViewModel.dataOfIncome()
                 navController.navigateUp()
                 catViewModel.resetIncCategory()
+            } else {
+                financeViewModel.saveIntoTransfer()
+                navController.navigateUp()
             }
         }
     }
@@ -81,23 +95,24 @@ fun topBarBackAction(
     walletViewModel: WalletViewModel,
     navController: NavController,
     onBackClick: Boolean
-){
-    when(currentRoute){
-        TopLevelDestination.addWallet.name->{
+) {
+    when (currentRoute) {
+        TopLevelDestination.addWallet.name -> {
             walletViewModel.clearWalletInputState()
             navController.navigateUp()
         }
-        TopLevelDestination.showDetailOfWallet.name->{
-            if(onBackClick) {
+
+        TopLevelDestination.showDetailOfWallet.name -> {
+            if (onBackClick) {
                 walletViewModel.clearEditMode()
                 navController.navigateUp()
-            }
-            else{
+            } else {
                 walletViewModel.populateWalletEditState()
                 navController.navigate(TopLevelDestination.addWallet.name)
             }
         }
-        else->{
+
+        else -> {
             navController.navigateUp()
         }
     }

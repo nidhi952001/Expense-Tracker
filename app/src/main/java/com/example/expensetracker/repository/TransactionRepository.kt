@@ -4,11 +4,13 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.example.expensetracker.dao.TransactionDao
-import com.example.expensetracker.uiScreen.uiState.TransactionDetailSelectedWalletState
+import com.example.expensetracker.uiScreen.uiState.FinanceInputState
+import com.example.expensetracker.uiScreen.uiState.selectedWalletTransactionState
 import com.example.expensetracker.uiScreen.uiState.TransactionDetailState
 import com.example.transactionensetracker.entity.Transaction
 import com.example.transactionensetracker.entity.TransactionType
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,6 +18,10 @@ import javax.inject.Singleton
 class TransactionRepository @Inject constructor(
     private val transactionDao: TransactionDao
 ) {
+
+    //sharing across financeViewModel and walletViewModel
+        val _tempFinanceState = MutableStateFlow(FinanceInputState())
+
     suspend fun addExpense(transaction: Transaction){
         transactionDao.addExpense(transaction)
     }
@@ -35,7 +41,7 @@ class TransactionRepository @Inject constructor(
     fun showTransaction(firstDayOfMonth: Long, lastDayOfMonth: Long):Flow<PagingData<TransactionDetailState>>{
         return Pager(
             config = PagingConfig(pageSize = 10)){
-                    transactionDao.showExpenseTransaction(firstDayOfMonth,lastDayOfMonth)
+                    transactionDao.showTransaction(firstDayOfMonth,lastDayOfMonth)
             }.flow
     }
 
@@ -46,8 +52,11 @@ class TransactionRepository @Inject constructor(
     fun getIncomeCountById(walletId:Int,income: TransactionType):Flow<Int>{
         return transactionDao.getIncomeCountById(walletId, income)
     }
+    fun getTransferCountById(walletId: Int,transfer:TransactionType):Flow<Int>{
+        return transactionDao.getTransferCountById(walletId,transfer)
+    }
 
-    fun showTransactionByWallet(walletId: Int): Flow<List<TransactionDetailSelectedWalletState>> {
+    fun showTransactionByWallet(walletId: Int): Flow<List<selectedWalletTransactionState>> {
         return transactionDao.showTransactionByWallet(walletId)
     }
 

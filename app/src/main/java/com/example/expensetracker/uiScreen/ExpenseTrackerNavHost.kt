@@ -18,8 +18,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.expensetracker.R
 import com.example.expensetracker.ui.theme.AppColors.surface
+import com.example.expensetracker.uiScreen.financeScreens.FinanceScreenRoute
 import com.example.expensetracker.uiScreen.walletScreens.SelectWalletRoute
 import com.example.expensetracker.uiScreen.walletScreens.ShowIconScreen
 import com.example.expensetracker.uiScreen.walletScreens.WalletScreenEntry
@@ -53,9 +53,10 @@ fun ExpenseTrackerNavHost() {
     val selectedFinanceType by homeViewModel.selectedFinance.collectAsState()
     val inputFinanceState by financeViewModel.tempFinanceState.collectAsState()
 
+
+
     val inputCategoryState by categoryViewModel.tempCategoryState.collectAsState()
-    val selectedFinanceCategory by categoryViewModel.currentFinanceCategory.collectAsState(initial = null)
-    val selectedIncCategory by categoryViewModel.currentIncCategory.collectAsState(initial = null)
+
 
     var userName by rememberSaveable { mutableStateOf("User") }
     var initialAmount by rememberSaveable { mutableStateOf("not_decided") }
@@ -69,7 +70,7 @@ fun ExpenseTrackerNavHost() {
     }
 
     LaunchedEffect(true) {
-        walletViewModel.initialAmount.collect { it ->
+        walletViewModel.initialAmount.collect {
             initialAmount = it
             isLoading = false
         }
@@ -118,7 +119,7 @@ fun ExpenseTrackerNavHost() {
             NavHost(
                 navController = navController,
                 startDestination =   //todo this also need to rewrite
-                if (initialAmount.equals("not_decided")) TopLevelDestination.home.name
+                if (initialAmount == "not_decided") TopLevelDestination.home.name
                 else TopLevelDestination.transaction.name,
                 modifier = Modifier.padding(padding).background(color = surface)
             ) {
@@ -147,9 +148,10 @@ fun ExpenseTrackerNavHost() {
                 }
                 composable(route = TopLevelDestination.Finance.name) {
                     FinanceScreenRoute(
-                        onClickListOfWallet = { navController.navigate(TopLevelDestination.selectWallet.name) },
-                        selectedCategory = if (selectedFinanceType.selectedFinance == R.string.expense) selectedFinanceCategory
-                        else selectedIncCategory,
+                        onClickListOfWallet = {
+                            println("use select $it")
+                            navController.navigate(TopLevelDestination.selectWallet.name +"/$it") },
+                        homeViewModel = homeViewModel,
                         onClickListOfCategory = { navController.navigate(TopLevelDestination.selectCategory.name) },
                         onBack = {
                             navController.navigateUp()
@@ -159,8 +161,12 @@ fun ExpenseTrackerNavHost() {
                         categoryViewModel = categoryViewModel
                     )
                 }
-                composable(route = TopLevelDestination.selectWallet.name) {
-                    SelectWalletRoute(navigateUp = {
+                composable(route = TopLevelDestination.selectWallet.name + "/{walletSelectFor}") {
+                    val walletShowingFor = it.arguments?.getString("walletSelectFor")
+                    println("user selected from/to wallet $walletShowingFor")
+                    SelectWalletRoute(
+                        walletShowing = walletShowingFor,
+                        navigateUp = {
                         navController.popBackStack()
                     },walletViewModel = walletViewModel)
                 }

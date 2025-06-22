@@ -4,12 +4,14 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
+import com.example.expensetracker.R
 import com.example.expensetracker.repository.CategoryRepository
 import com.example.expensetracker.repository.TransactionRepository
 import com.example.expensetracker.repository.WalletRepository
 import com.example.expensetracker.uiScreen.uiState.OverViewDisplayState
 import com.example.expensetracker.uiScreen.uiState.FinanceInputState
 import com.example.expensetracker.uiScreen.uiState.SelectedMonthAndYear
+import com.example.expensetracker.utils.StaticData.listOfCategory.categoryList
 import com.example.transactionensetracker.entity.Transaction
 import com.example.transactionensetracker.entity.TransactionType
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,11 +36,12 @@ class FinanceViewModel @Inject constructor(
     private val walletRepository: WalletRepository,
 ) : ViewModel() {
 
-    private val _financeTempState = MutableStateFlow(FinanceInputState())
+   private val _financeTempState = transactionRepository._tempFinanceState
     val tempFinanceState = _financeTempState.asStateFlow()
 
     val currentCategory = categoryRepository.selectedCategory
-    val currentWallet = walletRepository.selectedWalletId
+    val currentFromWallet = walletRepository.selectedFromWalletId
+    val currentToWallet = walletRepository.selectedToWalletId
 
     private val _currentMonthYear = MutableStateFlow(SelectedMonthAndYear())
     val currentMonthYear = _currentMonthYear.asStateFlow()
@@ -110,7 +113,6 @@ class FinanceViewModel @Inject constructor(
             it
         }.cachedIn(viewModelScope)
 
-
     fun previousMonthYear(currentMonthYear: Calendar) {
         val updatedCalendar = currentMonthYear.clone() as Calendar
         updatedCalendar.add(Calendar.MONTH, -1)
@@ -171,7 +173,8 @@ class FinanceViewModel @Inject constructor(
 
     }
 
-    fun saveIntoExpense() {
+
+    fun dataOfExpense() {
         val expense = Transaction(
             transactionId = 0,
             transactionTime = 0L,
@@ -180,29 +183,33 @@ class FinanceViewModel @Inject constructor(
             transactionDescription = _financeTempState.value.financeDescription,
             transactionType = TransactionType.Expense,
             transactionCategory = currentCategory.value,
-            transactionWallet = currentWallet.value
+            transactionFromWallet = currentFromWallet.value,
+            transactionToWallet = null
         )
+        saveExpense(expense)
+    }
+
+    private fun saveExpense(expense: Transaction) {
         viewModelScope.launch {
             transactionRepository.addExpense(expense)
             //fetch current wallet amount
-            val currentWalletAmount = walletRepository.fetchWalletAmountById(currentWallet.value)
+            val currentWalletAmount =
+                walletRepository.fetchWalletAmountById(currentFromWallet.value)
             //update the wallet
             if (!_financeTempState.value.financeAmount.isNullOrEmpty()) {
                 val updateWalletAmount = currentWalletAmount -
                         _financeTempState.value.financeAmount.toFloat()
 
-                walletRepository.updateWalletAmount(updateWalletAmount, currentWallet.value)
+                walletRepository.updateWalletAmount(updateWalletAmount, currentFromWallet.value)
 
-                //now reset the value foe UI
-                resetUiState()
+                if(expense.transactionType==TransactionType.Expense)
+                    resetUiState()
             }
         }
-
-
     }
 
 
-    fun saveIntoIncome() {
+    fun dataOfIncome() {
         Log.d("DEBUG", "Current state: ${_financeTempState.value}")
 
         val income = Transaction(
@@ -213,21 +220,35 @@ class FinanceViewModel @Inject constructor(
             transactionDescription = _financeTempState.value.financeDescription,
             transactionType = TransactionType.Income,
             transactionCategory = currentCategory.value,
-            transactionWallet = currentWallet.value
+            transactionFromWallet = currentFromWallet.value,
+            transactionToWallet = null
         )
+        saveIncome(income)
+    }
+
+    private fun saveIncome(income: Transaction) {
         viewModelScope.launch {
-            transactionRepository.addIncome(income)
             //fetch current wallet amount
-            val currentWalletAmount = walletRepository.fetchWalletAmountById(currentWallet.value)
+            val currentWalletAmount = if(income.transactionType == TransactionType.TRANSFER){
+                walletRepository.fetchWalletAmountById(currentToWallet.value)
+            }
+            else{
+                transactionRepository.addIncome(income) // only one transaction should add into table if it is transfer
+                walletRepository.fetchWalletAmountById(currentFromWallet.value)
+            }
             //update the wallet
             if (!_financeTempState.value.financeAmount.isNullOrEmpty()) {
                 val updateWalletAmount = currentWalletAmount +
                         _financeTempState.value.financeAmount.toFloat()
+                if(income.transactionType == TransactionType.TRANSFER) {
+                    walletRepository.updateWalletAmount(updateWalletAmount, currentToWallet.value)
+                    resetUiState()
+                }
+                else{
+                    walletRepository.updateWalletAmount(updateWalletAmount, currentToWallet.value)
+                    resetUiState()
+                }
 
-                walletRepository.updateWalletAmount(updateWalletAmount, currentWallet.value)
-
-                //now reset the value foe UI
-                resetUiState()
             }
         }
     }
@@ -238,12 +259,29 @@ class FinanceViewModel @Inject constructor(
                 showDateDialogUI = false,
                 financeDescription = "",
                 financeAmount = "",
-                isFinanceAmountValid = false
+                isFinanceAmountValid = false,
+                isToWalletValid = false,
+                isFromWalletValid = true
             )
         }
     }
 
+fun saveIntoTransfer(){
+    val transfer = Transaction(
+        transactionId = 0,
+        transactionTime = 0L,
+        transactionDate = _financeTempState.value.selectedDate,
+        transactionAmount = _financeTempState.value.financeAmount.toFloat(),
+        transactionDescription = _financeTempState.value.financeDescription,
+        transactionType = TransactionType.TRANSFER,
+        transactionCategory = categoryList()[1].categoryId,
+        transactionFromWallet  = currentFromWallet.value,
+        transactionToWallet = currentToWallet.value
 
+    )
+    saveExpense(transfer)
+    saveIncome(transfer)
+}
     fun fetchTotalExpenseCountById(walletId:Int){
 
     }

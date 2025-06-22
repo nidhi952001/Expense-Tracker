@@ -40,11 +40,10 @@ import com.example.expensetracker.ui.theme.AppColors.inverseSurface
 import com.example.expensetracker.ui.theme.AppColors.secondary
 import com.example.expensetracker.ui.theme.AppColors.secondaryContainer
 import com.example.expensetracker.ui.theme.AppColors.surface
-import com.example.expensetracker.uiScreen.uiState.WalletDisplayState
-import com.example.expensetracker.uiScreen.uiState.WalletInputState
+import com.example.expensetracker.utils.formatWalletAmount
 import com.example.expensetracker.viewModel.WalletViewModel
 
-
+//all wallet are visible
 @Composable
 fun WalletScreenEntry(
     addWallet: () -> Unit,
@@ -53,15 +52,16 @@ fun WalletScreenEntry(
 ) {
     val walletScrollableState = rememberScrollState()
     val walletUiState by walletViewModel.walletUiState.collectAsState()
-    val balanceVisibilityState by walletViewModel.walletInputState.collectAsState()
+    val walletInputState by walletViewModel.walletInputState.collectAsState()
 
     WalletScreenContent(
         modifier = Modifier.scrollable(
             state = walletScrollableState,
             orientation = Orientation.Vertical
         ).fillMaxSize().background(color = inverseOnSurface),
-        walletUiState = walletUiState,
-        visibilityState = balanceVisibilityState,
+        totalWalletBalance = walletUiState.totalWalletBalance,
+        userWallets = walletUiState.userWallets,
+        isBalanceVisible = walletInputState.hideBalance,
         onVisibilityClick = { walletViewModel.updateVisibility(it) },
         addWallet = addWallet,
         onViewWalletDetail = {
@@ -74,11 +74,12 @@ fun WalletScreenEntry(
 @Composable
 fun WalletScreenContent(
     modifier: Modifier,
-    walletUiState: WalletDisplayState,
-    visibilityState: WalletInputState,
+    totalWalletBalance: Float,
+    isBalanceVisible: Boolean,
     onVisibilityClick: (Boolean) -> Unit,
     addWallet: () -> Unit,
-    onViewWalletDetail: (Int) -> Unit
+    onViewWalletDetail: (Int) -> Unit,
+    userWallets: List<Wallet>
 ) {
     LazyColumn(modifier) {
         item {
@@ -86,23 +87,24 @@ fun WalletScreenContent(
             AccountBalanceCard(
                 modifier = Modifier.fillMaxWidth()
                     .background(color = surface),
-                totalWalletBalance = walletUiState.totalWalletBalance,
-                isBalanceVisible = visibilityState.hideBalance,
+                totalWalletBalance = totalWalletBalance,
+                isBalanceVisible = isBalanceVisible,
                 onVisibilityClick = onVisibilityClick
             )
             Spacer(Modifier.height(15.dp))
             WalletGridSection(
                 modifier = Modifier.fillMaxWidth()
                     .background(color = surface),
-                userWallets = walletUiState.userWallets,
+                userWallets = userWallets,
                 addWallet = addWallet,
                 onViewWalletDetail = onViewWalletDetail,
-                visibilityState = visibilityState
+                isBalanceVisible = isBalanceVisible
             )
         }
     }
 }
 
+//show total balance for all wallets
 @Composable
 fun AccountBalanceCard(
     modifier: Modifier,
@@ -143,13 +145,14 @@ fun AccountBalanceCard(
     }
 }
 
+//all wallet created by user
 @Composable
 fun WalletGridSection(
     modifier: Modifier,
     userWallets: List<Wallet>,
     addWallet: () -> Unit,
     onViewWalletDetail: (Int) -> Unit,
-    visibilityState: WalletInputState
+    isBalanceVisible: Boolean
 ) {
     Column(modifier = modifier.padding(horizontal = 10.dp, vertical = 10.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -182,7 +185,7 @@ fun WalletGridSection(
                 WalletCard(
                     walletItem = wallet,
                     onViewWalletDetail = onViewWalletDetail,
-                    visibilityState = visibilityState
+                    isBalanceVisible = isBalanceVisible
                 )
             }
             item {
@@ -192,11 +195,12 @@ fun WalletGridSection(
     }
 }
 
+//wallet design
 @Composable
 fun WalletCard(
     walletItem: Wallet,
     onViewWalletDetail: (Int) -> Unit,
-    visibilityState: WalletInputState
+    isBalanceVisible: Boolean
 ) {
     Card(
         modifier = Modifier.size(100.dp)
@@ -235,7 +239,7 @@ fun WalletCard(
                     modifier = Modifier.size(15.dp)
                 )
                 Text(
-                    text = if (visibilityState.hideBalance)
+                    text = if (isBalanceVisible)
                         formatWalletAmount(walletItem.walletAmount.toString())
                     else
                         "*".repeat(formatWalletAmount(walletItem.walletAmount.toString()).length),
@@ -246,6 +250,7 @@ fun WalletCard(
     }
 }
 
+//add new wallet design
 @Composable
 fun AddWalletCard(addWallet: () -> Unit) {
     Card(

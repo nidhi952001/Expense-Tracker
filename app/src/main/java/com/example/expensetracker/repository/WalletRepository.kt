@@ -17,7 +17,10 @@ class WalletRepository @Inject constructor(
     val initialAmountFlow = datastoreManager.getInitialAmount
 
     private val _selectedWalletId = MutableStateFlow(1)
-    val selectedWalletId = _selectedWalletId.asStateFlow()
+    val selectedFromWalletId = _selectedWalletId.asStateFlow()
+
+    private val _selectedToWalletId = MutableStateFlow(0)
+    val selectedToWalletId = _selectedToWalletId.asStateFlow()
     suspend fun addWallet(wallet: Wallet) {
         walletDao.addWallet(wallet)
     }
@@ -52,8 +55,12 @@ class WalletRepository @Inject constructor(
     /**
      * Updates the selected wallet ID used in UI state flows.
      */
-    fun selectWalletById(walletId: Int) {
+    fun selectFromWalletById(walletId: Int) {
         _selectedWalletId.value = walletId
+    }
+    //to wallet from transfer screen
+    fun selectToWalletById(walletId: Int){
+        _selectedToWalletId.value = walletId
     }
     /**
      * Updates the balance of a wallet with the specified ID.

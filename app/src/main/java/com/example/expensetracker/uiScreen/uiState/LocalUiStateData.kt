@@ -15,7 +15,7 @@ data class HomeStateData(
 
     )
 
-
+//wallet screen temp ui state
 data class WalletInputState(
     val walletId: Int = 0,
     val walletName: String = "",
@@ -23,7 +23,7 @@ data class WalletInputState(
     val isWalletTypeExpanded: Boolean = false,
     val selectType: TypeOfWallet = TypeOfWallet.General,
     val walletAmount: String = "",
-    val isWalletAmountValid: Boolean = false,
+    val isWalletAmountValid: Boolean = false, //for add wallet
     val showListOfColor: Map<String, Color> = listOfWalletColor.coloCodeToColor,
     val selectedColors: Color = listOfWalletColor.coloCodeToColor.getValue("sky_blue"),
     val showColorPicker: Boolean = false,
@@ -34,28 +34,35 @@ data class WalletInputState(
     val hideBalance: Boolean = true,
 
 
-    //wallet expense
-    val selectedFinanceWalletId: Int = 1,
+    //wallet expense / income
+    val selectedFinanceFromWalletId: Int = 1,
+    //wallet transfer
+    val selectedFinanceToWalletId: Int = 0,
 
     //selected wallet for details screen
     val selectedwalletIdDetail: Int = 0,
     val isEditWalletClicked: Boolean = false
 )
 
+//finance screen second top bar
 data class SelectedTopBar(
     val selectedFinance: Int = R.string.expense
 )
 
+//transaction screen top bar
 data class SelectedMonthAndYear(
     val currentMonthYear: Calendar = Calendar.getInstance()
 )
 
+//finance screen
 data class FinanceInputState(
     val showDateDialogUI: Boolean = false,
     val selectedDate: Long? = System.currentTimeMillis(),
     val financeDescription: String = "",
     val financeAmount: String = "",
     val isFinanceAmountValid: Boolean = false,
+    val isFromWalletValid:Boolean = true,
+    val isToWalletValid: Boolean = false,
 )
 
 data class CategoryInputState(
@@ -64,6 +71,8 @@ data class CategoryInputState(
     var selectedIncCategoryId: Int = 0,
     val isIncomeCategoryValid: Boolean = false
 )
+
+
 
 
 

@@ -35,26 +35,33 @@ import androidx.compose.ui.unit.dp
 import com.example.expensetracker.R
 import com.example.expensetracker.entity.Wallet
 import com.example.expensetracker.ui.theme.AppColors
-import com.example.expensetracker.uiScreen.uiState.WalletDisplayState
+import com.example.expensetracker.utils.formatWalletAmount
 import com.example.expensetracker.viewModel.WalletViewModel
 
-//show list of wallet for income and expense screen
+//show list of wallet for income , expense and transfer screen
 @Composable
-fun SelectWalletRoute(navigateUp: () -> Unit, walletViewModel: WalletViewModel) {
+fun SelectWalletRoute(walletShowing:String?,navigateUp: () -> Unit, walletViewModel: WalletViewModel) {
     val walletDatabaseState by walletViewModel.walletUiState.collectAsState()
     val selectedWallet by walletViewModel.selectedWallet.collectAsState(initial = null)
+    val selectedToWallet by walletViewModel.selectedToWallet.collectAsState(initial = null)
 
-    SelectWallet(walletDatabaseState = walletDatabaseState,
-        selectedWallet = selectedWallet,
+    val selectedWalletByUser = if(walletShowing==R.string.fromWallet.toString()) selectedWallet
+    else selectedToWallet
+
+    SelectWallet(userWalletList = walletDatabaseState.userWallets,
+        selectedWallet = selectedWalletByUser,
         onSelectWallet = {
-            walletViewModel.updateSelectedWallet(it)
+            if(walletShowing==R.string.fromWallet.toString())
+                walletViewModel.updateSelectedFromWallet(it)
+            else
+                walletViewModel.updateSelectedToWallet(it)
             navigateUp()
         })
 }
 
 @Composable
 private fun SelectWallet(
-    walletDatabaseState: WalletDisplayState,
+    userWalletList: List<Wallet>,
     selectedWallet: Wallet?,
     onSelectWallet: (Int) -> Unit
 ) {
@@ -62,15 +69,18 @@ private fun SelectWallet(
         modifier = Modifier.fillMaxSize().background(color = AppColors.inverseOnSurface).padding(top = 20.dp)
             .background(color = AppColors.surface)
     ) {
-        items(walletDatabaseState.userWallets) { wallet ->
-            showListOfWallet(wallet, selectedWallet, onSelectWallet)
+        items(userWalletList) { wallet ->
+            showListOfWallet(wallet, selectedWallet,onSelectWallet)
         }
     }
 }
 
 @Composable
-fun showListOfWallet(wallet: Wallet, selectedWallet: Wallet?, onSelectWallet: (Int) -> Unit) {
-
+fun showListOfWallet(
+    wallet: Wallet,
+    selectedWallet: Wallet?,
+    onSelectWallet: (Int) -> Unit
+) {
     val borderStroke =
         if (selectedWallet?.walletId != wallet.walletId) BorderStroke(1.dp, Color.Black)
         else BorderStroke(0.dp, Color.Transparent)

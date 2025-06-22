@@ -17,7 +17,7 @@ import com.example.transactionensetracker.entity.Transaction
     [Transaction::class,
         Category::class,
         Wallet::class],
-    version = 2,
+    version = 5,
     exportSchema = false
 )
 @TypeConverters(TypeConvertor::class)

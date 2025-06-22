@@ -26,10 +26,13 @@ class CategoryViewModel @Inject constructor(
 ):ViewModel(){
 
 
+    //in finance screen , click on category - shows list of category
+    //if top bar selected expense
     val listOfExpCategory:StateFlow<List<Category>> = categoryRepository.showCategoryByType(CategoryType.EXPENSE).stateIn(
         viewModelScope, SharingStarted.WhileSubscribed(), emptyList()
     )
-
+    //in finance screen , click on category - shows list of category
+    //if top bar selected income
     val listOfIncCategory = categoryRepository.showCategoryByType(CategoryType.INCOME).stateIn(
         viewModelScope,SharingStarted.WhileSubscribed(), emptyList()
     )

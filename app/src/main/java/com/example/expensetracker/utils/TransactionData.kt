@@ -1,9 +1,14 @@
 package com.example.expensetracker.utils
 
+import androidx.collection.emptyLongSet
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.buildAnnotatedString
+import com.example.expensetracker.R
 import com.example.expensetracker.uiScreen.uiState.TransactionByDateState
 import com.example.expensetracker.uiScreen.uiState.TransactionListState
 import com.example.expensetracker.uiScreen.uiState.TransactionDetailState
+import com.example.expensetracker.utils.StaticData.listOfCategory.categoryList
 import com.example.transactionensetracker.entity.TransactionType
 import java.util.Calendar
 import java.util.Locale
@@ -53,6 +58,20 @@ private fun formatDate(
 private fun formatTransaction(transactionDetailStates: List<TransactionDetailState>): List<TransactionListState> {
     val transaction = mutableListOf<TransactionListState>()
     transactionDetailStates.forEach {
+
+        val annotedString =
+            if(it.transactionType== TransactionType.TRANSFER) {
+                buildAnnotatedString {
+                    append(it.fromWalletName)
+                    append("->")
+                    append(it.toWalletName)
+                }
+            }else{
+                buildAnnotatedString {
+                    append(it.fromWalletName)
+                }
+            }
+
         val transactions = TransactionListState(
             transactionAmount =
             if (it.transactionType == TransactionType.Expense)
@@ -63,12 +82,14 @@ private fun formatTransaction(transactionDetailStates: List<TransactionDetailSta
             transactionColor =
             if (it.transactionType == TransactionType.Expense)
                 Color.Red.copy(alpha = 0.5F)
+            else if (it.transactionType == TransactionType.Income)
+                Color.Blue.copy(alpha = 0.5F)
             else
-                Color.Blue.copy(alpha = 0.5F),
-            walletName = it.walletName,
-            categoryName = it.categoryName,
-            categoryIcon = it.categoryIcon,
-            categoryColor = it.categoryColor
+                Color.Black,
+            walletName =  annotedString.text,
+            categoryName = if(it.transactionType == TransactionType.TRANSFER) categoryList()[0].categoryName else it.categoryName,
+            categoryIcon = if(it.transactionType == TransactionType.TRANSFER) categoryList()[0].categoryIcon else it.categoryIcon,
+            categoryColor = if(it.transactionType == TransactionType.TRANSFER) categoryList()[0].categoryColor else it.categoryColor
         )
         transaction.add(transactions)
     }
@@ -80,8 +101,10 @@ private fun totalForDay(transactionDetailStates: List<TransactionDetailState>): 
     transactionDetailStates.forEach {
         dayTotal += if (it.transactionType == TransactionType.Expense)
             -it.transactionAmount
+        else if (it.transactionType == TransactionType.Income)
+            +it.transactionAmount
         else
-            it.transactionAmount
+            0.0F
     }
     return dayTotal
 }

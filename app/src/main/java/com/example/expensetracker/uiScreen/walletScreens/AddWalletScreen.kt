@@ -48,10 +48,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachIndexed
 import com.example.expensetracker.R
 import com.example.expensetracker.ui.theme.AppColors
-import com.example.expensetracker.uiScreen.inputWithLeadingIcon
-import com.example.expensetracker.uiScreen.inputWithNoIcon
-import com.example.expensetracker.uiScreen.label
+import com.example.expensetracker.uiScreen.financeScreens.inputWithLeadingIcon
+import com.example.expensetracker.uiScreen.financeScreens.inputWithNoIcon
+import com.example.expensetracker.uiScreen.financeScreens.label
 import com.example.expensetracker.uiScreen.uiState.WalletInputState
+import com.example.expensetracker.utils.StaticData.ListOfIcons
 import com.example.expensetracker.utils.StaticData.TypeOfWallet
 import com.example.expensetracker.utils.StaticData.listOfWallet
 import com.example.expensetracker.viewModel.WalletViewModel
@@ -85,7 +86,7 @@ fun addWalletScreenEntry(
         setColorPickerExpanded = { walletViewModel.setColorPickerVisibility(it) },
         onSelectedColor = { walletViewModel.selectWalletColor(it) },
         onSelectType = { walletViewModel.updateWalletType(it) },
-        onIconClick
+        onIconClick= onIconClick
     )
 
 }
@@ -107,40 +108,43 @@ private fun addWalletScreen(
             .background(color = AppColors.surface).padding(start = 30.dp, end = 30.dp)
             .verticalScroll(scrollableState)
     ) {
-        WalletName(walletInputState, onWalletNameChanged)
+        WalletName(walletInputState.walletName, onWalletNameChanged)
         if (!walletInputState.isEditWalletClicked)
-            WalletType(listOfWallet, onDropdownExpandedChanged, walletInputState, onSelectType)
-        WalletAmount(walletInputState, onAmountChanged)
+            WalletType(listOfWallet, onDropdownExpandedChanged, walletInputState.isWalletTypeExpanded, walletInputState.selectType, onSelectType)
+        WalletAmount(walletInputState.walletAmount, onAmountChanged)
         WalletColorWithIcon(walletInputState, setColorPickerExpanded, onSelectedColor, onIconClick)
     }
 }
 
+//wallet name field in create wallet screen
 @Composable
 private fun WalletName(
-    walletInputState: WalletInputState,
+    walletName: String,
     onNameChanged: (String) -> Unit
 ) {
     label("Name")
     inputWithNoIcon(
-        value = walletInputState.walletName,
+        value = walletName,
         placeholder = stringResource(R.string.wallet_name),
         onValueChange = { onNameChanged(it) },
         isReadOnly = false,
     )
 }
 
+//select wallet type in create wallet screen
 @Composable
 private fun WalletType(
     listOfWallet: List<TypeOfWallet>,
     onDropdownExpandedChanged: (Boolean) -> Unit,
-    walletUiState: WalletInputState,
+    isWalletTypeExpanded: Boolean,
+    selectType:TypeOfWallet,
     onSelectType: (TypeOfWallet) -> Unit
 ) {
     label("Type")
-    WalletTypeDropDown(isDropDownExpanded = walletUiState.isWalletTypeExpanded,
+    WalletTypeDropDown(isDropDownExpanded = isWalletTypeExpanded,
         onDropdownExpandedChanged = { onDropdownExpandedChanged(it) },
         listOfWallet = listOfWallet,
-        selectedWallet = walletUiState.selectType,
+        selectedWallet = selectType,
         onSelectWallet = { onSelectType(it) })
 }
 
@@ -206,14 +210,15 @@ fun WalletTypeDropDown(
     }
 }
 
+//wallet amount filed - in create wallet screen
 @Composable
 private fun WalletAmount(
-    walletInputState: WalletInputState,
+    walletAmount: String,
     onAmountChanged: (String) -> Unit
 ) {
     label("Amount")
     inputWithLeadingIcon(
-        value = walletInputState.walletAmount,
+        value = walletAmount,
         placeholder = "",
         leadingIcon = R.drawable.currency_rupee_ui,
         isReadOnly = false,
@@ -223,18 +228,8 @@ private fun WalletAmount(
     )
 }
 
-fun formatWalletAmount(input: String): String {
-    if (input != null && input.isNotEmpty()) {
-        val num: Double = input.toDouble()
-        if ((num % 1) == 0.0) {
-            val integerNum = num.toInt()
-            return integerNum.toString()
-        } else {
-            return input
-        }
-    } else
-        return input
-}
+
+
 
 @Composable
 private fun WalletColorWithIcon(
@@ -342,9 +337,11 @@ fun ColorPicker(onSelectedColor: (Color) -> Unit, listOfColors: List<Map.Entry<S
 
 @Composable
 fun ShowIconScreen(onSelectedIconNavigate: () -> Unit, walletViewModel: WalletViewModel) {
-    val walletUiState by walletViewModel.walletInputState.collectAsState()
-    ShowIcon(modifier = Modifier.fillMaxSize(),
-        walletUiState = walletUiState,
+    val walletInputState by walletViewModel.walletInputState.collectAsState()
+    ShowIcon(
+        listOfIcon = walletInputState.listOfIcon,
+        selectedIcon = walletInputState.selectedIcon,
+        selectedColor = walletInputState.selectedColors,
         onSelectedIcon =
         {
             walletViewModel.selectWalletIcon(it)
@@ -355,7 +352,12 @@ fun ShowIconScreen(onSelectedIconNavigate: () -> Unit, walletViewModel: WalletVi
 }
 
 @Composable
-fun ShowIcon(modifier: Modifier, walletUiState: WalletInputState, onSelectedIcon: (Int) -> Unit) {
+fun ShowIcon(
+    listOfIcon: List<ListOfIcons>,
+    onSelectedIcon: (Int) -> Unit,
+    selectedIcon: Int,
+    selectedColor: Color
+) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 50.dp),
         modifier = Modifier
@@ -364,20 +366,20 @@ fun ShowIcon(modifier: Modifier, walletUiState: WalletInputState, onSelectedIcon
         horizontalArrangement = Arrangement.spacedBy(26.dp),
         verticalArrangement = Arrangement.spacedBy(26.dp)
     ) {
-        items(walletUiState.listOfIcon) {
+        items(listOfIcon) {
             Icon(
                 painter = painterResource(it.icon),
                 contentDescription = stringResource(it.iconName),
                 modifier = Modifier.background(
-                    color = if (walletUiState.selectedIcon.equals(it.icon))
-                        walletUiState.selectedColors
+                    color = if (selectedIcon.equals(it.icon))
+                        selectedColor
                     else
                         AppColors.inverseOnSurface,
                     shape = CircleShape
                 )
                     .padding(20.dp)
                     .clickable(onClick = { onSelectedIcon(it.icon) }),
-                tint = if (walletUiState.selectedIcon == it.icon)
+                tint = if (selectedIcon == it.icon)
                     AppColors.onPrimary
                 else
                     AppColors.inverseSurface

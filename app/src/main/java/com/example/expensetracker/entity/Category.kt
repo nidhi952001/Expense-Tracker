@@ -18,5 +18,5 @@ data class Category (
 )
 
 enum class CategoryType{
-    INCOME , EXPENSE
+    INCOME , EXPENSE , TRANSFER
 }

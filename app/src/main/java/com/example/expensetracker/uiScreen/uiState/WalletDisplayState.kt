@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 import com.example.expensetracker.entity.Wallet
 import com.example.transactionensetracker.entity.TransactionType
 
-//data coming from database
+//data coming from database for wallet screen
 data class WalletDisplayState(
     val userWallets: List<Wallet>,
     val totalWalletBalance:Float
@@ -12,12 +12,14 @@ data class WalletDisplayState(
 
 /**
  *  wallet screen detail
+ *  data coming from database
  **/
 data class WalletDetailState(
     val selectedWalletDetails: Wallet?,
     val selectedWalletExpenseCount: Int,
     val selectedWalletIncomeCount: Int,
-    val transaction: List<TransactionDetailSelectedWalletState>
+    val selectedWalletTransferCount:Int,
+    val selectedWalletTransactions: List<selectedWalletTransactionState>
 
 )
 
@@ -39,7 +41,8 @@ data class TransactionDetailState(
     val transactionAmount: Float,
     val transactionDescription: String?,
     val transactionType: TransactionType,
-    val walletName: String,
+    val fromWalletName: String,
+    val toWalletName:String?,
     val categoryName:Int,
     val categoryIcon:Int,
     val categoryColor:Color
@@ -64,8 +67,10 @@ data class TransactionListState(
     val categoryColor:Color
 )
 //detail screen of wallet
-data class TransactionDetailSelectedWalletState(
+data class selectedWalletTransactionState(
     val transactionId: Int,
+    val transactionFromWalletId:Int?,
+    val transactionToWalletId:Int?,
     val totalTransaction:Int?,
     val transactionTotalAmount:Float,
     val transactionType: TransactionType,

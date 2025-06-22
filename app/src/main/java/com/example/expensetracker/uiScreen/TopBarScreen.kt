@@ -42,6 +42,7 @@ import com.example.expensetracker.ui.theme.AppColors.onPrimaryContainer
 import com.example.expensetracker.ui.theme.AppColors.onSurface
 import com.example.expensetracker.ui.theme.AppColors.outlineVariant
 import com.example.expensetracker.ui.theme.AppColors.primaryContainer
+import com.example.expensetracker.ui.theme.AppColors.secondary
 import com.example.expensetracker.ui.theme.AppColors.surface
 import com.example.expensetracker.uiScreen.uiState.CategoryInputState
 import com.example.expensetracker.uiScreen.uiState.FinanceInputState
@@ -65,11 +66,11 @@ fun topBarWithBackArrow(
     selectedFinance: SelectedTopBar,
     onEditWallet: () -> Unit
 ) {
-    val currentScreenName = getScreenName(currentRoute!!,selectedFinance)
+    val currentScreenName = getScreenName(currentRoute!!, selectedFinance)
     CenterAlignedTopAppBar(
         modifier = Modifier.background(color = Color.Transparent),
         title = {
-            if(currentRoute!=TopLevelDestination.showDetailOfWallet.name) {
+            if (currentRoute != TopLevelDestination.showDetailOfWallet.name) {
                 Text(
                     text = currentScreenName,
                     fontWeight = FontWeight.Bold,
@@ -78,9 +79,11 @@ fun topBarWithBackArrow(
             }
         },
         navigationIcon = {
-            Icon(Icons.Default.ArrowBack,
+            Icon(
+                Icons.Default.ArrowBack,
                 contentDescription = stringResource(R.string.go_back),
-                modifier = Modifier.padding(15.dp).clickable(onClick = onBackClick))
+                modifier = Modifier.padding(15.dp).clickable(onClick = onBackClick)
+            )
         },
         actions = {
             topBarTrailingIcon(
@@ -106,41 +109,12 @@ fun topBarTrailingIcon(
     localFinance: FinanceInputState,
     localCategory: CategoryInputState,
     selectedFinance: SelectedTopBar,
-    onEditWallet:()->Unit
+    onEditWallet: () -> Unit
 ) {
     if (currentRoute!! == TopLevelDestination.addWallet.name) {
         IconButton(
             onClick = { onActionClick() },
             enabled = localWallet.isWalletNameValid && localWallet.isWalletAmountValid,
-            colors = IconButtonDefaults.iconButtonColors(
-                disabledContentColor = outlineVariant,
-                contentColor = onSurface
-            )
-            ) {
-            Text(
-                text = stringResource(R.string.save),
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
-    }
-    if(currentRoute== TopLevelDestination.selectCategory.name){
-        Icon(
-            painter = painterResource(R.drawable.setting_ic),
-            contentDescription = stringResource(R.string.setting),
-            tint = onSurface,
-            modifier = Modifier.size(40.dp).padding(end = 15.dp)
-        )
-    }
-    if(currentRoute== TopLevelDestination.Finance.name &&
-        (selectedFinance.selectedFinance == R.string.expense || selectedFinance.selectedFinance == R.string.income)){
-        val enable = if(selectedFinance.selectedFinance == R.string.expense)
-                (localFinance.isFinanceAmountValid && localCategory.isExpenseCategoryValid)
-        else
-                (localFinance.isFinanceAmountValid && localCategory.isIncomeCategoryValid)
-        IconButton(
-            onClick = { onActionClick() },
-            enabled =  enable,
             colors = IconButtonDefaults.iconButtonColors(
                 disabledContentColor = outlineVariant,
                 contentColor = onSurface
@@ -153,22 +127,62 @@ fun topBarTrailingIcon(
             )
         }
     }
-    if(currentRoute==TopLevelDestination.showDetailOfWallet.name)
-    if(currentRoute == TopLevelDestination.showDetailOfWallet.name){
+    if (currentRoute == TopLevelDestination.selectCategory.name || currentRoute.contains(TopLevelDestination.selectWallet.name)) {
+        Icon(
+            painter = painterResource(R.drawable.setting_ic),
+            contentDescription = stringResource(R.string.setting),
+            tint = onSurface,
+            modifier = Modifier.size(40.dp).padding(end = 15.dp)
+        )
+    }
+    if ((currentRoute == TopLevelDestination.Finance.name &&
+        (selectedFinance.selectedFinance == R.string.expense || selectedFinance.selectedFinance == R.string.income)
+        || selectedFinance.selectedFinance == R.string.transfer) && !currentRoute.contains(TopLevelDestination.selectWallet.name)
+    ) {
+        val enable = when (selectedFinance.selectedFinance) {
+            R.string.expense -> {
+                (localFinance.isFinanceAmountValid && localCategory.isExpenseCategoryValid && localFinance.isFromWalletValid)
+            }
+
+            R.string.income -> {
+                (localFinance.isFinanceAmountValid && localCategory.isIncomeCategoryValid && localFinance.isFromWalletValid)
+            }
+
+            else -> {
+                (localFinance.isFinanceAmountValid && localFinance.isToWalletValid && localFinance.isFromWalletValid)
+            }
+        }
+        IconButton(
+            onClick = { onActionClick() },
+            enabled = enable,
+            colors = IconButtonDefaults.iconButtonColors(
+                disabledContentColor = outlineVariant,
+                contentColor = onSurface
+            )
+        ) {
+            Text(
+                text = stringResource(R.string.save),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+    }
+        if (currentRoute == TopLevelDestination.showDetailOfWallet.name) {
             Icon(
                 painter = painterResource(R.drawable.edit_ic),
                 contentDescription = stringResource(R.string.edit),
                 tint = onSurface,
-                modifier = Modifier.size(40.dp).padding(end = 15.dp).clickable(onClick = {onEditWallet()})
+                modifier = Modifier.size(40.dp).padding(end = 15.dp)
+                    .clickable(onClick = { onEditWallet() })
             )
-        Icon(
-            painter = painterResource(R.drawable.pie_chart_ic),
-            contentDescription = stringResource(R.string.statistic),
-            tint = onSurface,
-            modifier = Modifier.size(40.dp).padding(end = 15.dp)
-        )
+            Icon(
+                painter = painterResource(R.drawable.pie_chart_ic),
+                contentDescription = stringResource(R.string.statistic),
+                tint = onSurface,
+                modifier = Modifier.size(40.dp).padding(end = 15.dp)
+            )
 
-    }
+        }
 
 }
 
@@ -182,50 +196,50 @@ fun AppTopBar(
     localCatState: CategoryInputState,
     selectedFinanceType: SelectedTopBar,
     onSelectFinance: (Int) -> Unit,
-    onEditWallet:()->Unit,
+    onEditWallet: () -> Unit,
     walletViewModel: WalletViewModel
 ) {
-    val localWallet by walletViewModel.walletInputState.collectAsState()
-    when (currentRoute) {
-        TopLevelDestination.Finance.name,
-        TopLevelDestination.selectWallet.name,
-        TopLevelDestination.selectCategory.name,
-        TopLevelDestination.addWallet.name,
-        TopLevelDestination.pickWalletIcon.name,
-        TopLevelDestination.showDetailOfWallet.name-> {
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RectangleShape,
-                shadowElevation = 5.dp,
-                color = surface
-            ) {
-                Column {
-                    topBarWithBackArrow(
-                        currentRoute = currentRoute,
-                        localWallet = localWallet,
-                        localFinance = localFinanceState,
-                        localCat = localCatState,
-                        selectedFinance = selectedFinanceType,
-                        onActionClick = onActionClick,
-                        onBackClick = onBackClick,
-                        onEditWallet = onEditWallet
+    val walletInputState by walletViewModel.walletInputState.collectAsState()
+    if (currentRoute == TopLevelDestination.Finance.name ||
+        currentRoute?.startsWith(TopLevelDestination.selectWallet.name) == true ||
+        currentRoute == TopLevelDestination.selectCategory.name ||
+        currentRoute == TopLevelDestination.addWallet.name ||
+        currentRoute == TopLevelDestination.pickWalletIcon.name ||
+        currentRoute == TopLevelDestination.showDetailOfWallet.name
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RectangleShape,
+            shadowElevation = 5.dp,
+            color = surface
+        ) {
+            Column {
+                topBarWithBackArrow(
+                    currentRoute = currentRoute,
+                    localWallet = walletInputState,
+                    localFinance = localFinanceState,
+                    localCat = localCatState,
+                    selectedFinance = selectedFinanceType,
+                    onActionClick = onActionClick,
+                    onBackClick = onBackClick,
+                    onEditWallet = onEditWallet
+                )
+                if (currentRoute == TopLevelDestination.Finance.name
+                ) {
+                    categoryTopBar(
+                        modifier = Modifier.fillMaxWidth(),
+                        selectedTopBar = selectedFinanceType,
+                        onSelectFinanceType = onSelectFinance
                     )
-                    if (currentRoute == TopLevelDestination.Finance.name
-                    ) {
-                        categoryTopBar(
-                            modifier = Modifier.fillMaxWidth(),
-                            selectedTopBar = selectedFinanceType,
-                            onSelectFinanceType = onSelectFinance)
-                    }
                 }
             }
         }
+    }
+    if (currentRoute == TopLevelDestination.transaction.name ||
+        currentRoute == TopLevelDestination.showWallet.name
+    ) {
+        topBarWithoutBackArrow(userName, currentRoute)
 
-        TopLevelDestination.transaction.name,
-        TopLevelDestination.showWallet.name -> {
-            topBarWithoutBackArrow(userName, currentRoute)
-
-        }
     }
 }
 
@@ -251,15 +265,23 @@ fun topBarWithoutBackArrow(userName: String, currentRoute: String?) {
 
 @Composable
 fun selectMonthTopBar() {
-    val financeViewModel:FinanceViewModel = hiltViewModel()
+    val financeViewModel: FinanceViewModel = hiltViewModel()
     val currentMonthYearState by financeViewModel.currentMonthYear.collectAsState()
     val formatMonthYear = android.icu.text.SimpleDateFormat("MMM yyyy", Locale.getDefault())
     val currentMonthYear = formatMonthYear.format(currentMonthYearState.currentMonthYear.time)
-    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp) , verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arrangement.SpaceBetween) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
             contentDescription = stringResource(R.string.previous),
-            modifier = Modifier.clickable(onClick = { financeViewModel.previousMonthYear(currentMonthYearState.currentMonthYear) })
+            modifier = Modifier.clickable(onClick = {
+                financeViewModel.previousMonthYear(
+                    currentMonthYearState.currentMonthYear
+                )
+            })
         )
         Text(
             text = currentMonthYear,
@@ -268,7 +290,11 @@ fun selectMonthTopBar() {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = stringResource(R.string.next),
-            modifier = Modifier.clickable(onClick = {financeViewModel.nextMonthYear(currentMonthYearState.currentMonthYear)})
+            modifier = Modifier.clickable(onClick = {
+                financeViewModel.nextMonthYear(
+                    currentMonthYearState.currentMonthYear
+                )
+            })
 
         )
     }
@@ -279,7 +305,7 @@ fun selectMonthTopBar() {
 fun categoryTopBar(
     modifier: Modifier,
     selectedTopBar: SelectedTopBar,
-    onSelectFinanceType:(Int)->Unit
+    onSelectFinanceType: (Int) -> Unit
 ) {
     Row(
         modifier = modifier,
@@ -317,6 +343,25 @@ fun categoryTopBar(
         ) {
             Text(
                 text = stringResource(R.string.expense),
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        Button(
+            onClick = { onSelectFinanceType(R.string.transfer) },
+            modifier = Modifier.weight(1f),
+            colors = ButtonDefaults.buttonColors(
+                containerColor =
+                if (selectedTopBar.selectedFinance == R.string.transfer) secondary.copy(alpha = 0.8F)
+                else surface,
+                contentColor =
+                if (selectedTopBar.selectedFinance == R.string.transfer) MaterialTheme.colorScheme.onSecondary
+                else onSurface
+            ),
+            shape = RectangleShape
+        ) {
+            Text(
+                text = stringResource(R.string.transfer),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold
             )

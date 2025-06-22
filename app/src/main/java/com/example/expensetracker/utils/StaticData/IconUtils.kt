@@ -52,6 +52,8 @@ object listOfWalletColor  {
         "lyft_pink" to Color(0XFFFF00BF),
         "persin_rose" to Color(0xFFFE28A2),
         "crimson" to Color(0XFF841617),
-        "feldguru" to Color(0XFF4D5D53)
+        "feldguru" to Color(0XFF4D5D53),
+        "light_gray" to Color(0XFF5d6d7e)
+
     )
 }

@@ -2,6 +2,7 @@
     <string name="app_name">ExpenseTracker</string>
     <string name="income">Income</string>
     <string name="expense">Expense</string>
+    <string name="transfer">Transfer</string>
     <string name="finance">Finance</string>
     <string name="home">Home</string>
     <string name="add_name">Add Name</string>
@@ -64,6 +65,8 @@
     <string name="transactions">transactions</string>
 
     <!--category-->
+    <string name="transfer_in">Transfer In</string>
+    <string name="transfer_out">Transfer Out</string>
     <string name="bills">Bills</string>
     <string name="clothing">Clothing</string>
     <string name="education">Education</string>
@@ -96,4 +99,6 @@
     <string name="info">Info</string>
     <string name="total">Total</string>
     <string name="no_record">No Record</string>
+    <string name="fromWallet">From Wallet</string>
+    <string name="toWallet">To Wallet</string>
 </resources>

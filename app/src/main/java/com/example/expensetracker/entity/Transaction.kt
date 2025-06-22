@@ -21,7 +21,15 @@ import com.example.expensetracker.entity.Wallet
             (
             entity = Wallet::class,
             parentColumns = arrayOf("walletId"),
-            childColumns = arrayOf("transaction_wallet_id"),
+            childColumns = arrayOf("transaction_from_wallet_id"),
+            onUpdate = ForeignKey.CASCADE,
+            onDelete = ForeignKey.RESTRICT
+        ),
+        ForeignKey
+            (
+            entity = Wallet::class,
+            parentColumns = arrayOf("walletId"),
+            childColumns = arrayOf("transaction_to_wallet_id"),
             onUpdate = ForeignKey.CASCADE,
             onDelete = ForeignKey.RESTRICT
         )]
@@ -41,11 +49,13 @@ data class Transaction(
     @ColumnInfo(name = "transaction_type")
     val transactionType: TransactionType,
     @ColumnInfo(name = "transaction_category_id")
-    val transactionCategory: Int,
-    @ColumnInfo(name = "transaction_wallet_id")
-    val transactionWallet: Int
+    val transactionCategory: Int?,
+    @ColumnInfo(name = "transaction_from_wallet_id")
+    val transactionFromWallet: Int,
+    @ColumnInfo(name = "transaction_to_wallet_id")
+    val transactionToWallet: Int?
 )
 
 enum class TransactionType{
-    Income,Expense
+    Income,Expense,TRANSFER
 }

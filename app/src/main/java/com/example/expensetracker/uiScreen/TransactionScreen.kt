@@ -46,10 +46,10 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.expensetracker.R
 import com.example.expensetracker.ui.theme.AppColors
-import com.example.expensetracker.uiScreen.walletScreens.formatWalletAmount
 import com.example.expensetracker.uiScreen.uiState.OverViewDisplayState
 import com.example.expensetracker.uiScreen.uiState.TransactionByDateState
 import com.example.expensetracker.uiScreen.uiState.TransactionListState
+import com.example.expensetracker.utils.formatWalletAmount
 import com.example.expensetracker.utils.transformByDate
 import com.example.expensetracker.viewModel.FinanceViewModel
 
@@ -65,11 +65,12 @@ fun TransactionScreenRoute(financeViewModel: FinanceViewModel)
     val overViewState by financeViewModel.showOverView.collectAsState()
     val modifier = Modifier.fillMaxSize().background(color = AppColors.inverseOnSurface)
     val transaction = financeViewModel._showTransaction.collectAsLazyPagingItems().itemSnapshotList.items
+    println("transaction at top "+transaction)
     val transactionGroupByDate = remember(transaction) {
         transformByDate(transaction)
     }
     if(!overViewState.isLoading){
-        if(overViewState.total!=0F /*&& transactionGroupByDate.isNotEmpty()*/){
+        if(/*overViewState.total!=0F && */transactionGroupByDate.isNotEmpty()){
             TransactionScreen(
                 modifier = modifier,
                 scrollableState = scrollableState,
@@ -119,6 +120,29 @@ fun TransactionScreen(
 }
 
 @Composable
+fun TransactionDetail(modifier: Modifier, overviewUiState: OverViewDisplayState, showTransaction: List<TransactionByDateState>){
+    LazyColumn(modifier= modifier) {
+        item {
+            TransactionSummary(modifier = Modifier.fillMaxWidth()
+                .background(color = AppColors.surface),
+                overviewUiState = overviewUiState)
+        }
+            items(items = showTransaction) { transaction ->
+                TransactionDate(
+                    transactionDate = transaction.transactionDate,
+                    transactionDay = transaction.transactionDay,
+                    transactionMonth = transaction.transactionMonth,
+                    transactionYear = transaction.transactionYear,
+                    totalOfTheDay = transaction.transactionTotalAmount)
+                transaction.transactionList.forEach { transactions->
+                    println("transaction from database "+transactions)
+                    AllTransaction(transactions, modifier = Modifier)
+                }
+            }
+    }
+}
+
+@Composable
 fun TransactionSummary(modifier: Modifier, overviewUiState: OverViewDisplayState){
     Column(modifier= modifier.padding(horizontal = 10.dp, vertical = 15.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),verticalAlignment = Alignment.CenterVertically) {
@@ -135,7 +159,7 @@ fun TransactionSummary(modifier: Modifier, overviewUiState: OverViewDisplayState
                 contentDescription = stringResource(R.string.info),
             )
         }
-        if(overviewUiState.showAll) {
+        if(overviewUiState.showAll) { // useful to resuse in wallet detail and transaction screen both
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -182,32 +206,10 @@ fun TransactionSummary(modifier: Modifier, overviewUiState: OverViewDisplayState
             }
             Text(text = stringResource(R.string.total))
             Text(text =
-                if(overviewUiState.total>0) annotedString
-                else annotedString1
+            if(overviewUiState.total>0) annotedString
+            else annotedString1
             )
         }
-    }
-}
-
-@Composable
-fun TransactionDetail(modifier: Modifier, overviewUiState: OverViewDisplayState, showTransaction: List<TransactionByDateState>){
-    LazyColumn(modifier= modifier) {
-        item {
-            TransactionSummary(modifier = Modifier.fillMaxWidth()
-                .background(color = AppColors.surface),
-                overviewUiState = overviewUiState)
-        }
-            items(items = showTransaction) { transaction ->
-                TransactionDate(
-                    transactionDate = transaction.transactionDate,
-                    transactionDay = transaction.transactionDay,
-                    transactionMonth = transaction.transactionMonth,
-                    transactionYear = transaction.transactionYear,
-                    totalOfTheDay = transaction.transactionTotalAmount)
-                transaction.transactionList.forEach { transactions->
-                    AllTransaction(transactions, modifier = Modifier)
-                }
-            }
     }
 }
 
@@ -239,7 +241,12 @@ private fun TransactionDate(
             Text(text = "$transactionMonth $transactionYear")
         }
         Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.End) {
-            Text(text = totalOfTheDay.toString())
+            val annotedString = buildAnnotatedString {
+                append(stringResource( R.string.ruppes_icon))
+                append(" ")
+                append(formatWalletAmount(totalOfTheDay.toString()))
+            }
+            Text(text = annotedString)
         }
     }
     Spacer(modifier = Modifier.height(2.dp))
@@ -251,22 +258,22 @@ fun AllTransaction(transaction: TransactionListState, modifier: Modifier) {
         color = AppColors.surface).padding(10.dp) , verticalAlignment = Alignment.CenterVertically) {
         Column(modifier = Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    painter = painterResource(transaction.categoryIcon),
-                    contentDescription = stringResource(transaction.categoryName),
-                    modifier = Modifier.size(35.dp)
-                        .clip(CircleShape)
-                        .background(color = transaction.categoryColor).padding(3.dp),
-                    contentScale = ContentScale.Fit,
-                    colorFilter = ColorFilter.tint(color = Color.White)
-                )
+                    Image(
+                        painter = painterResource(transaction.categoryIcon),
+                        contentDescription = stringResource(transaction.categoryName),
+                        modifier = Modifier.size(35.dp)
+                            .clip(CircleShape)
+                            .background(color = transaction.categoryColor).padding(3.dp),
+                        contentScale = ContentScale.Fit,
+                        colorFilter = ColorFilter.tint(color = Color.White)
+                    )
                 Spacer(modifier = Modifier.width(10.dp))
+                println("tr "+transaction.transactionDescription)
                 Column {
-                    Text(text =
-                    (if(transaction.transactionDescription!=null)
+                    Text(text = if(transaction.transactionDescription==" ")
                         transaction.transactionDescription
-                    else
-                        stringResource(transaction.categoryName))!!,
+                                else
+                        stringResource(transaction.categoryName),
                         fontWeight = FontWeight.ExtraBold
                     )
                     Text(text = transaction.walletName)

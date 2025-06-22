@@ -7,7 +7,7 @@ import com.example.expensetracker.R
 import com.example.expensetracker.entity.Wallet
 import com.example.expensetracker.repository.TransactionRepository
 import com.example.expensetracker.repository.WalletRepository
-import com.example.expensetracker.uiScreen.walletScreens.formatWalletAmount
+import com.example.expensetracker.uiScreen.uiState.FinanceInputState
 import com.example.expensetracker.uiScreen.uiState.WalletDetailState
 import com.example.expensetracker.uiScreen.uiState.WalletDisplayState
 import com.example.expensetracker.uiScreen.uiState.OverViewDisplayState
@@ -17,6 +17,7 @@ import com.example.expensetracker.uiScreen.uiState.WalletInputState
 import com.example.expensetracker.utils.StaticData.TypeOfWallet
 import com.example.expensetracker.utils.StaticData.listOfWalletColor.coloCodeToColor
 import com.example.expensetracker.utils.StaticData.listOfWalletIcon
+import com.example.expensetracker.utils.formatWalletAmount
 import com.example.expensetracker.utils.transformByDate
 import com.example.transactionensetracker.entity.TransactionType
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,6 +34,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 /**
  * ViewModel for managing Wallet data and exposing UI state.
  * Uses Hilt for dependency injection.
@@ -95,9 +97,12 @@ class WalletViewModel @Inject constructor(
         }
     }
 
-    //for the Ui state , when user add or update the wallet
+    //when user add or update the wallet , temp state
     private val _walletInputState = MutableStateFlow(WalletInputState())
     val walletInputState = _walletInputState.asStateFlow()
+
+    //to check transaction state is valid
+    private val _financeTempState = transactionRepository._tempFinanceState
 
     fun updateWalletName(newWalletName: String) {
         _walletInputState.update {
@@ -188,16 +193,57 @@ class WalletViewModel @Inject constructor(
     }
 
     //in expense / income screen user selected wallet
-    fun updateSelectedWallet(walletId: Int) {
+    fun updateSelectedFromWallet(walletId: Int) {
         _walletInputState.update {
-            it.copy(selectedFinanceWalletId = walletId)
+            it.copy(selectedFinanceFromWalletId = walletId)
         }
-        walletRepository.selectWalletById(walletId)
+        if(walletId == _walletInputState.value.selectedFinanceToWalletId){
+            updateSelectedToWallet(0)
+        }
+        if(walletId!=0) {
+            _financeTempState.update {
+                it.copy(isFromWalletValid = true)
+            }
+        }
+        else{
+            _financeTempState.update {
+                it.copy(isFromWalletValid = false)
+            }
+        }
+        walletRepository.selectFromWalletById(walletId)
+    }
+
+    //in transfer screen user selected to- wallet
+    fun updateSelectedToWallet(walletId: Int){
+        _walletInputState.update {
+            it.copy(selectedFinanceToWalletId = walletId)
+        }
+        if(walletId == _walletInputState.value.selectedFinanceFromWalletId){
+            updateSelectedFromWallet(0)
+        }
+        if(walletId!=0) {
+            _financeTempState.update {
+                it.copy(isToWalletValid = true)
+            }
+        }
+        else{
+            _financeTempState.update {
+                it.copy(isToWalletValid = false)
+            }
+        }
+        walletRepository.selectToWalletById(walletId)
     }
 
     //expense/income screen based on user selected wallet , show wallet amount
     val selectedWallet = _walletInputState.map {
-        it.selectedFinanceWalletId
+        it.selectedFinanceFromWalletId
+    }.distinctUntilChanged().flatMapLatest {
+        walletRepository.getWalletDataById(it)
+    }
+
+    //transfer screen based on user selected wallet , show wallet amount
+    val selectedToWallet = _walletInputState.map {
+        it.selectedFinanceToWalletId
     }.distinctUntilChanged().flatMapLatest {
         walletRepository.getWalletDataById(it)
     }
@@ -232,6 +278,13 @@ class WalletViewModel @Inject constructor(
         transactionRepository.getIncomeCountById(it, TransactionType.Income)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
 
+    //total transfer for selected wallet - wallet detail screen
+    val selectedWalletTransferCount = _walletInputState.map {
+        it.selectedwalletIdDetail
+    }.distinctUntilChanged().flatMapLatest {
+        transactionRepository.getTransferCountById(it, TransactionType.TRANSFER)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
+
     //transaction from selected wallet - wallet detail screen
     val transactionsForSelectedWallet = _walletInputState.map {
         it.selectedwalletIdDetail
@@ -249,14 +302,15 @@ class WalletViewModel @Inject constructor(
             selectedwalletDetail,
             selectedWalletExpenseCount,
             selectedWalletIncomeCount,
+            selectedWalletTransferCount,
             transactionsForSelectedWallet
         )
-        { wallet, countExp, countInc, transaction ->
-            WalletDetailState(wallet, countExp, countInc, transaction)
+        { wallet, countExp, countInc,countTransfer, transaction ->
+            WalletDetailState(wallet, countExp, countInc, countTransfer,transaction)
         }.stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(),
-            WalletDetailState(null, 0, 0, emptyList())
+            WalletDetailState(null, 0, 0,0, emptyList())
         )
 
     //from wallet detail screen , clicked on edit icon, show collect all the detail of wallet
@@ -336,7 +390,10 @@ class WalletViewModel @Inject constructor(
 
     //apply date wise filter to show data in ui
     val transactionGroupByDate: StateFlow<List<TransactionByDateState>> =
-        transactionsForSelectedCategory.map { transformByDate(it) }
+        transactionsForSelectedCategory.map {
+            print("the data for selected cat from wallet $it")
+
+            transformByDate(it) }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     //show total balance for selected wallet and selected category - next screen of wallet detail screen

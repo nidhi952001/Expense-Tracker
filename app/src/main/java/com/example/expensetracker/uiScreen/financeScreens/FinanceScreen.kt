@@ -1,4 +1,4 @@
-package com.example.expensetracker.uiScreen
+package com.example.expensetracker.uiScreen.financeScreens
 
 import android.os.Build
 import android.util.Log
@@ -69,10 +69,11 @@ import com.example.expensetracker.ui.theme.AppColors.inverseOnSurface
 import com.example.expensetracker.ui.theme.AppColors.onBackground
 import com.example.expensetracker.ui.theme.AppColors.onSurface
 import com.example.expensetracker.ui.theme.AppColors.surface
-import com.example.expensetracker.uiScreen.walletScreens.formatWalletAmount
 import com.example.expensetracker.uiScreen.uiState.FinanceInputState
+import com.example.expensetracker.utils.formatWalletAmount
 import com.example.expensetracker.viewModel.CategoryViewModel
 import com.example.expensetracker.viewModel.FinanceViewModel
+import com.example.expensetracker.viewModel.HomeViewModel
 import com.example.expensetracker.viewModel.WalletViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -83,9 +84,9 @@ import java.util.Locale
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun FinanceScreenRoute(
-    onClickListOfWallet: () -> Unit,
+    onClickListOfWallet: (Int) -> Unit,
     onClickListOfCategory: () -> Unit,
-    selectedCategory: Int?,
+    homeViewModel: HomeViewModel,
     onBack: () -> Unit,
     financeViewModel: FinanceViewModel,
     walletViewModel: WalletViewModel,
@@ -96,6 +97,14 @@ fun FinanceScreenRoute(
     val selectedFinanceWallet by walletViewModel.selectedWallet.collectAsState(
         initial = null
     )
+    val selectedToWallet by walletViewModel.selectedToWallet.collectAsState(initial = null)
+    val selectedFinanceType by homeViewModel.selectedFinance.collectAsState()
+    val selectedFinanceCategory by categoryViewModel.currentFinanceCategory.collectAsState(initial = null)
+    val selectedIncCategory by categoryViewModel.currentIncCategory.collectAsState(initial = null)
+    var selectedCategory =
+        if (selectedFinanceType.selectedFinance == R.string.expense) selectedFinanceCategory
+        else if (selectedFinanceType.selectedFinance == R.string.income) selectedIncCategory
+        else 0  //because initially everything will be null
 
     BackHandler(onBack = {
         financeViewModel.resetUiState()
@@ -107,21 +116,22 @@ fun FinanceScreenRoute(
 
     val datePickerState = rememberDatePickerState()
     val currentTime = Calendar.getInstance()
-    var formattedTime:String = ""
+    var formattedTime: String = ""
     var modifier = Modifier.fillMaxSize()
     FinanceScreen(
         modifier = modifier,
         scrollableState = scrollableState,
         showDateDialogUI = { financeViewModel.updateDateDialogState(it) },
         inputUiState = inputUiState,
-        datePickerState =datePickerState,
+        datePickerState = datePickerState,
         onDateSelected = { financeViewModel.updateSelectedDate(it) },
         onAmountChanged = { financeViewModel.updateFinanceAmount(it) },
         onDescriptionChanged = { financeViewModel.updateFinanceDes(it) },
-        selectedCategory =selectedCategory,
-        onClickListOfCategory =onClickListOfCategory,
-        selectedWallet =selectedFinanceWallet,
-        onClickListOfWallet =onClickListOfWallet
+        selectedCategory = selectedCategory,
+        onClickListOfCategory = onClickListOfCategory,
+        selectedWallet = selectedFinanceWallet,
+        selectedToWallet = selectedToWallet,
+        onClickListOfWallet = { onClickListOfWallet(it) }
     )
 
 }
@@ -140,7 +150,8 @@ private fun FinanceScreen(
     selectedCategory: Int?,
     onClickListOfCategory: () -> Unit,
     selectedWallet: Wallet?,
-    onClickListOfWallet: () -> Unit
+    onClickListOfWallet: (Int) -> Unit,
+    selectedToWallet: Wallet?
 ) {
     Box(
         modifier = modifier.imePadding().background(color = inverseOnSurface).padding(top = 20.dp)
@@ -180,14 +191,26 @@ private fun FinanceScreen(
             financeDescription(
                 description = inputUiState.financeDescription,
                 onDescriptionChanged = { onDescriptionChanged(it) })
-            category(
-                selectedCat = selectedCategory,
-                onClickListOfCategory = onClickListOfCategory
-            )
-            financeWallet(
-                selectedWallet = selectedWallet,
-                onClickListOfWallet = onClickListOfWallet
-            )
+            if (selectedCategory != 0) {  //for expense and income screen only
+                category(
+                    selectedCat = selectedCategory,
+                    onClickListOfCategory = onClickListOfCategory
+                )
+                fromWallet(
+                    selectedFromWallet = selectedWallet,
+                    onClickListOfWallet = { onClickListOfWallet(it) }
+                )
+            } else {
+                //for transfer screen
+                fromWallet(
+                    selectedFromWallet = selectedWallet,
+                    onClickListOfWallet = { onClickListOfWallet(it) }
+                )
+                toWallet(
+                    selectedToWallet = selectedToWallet,
+                    onClickListOfWallet = { onClickListOfWallet(it) }
+                )
+            }
         }
     }
 }
@@ -236,8 +259,8 @@ private fun financeDescription(description: String, onDescriptionChanged: (Strin
 }
 
 @Composable
-private fun category(selectedCat: Int?, onClickListOfCategory:()->Unit) {
-    val value = if(selectedCat!=null)stringResource(selectedCat) else ""
+private fun category(selectedCat: Int?, onClickListOfCategory: () -> Unit) {
+    val value = if (selectedCat != null) stringResource(selectedCat) else ""
     label("Category")
     inputWithTrailingIcon(
         value = value,
@@ -250,13 +273,13 @@ private fun category(selectedCat: Int?, onClickListOfCategory:()->Unit) {
 }
 
 @Composable
-private fun financeWallet(selectedWallet: Wallet?, onClickListOfWallet:()->Unit) {
+private fun financeWallet(selectedWallet: Wallet?, onClickListOfWallet: (Int) -> Unit) {
     val annotedString = buildAnnotatedString {
         append(selectedWallet?.walletName)
         append("\u0020")
         withStyle(
-            style = SpanStyle(fontWeight = FontWeight.Bold, color = Color.Black,)
-        ){
+            style = SpanStyle(fontWeight = FontWeight.Bold, color = Color.Black)
+        ) {
             append("•")
         }
         append("\u0020₹\u0020")
@@ -267,247 +290,84 @@ private fun financeWallet(selectedWallet: Wallet?, onClickListOfWallet:()->Unit)
     label("Wallet")
     inputWithTrailingIcon(
         value = annotedString.text,
-        placeholder = "Wallet",
+        placeholder = "Select Wallet",
         trailingIcon = Icons.Default.ArrowDropDown,
         isReadOnly = true,
         isEnabled = false,
-        onClick =  onClickListOfWallet
+        onClick = { onClickListOfWallet(R.string.fromWallet) }
     )
 }
 
+
+//for transfer screen
+
+@Composable
+private fun fromWallet(selectedFromWallet: Wallet?, onClickListOfWallet: (Int) -> Unit) {
+    val annotedString =
+        if (selectedFromWallet != null) {
+            buildAnnotatedString {
+                append(selectedFromWallet?.walletName)
+                append("\u0020")
+                withStyle(
+                    style = SpanStyle(fontWeight = FontWeight.Bold, color = Color.Black)
+                ) {
+                    append("•")
+                }
+                append("\u0020₹\u0020")
+                if (selectedFromWallet != null) {
+                    append(formatWalletAmount(selectedFromWallet.walletAmount.toString()))
+                }
+            }
+        } else {
+            buildAnnotatedString {
+                append("")
+            }
+        }
+    label("Wallet")
+    inputWithTrailingIcon(
+        value = annotedString.text,
+        placeholder = "Select Wallet",
+        trailingIcon = Icons.Default.ArrowDropDown,
+        isReadOnly = true,
+        isEnabled = false,
+        onClick = { onClickListOfWallet(R.string.fromWallet) }
+    )
+}
+
+@Composable
+private fun toWallet(selectedToWallet: Wallet?, onClickListOfWallet: (Int) -> Unit) {
+    val annotedString =
+        if (selectedToWallet != null) {
+            buildAnnotatedString {
+                append(selectedToWallet.walletName)
+                append("\u0020")
+                withStyle(
+                    style = SpanStyle(fontWeight = FontWeight.Bold, color = Color.Black)
+                ) {
+                    append("•")
+                }
+                append("\u0020₹\u0020")
+                append(formatWalletAmount(selectedToWallet.walletAmount.toString()))
+            }
+        } else {
+            buildAnnotatedString {
+                append("")
+            }
+        }
+    label("Wallet")
+    inputWithTrailingIcon(
+        value = annotedString.text,
+        placeholder = "Select Wallet",
+        trailingIcon = Icons.Default.ArrowDropDown,
+        isReadOnly = true,
+        isEnabled = false,
+        onClick = { onClickListOfWallet(R.string.toWallet) }
+    )
+}
 
 fun convertMillisToDate(millis: Long): String {
     val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     return formatter.format(Date(millis))
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun showDateDialog(state: DatePickerState, onDismiss: () -> Unit, onDateSelected: (Long) -> Unit) {
-    DatePickerDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            TextButton(onClick = {
-                onDateSelected(
-                    state.selectedDateMillis ?: System.currentTimeMillis()
-                )
-                onDismiss()
-            }) {
-                Text("ok")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Dismiss")
-            }
-        }
-    ) {
-        DatePicker(state = state)
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun showTimeDialog(currentTime: Calendar, onTimeSelected: (String) -> Unit) {
-    Card(
-        modifier = Modifier
-            .background(color = Color.White)
-            .wrapContentWidth()
-            .wrapContentHeight()
-    ) {
-
-    }
-}
-
-//shared UI across different screen
-@Composable
-fun label(label: String) {
-    Text(
-        text = label,
-        modifier = Modifier.padding(top = 20.dp, bottom = 10.dp),
-        fontWeight = FontWeight.ExtraBold,
-        color = onSurface,
-        style = MaterialTheme.typography.titleSmall,
-        fontSize = MaterialTheme.typography.titleSmall.fontSize
-    )
-}
-
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun inputWithLeadingIcon(
-    value: String,
-    placeholder: String,
-    onValueChange: (String) -> Unit,
-    leadingIcon: Int,
-    isReadOnly: Boolean,
-    saveAmount: (Float?) -> Unit = {}
-) {
-    /*val bringIntoViewRequester = remember { BringIntoViewRequester() }
-    val coroutineScope = rememberCoroutineScope()*/
-    TextField(
-        value = value,
-        onValueChange = { onValueChange(it) },
-        readOnly = isReadOnly,
-        placeholder = {
-            Text(
-                text = placeholder,
-                color = onSurface,
-                fontWeight = inputTextWeight,
-                fontSize = inputTextSize,
-                fontStyle = inputTextStyle
-            )
-        },
-        textStyle = TextStyle.Default.copy(
-            color = onSurface,
-            fontWeight = inputTextWeight,
-            fontSize = inputTextSize,
-            fontStyle = inputTextStyle
-        ),
-        leadingIcon = {
-            Icon(
-                painter = painterResource(leadingIcon),
-                contentDescription = stringResource(R.string.currency),
-                modifier = Modifier.size(15.dp),
-                tint = onBackground
-            )
-        },
-        modifier = Modifier
-            /*.bringIntoViewRequester(bringIntoViewRequester)
-            .onFocusChanged { focusState ->
-                if (focusState.isFocused) {
-                    coroutineScope.launch {
-                        bringIntoViewRequester.bringIntoView()
-                    }
-                }
-            }*/
-            .fillMaxWidth(),
-        shape = inputFieldShape,
-        colors = TextFieldDefaults.colors(
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedContainerColor = inputFieldBackgroundColors,
-            unfocusedIndicatorColor = Color.Transparent,
-            focusedContainerColor = inputFieldBackgroundColors
-        ),
-        keyboardOptions = KeyboardOptions.Default.copy(
-            keyboardType = KeyboardType.Number
-        ),
-        keyboardActions = KeyboardActions(
-            onDone = {
-                saveAmount(value.toFloatOrNull())
-            }
-        )
-    )
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun inputWithTrailingIcon(
-    value: String,
-    placeholder: String,
-    trailingIcon: ImageVector? = null,
-    isReadOnly: Boolean,
-    isEnabled: Boolean,
-    onClick:()->Unit
-) {
-   /* val bringIntoViewRequester = remember { BringIntoViewRequester() }
-    val coroutineScope = rememberCoroutineScope()*/
-    TextField(
-        value = value,
-        onValueChange = {},  // No update needed as it's read-only
-        readOnly = isReadOnly,
-        placeholder = {
-            Text(
-                text = placeholder,
-                color = onSurface,
-                fontWeight = inputTextWeight,
-                fontSize = inputTextSize,
-                fontStyle = inputTextStyle
-            )
-        },
-        textStyle = TextStyle.Default.copy(
-            color = onSurface,
-            fontWeight = inputTextWeight,
-            fontSize = inputTextSize,
-            fontStyle = inputTextStyle
-        ),
-        trailingIcon = {
-            Image(
-                imageVector = trailingIcon!!,
-                contentDescription = stringResource(R.string.arrow_down),
-                colorFilter = ColorFilter.tint(onBackground)
-            )
-        },
-        modifier = Modifier
-            /*.bringIntoViewRequester(bringIntoViewRequester)
-            .onFocusChanged { focusState ->
-                if (focusState.isFocused) {
-                    coroutineScope.launch {
-                        bringIntoViewRequester.bringIntoView()
-                    }
-                }
-            }*/
-            .fillMaxWidth().clickable(
-                onClick = {
-                    Log.d("click ","click is true")
-                    onClick()
-                }
-            ),
-        enabled = isEnabled,
-        shape = inputFieldShape,
-        colors = TextFieldDefaults.colors(
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedContainerColor = inputFieldBackgroundColors,
-            unfocusedIndicatorColor = Color.Transparent,
-            focusedContainerColor = inputFieldBackgroundColors,
-            disabledIndicatorColor = Color.Transparent
-        ),
-        keyboardOptions = KeyboardOptions.Default.copy(
-            capitalization = KeyboardCapitalization.Words,
-        )
-    )
-}
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun inputWithNoIcon(
-    value: String,
-    placeholder: String,
-    onValueChange: (String) -> Unit,
-    isReadOnly: Boolean,
-) {
-    TextField(
-        value = value,
-        onValueChange = {
-            onValueChange(it)
-        },
-        readOnly = isReadOnly,
-        placeholder = {
-            Text(
-                text = placeholder,
-                color = onSurface,
-                fontWeight = inputTextWeight,
-                fontSize = inputTextSize,
-                fontStyle = inputTextStyle
-            )
-        },
-        textStyle = TextStyle.Default.copy(
-            color = onSurface,
-            fontWeight = inputTextWeight,
-            fontSize = inputTextSize,
-            fontStyle = inputTextStyle
-        ),
-        modifier = Modifier
-            .fillMaxWidth(),
-        shape = inputFieldShape,
-        colors = TextFieldDefaults.colors(
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedContainerColor = inputFieldBackgroundColors,
-            unfocusedIndicatorColor = Color.Transparent,
-            focusedContainerColor = inputFieldBackgroundColors
-        ), // if value is false then only it is clickable
-        keyboardOptions = KeyboardOptions.Default.copy(
-            capitalization = KeyboardCapitalization.Words,
-        )
-    )
-}
 
