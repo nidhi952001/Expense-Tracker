@@ -67,4 +67,8 @@ class TransactionRepository @Inject constructor(
     fun getTotalAmountForCatByWallet(walletId: Int,categoryId: Int):Flow<Float>{
         return transactionDao.getTotalAmountForCatByWallet(walletId,categoryId)
     }
+
+    fun getTransactionById(selectedTransactionId: Int):Flow<TransactionDetailState> {
+        return transactionDao.getTransactionById(selectedTransactionId)
+    }
 }

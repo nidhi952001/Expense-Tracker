@@ -11,6 +11,7 @@
     <string name="select_wallet">Select wallet</string>
     <string name="selectCategory">Select Category</string>
     <string name="transactionsForSelectedWallet"> Transaction By Wallet</string>
+    <string name="record">Record</string>
 
     <!--top bar -->
     <string name="go_back">GO Back</string>

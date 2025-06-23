@@ -35,7 +35,7 @@ interface TransactionDao {
             "inner join wallet as w1 ON t.transaction_from_wallet_id=w1.walletId " +
             "left join wallet as w2 ON t.transaction_to_wallet_id=w2.walletId " +
             "left join category as c ON t.transaction_category_id=c.categoryId " +
-            "and t.transaction_date between :firstDayOfMonth and :lastDayOfMonth " +
+            "where t.transaction_date between :firstDayOfMonth and :lastDayOfMonth " +
             "order by t.transaction_date desc")
     fun showTransaction(firstDayOfMonth: Long, lastDayOfMonth: Long): PagingSource<Int, TransactionDetailState>
     @Query("select count(transaction_id) from `transaction` where transaction_from_wallet_id=:walletId and transaction_type=:expense")
@@ -56,15 +56,26 @@ interface TransactionDao {
             "group by c.categoryName,t.transaction_type")
     fun showTransactionByWallet(walletId: Int): Flow<List<selectedWalletTransactionState>>
 
-    @Query("select t.transaction_id as transactionId, t.transaction_date as transactionDate , t.transaction_amount as transactionAmount , t.transaction_description , t.transaction_type as transactionType ," +
+    @Query("select t.transaction_id as transactionId, t.transaction_date as transactionDate , t.transaction_amount as transactionAmount , " +
+            "t.transaction_description as transactionDescription , t.transaction_type as transactionType ," +
             "w1.walletName as fromWalletName , w2.walletName as toWalletName  , c.categoryName , c.categoryIcon , c.categoryColor" +
                 " from `transaction` as t " +
             "inner join wallet as w1 ON t.transaction_from_wallet_id=w1.walletId " +
             "left join wallet as w2 ON t.transaction_to_wallet_id=w2.walletId " +
             "left join category as c ON t.transaction_category_id=c.categoryId "+
-                "and c.categoryId=:category_id order by t.transaction_date desc")
+                "where c.categoryId=:category_id order by t.transaction_date desc")
      fun getTransaction_selectedWallet_ByCat(category_id: Int):Flow<List<TransactionDetailState>>
 
     @Query("select sum(transaction_amount) from `transaction` where transaction_from_wallet_id=:walletId and transaction_category_id=:category_id")
     fun getTotalAmountForCatByWallet(walletId: Int,category_id: Int):Flow<Float>
+
+    @Query("select t.transaction_id as transactionId, t.transaction_date as transactionDate , t.transaction_amount as transactionAmount , " +
+            "t.transaction_description as transactionDescription , t.transaction_type as transactionType ," +
+            "w1.walletName as fromWalletName , w2.walletName as toWalletName  , c.categoryName , c.categoryIcon , c.categoryColor" +
+            " from `transaction` as t " +
+            "inner join wallet as w1 ON t.transaction_from_wallet_id=w1.walletId " +
+            "left join wallet as w2 ON t.transaction_to_wallet_id=w2.walletId " +
+            "left join category as c ON t.transaction_category_id=c.categoryId "+
+            "where t.transaction_id=:selectedTransactionId")
+    fun getTransactionById(selectedTransactionId: Int): Flow<TransactionDetailState>
 }

@@ -42,10 +42,11 @@ import androidx.compose.ui.unit.dp
 import com.example.expensetracker.R
 import com.example.expensetracker.entity.Wallet
 import com.example.expensetracker.ui.theme.AppColors
-import com.example.expensetracker.uiScreen.TransactionScreen
+import com.example.expensetracker.uiScreen.transactionScreens.TransactionScreen
 import com.example.expensetracker.uiScreen.uiState.WalletDetailState
 import com.example.expensetracker.uiScreen.uiState.selectedWalletTransactionState
 import com.example.expensetracker.utils.formatWalletAmount
+import com.example.expensetracker.viewModel.FinanceViewModel
 import com.example.expensetracker.viewModel.WalletViewModel
 import com.example.transactionensetracker.entity.TransactionType
 
@@ -58,7 +59,6 @@ fun showWalletDetailRoute(
     val scrollableState = rememberScrollState()
     val walletDetailUiState by walletViewModel.walletDetailUiState.collectAsState()
     val selectedwalletIdDetail by walletViewModel.walletInputState.collectAsState()
-    println("trnasaction by wallet ${walletDetailUiState}")
     showWalletDetail(walletData = walletDetailUiState,
         selectedWalletId = selectedwalletIdDetail.selectedwalletIdDetail,
         scrollableState = scrollableState,
@@ -216,33 +216,9 @@ fun walletAllTransaction(
     modifier: Modifier.Companion,
     selectedWalletId: Int
 ) {
-    val categoryIcon = if(selectedWalletId == transaction.transactionFromWalletId && transaction.transactionType == TransactionType.TRANSFER){
-        R.drawable.transfer_out_ic
-    }
-    else if(selectedWalletId == transaction.transactionToWalletId){
-        R.drawable.transfer_in_ic
-    }
-    else{
-        transaction.categoryIcon
-    }
-    val categoryName = if(selectedWalletId == transaction.transactionFromWalletId && transaction.transactionType == TransactionType.TRANSFER){
-        R.string.transfer_out
-    }
-    else if(selectedWalletId == transaction.transactionToWalletId){
-        R.string.transfer_in
-    }
-    else{
-        transaction.categoryName
-    }
-    val categoryColor = if(selectedWalletId == transaction.transactionFromWalletId && transaction.transactionType == TransactionType.TRANSFER){
-        Color(0XFF5d6d7e)
-    }
-    else if(selectedWalletId == transaction.transactionToWalletId){
-        Color(0XFF5d6d7e)
-    }
-    else{
-        transaction.categoryColor
-    }
+    val categoryIcon = getCategoryIcon(selectedWalletId, transaction)
+    val categoryName = getCategoryName(selectedWalletId, transaction)
+    val categoryColor = getCategoryColor(selectedWalletId, transaction)
     Row(
         modifier = modifier.fillMaxWidth()
             .clickable(onClick = { onClickTransactionFromWallet(transaction.categoryId) })
@@ -296,9 +272,49 @@ fun walletAllTransaction(
     }
 }
 
+private fun getCategoryColor(
+    selectedWalletId: Int,
+    transaction: selectedWalletTransactionState
+) =
+    if (selectedWalletId == transaction.transactionFromWalletId && transaction.transactionType == TransactionType.TRANSFER) {
+        Color(0XFF5d6d7e)
+    } else if (selectedWalletId == transaction.transactionToWalletId) {
+        Color(0XFF5d6d7e)
+    } else {
+        transaction.categoryColor
+    }
+
+private fun getCategoryName(
+    selectedWalletId: Int,
+    transaction: selectedWalletTransactionState
+) =
+    if (selectedWalletId == transaction.transactionFromWalletId && transaction.transactionType == TransactionType.TRANSFER) {
+        R.string.transfer_out
+    } else if (selectedWalletId == transaction.transactionToWalletId) {
+        R.string.transfer_in
+    } else {
+        transaction.categoryName
+    }
+
+private fun getCategoryIcon(
+    selectedWalletId: Int,
+    transaction: selectedWalletTransactionState
+) =
+    if (selectedWalletId == transaction.transactionFromWalletId && transaction.transactionType == TransactionType.TRANSFER) {
+        R.drawable.transfer_out_ic
+    } else if (selectedWalletId == transaction.transactionToWalletId) {
+        R.drawable.transfer_in_ic
+    } else {
+        transaction.categoryIcon
+    }
+
 //wallet transaction detail,
 @Composable
-fun showWalletTransaction(walletViewModel: WalletViewModel) {
+fun showWalletTransaction(
+    walletViewModel: WalletViewModel,
+    showRecord: () -> Unit,
+    financeViewModel: FinanceViewModel
+) {
     val modifier = Modifier.fillMaxSize().background(color = AppColors.inverseOnSurface)
     val scrollableState = rememberScrollState()
     val overViewState by walletViewModel.walletOverviewState.collectAsState()
@@ -307,6 +323,10 @@ fun showWalletTransaction(walletViewModel: WalletViewModel) {
         modifier = modifier,
         scrollableState = scrollableState,
         overViewState = overViewState,
-        showTransaction = transactionGroupByDate
+        showTransaction = transactionGroupByDate,
+        showRecord = {
+            showRecord()
+            financeViewModel.userSelectedTransaction(it)
+        }
     )
 }

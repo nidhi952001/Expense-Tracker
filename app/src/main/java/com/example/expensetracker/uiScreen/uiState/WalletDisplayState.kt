@@ -58,6 +58,7 @@ data class TransactionByDateState(
 )
 //transaction data from database , divided for UI
 data class TransactionListState(
+    val transactionId: Int,
     val transactionAmount: String,
     val transactionDescription: String?,
     val transactionColor: Color,
@@ -82,5 +83,9 @@ data class selectedWalletTransactionState(
 //detail screen of wallet
 data class TransactionForSelectedWalletCategoryState(
     val selectedCategoryForWallet:Int=0
+)
+//user selected transaction
+data class selectedTransaction(
+    val selectedTransactionId:Int=0
 )
 

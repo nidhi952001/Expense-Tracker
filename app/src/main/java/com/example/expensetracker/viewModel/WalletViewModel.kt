@@ -22,6 +22,7 @@ import com.example.expensetracker.utils.transformByDate
 import com.example.transactionensetracker.entity.TransactionType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -389,10 +390,8 @@ class WalletViewModel @Inject constructor(
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     //apply date wise filter to show data in ui
-    val transactionGroupByDate: StateFlow<List<TransactionByDateState>> =
+    val transactionGroupByDate =
         transactionsForSelectedCategory.map {
-            print("the data for selected cat from wallet $it")
-
             transformByDate(it) }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 

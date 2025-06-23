@@ -15,6 +15,7 @@ enum class TopLevelDestination(@StringRes val route: Int) {
     userName(route = R.string.add_name),
     initialAmount(route = R.string.initial_amount),
     transaction(route = R.string.transaction),
+    Record(route = R.string.record),
     Finance(route = R.string.finance),
     showWallet(route = R.string.showWallet),
     addWallet(route = R.string.addWallet),

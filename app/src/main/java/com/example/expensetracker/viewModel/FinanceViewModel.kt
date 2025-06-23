@@ -11,6 +11,7 @@ import com.example.expensetracker.repository.WalletRepository
 import com.example.expensetracker.uiScreen.uiState.OverViewDisplayState
 import com.example.expensetracker.uiScreen.uiState.FinanceInputState
 import com.example.expensetracker.uiScreen.uiState.SelectedMonthAndYear
+import com.example.expensetracker.uiScreen.uiState.selectedTransaction
 import com.example.expensetracker.utils.StaticData.listOfCategory.categoryList
 import com.example.transactionensetracker.entity.Transaction
 import com.example.transactionensetracker.entity.TransactionType
@@ -282,7 +283,18 @@ fun saveIntoTransfer(){
     saveExpense(transfer)
     saveIncome(transfer)
 }
-    fun fetchTotalExpenseCountById(walletId:Int){
 
+    private val _selectedTransactionId = MutableStateFlow(selectedTransaction())
+
+    fun userSelectedTransaction(id: Int) {
+        _selectedTransactionId.update {
+            it.copy(selectedTransactionId = id)
+        }
     }
+
+    val transactionSelectedByUser = _selectedTransactionId.map {
+        it.selectedTransactionId
+    }.distinctUntilChanged().flatMapLatest {
+        transactionRepository.getTransactionById(it)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
 }

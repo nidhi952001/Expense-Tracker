@@ -20,6 +20,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.expensetracker.ui.theme.AppColors.surface
 import com.example.expensetracker.uiScreen.financeScreens.FinanceScreenRoute
+import com.example.expensetracker.uiScreen.transactionScreens.TransactionScreenRoute
+import com.example.expensetracker.uiScreen.transactionScreens.View_single_transaction
 import com.example.expensetracker.uiScreen.walletScreens.SelectWalletRoute
 import com.example.expensetracker.uiScreen.walletScreens.ShowIconScreen
 import com.example.expensetracker.uiScreen.walletScreens.WalletScreenEntry
@@ -144,12 +146,19 @@ fun ExpenseTrackerNavHost() {
                     )
                 }
                 composable(route = TopLevelDestination.transaction.name) {
-                    TransactionScreenRoute(financeViewModel = financeViewModel)
+                    TransactionScreenRoute(
+                        financeViewModel = financeViewModel,
+                        showRecord = {
+                            navController.navigate(TopLevelDestination.Record.name)
+                        }
+                    )
+                }
+                composable(route = TopLevelDestination.Record.name){
+                    View_single_transaction(financeViewModel= financeViewModel)
                 }
                 composable(route = TopLevelDestination.Finance.name) {
                     FinanceScreenRoute(
                         onClickListOfWallet = {
-                            println("use select $it")
                             navController.navigate(TopLevelDestination.selectWallet.name +"/$it") },
                         homeViewModel = homeViewModel,
                         onClickListOfCategory = { navController.navigate(TopLevelDestination.selectCategory.name) },
@@ -163,7 +172,6 @@ fun ExpenseTrackerNavHost() {
                 }
                 composable(route = TopLevelDestination.selectWallet.name + "/{walletSelectFor}") {
                     val walletShowingFor = it.arguments?.getString("walletSelectFor")
-                    println("user selected from/to wallet $walletShowingFor")
                     SelectWalletRoute(
                         walletShowing = walletShowingFor,
                         navigateUp = {
@@ -208,7 +216,10 @@ fun ExpenseTrackerNavHost() {
                         })
                 }
                 composable(route = TopLevelDestination.transactionsForSelectedWallet.name){
-                    showWalletTransaction(walletViewModel = walletViewModel)
+                    showWalletTransaction(walletViewModel = walletViewModel,
+                        financeViewModel = financeViewModel,
+                        showRecord = {navController.navigate(TopLevelDestination.Record.name)}
+                    )
                 }
             }
         }

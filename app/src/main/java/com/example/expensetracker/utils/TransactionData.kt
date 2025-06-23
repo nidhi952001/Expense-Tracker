@@ -73,6 +73,7 @@ private fun formatTransaction(transactionDetailStates: List<TransactionDetailSta
             }
 
         val transactions = TransactionListState(
+            transactionId = it.transactionId,
             transactionAmount =
             if (it.transactionType == TransactionType.Expense)
                 "-${it.transactionAmount}"

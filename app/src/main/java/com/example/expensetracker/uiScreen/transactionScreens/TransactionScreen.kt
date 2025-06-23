@@ -1,10 +1,12 @@
-package com.example.expensetracker.uiScreen
+package com.example.expensetracker.uiScreen.transactionScreens
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
@@ -54,7 +56,7 @@ import com.example.expensetracker.utils.transformByDate
 import com.example.expensetracker.viewModel.FinanceViewModel
 
 @Composable
-fun TransactionScreenRoute(financeViewModel: FinanceViewModel)
+fun TransactionScreenRoute(financeViewModel: FinanceViewModel,showRecord: () -> Unit)
 {
     val context = LocalContext.current
     val activity = context as Activity
@@ -65,7 +67,6 @@ fun TransactionScreenRoute(financeViewModel: FinanceViewModel)
     val overViewState by financeViewModel.showOverView.collectAsState()
     val modifier = Modifier.fillMaxSize().background(color = AppColors.inverseOnSurface)
     val transaction = financeViewModel._showTransaction.collectAsLazyPagingItems().itemSnapshotList.items
-    println("transaction at top "+transaction)
     val transactionGroupByDate = remember(transaction) {
         transformByDate(transaction)
     }
@@ -75,7 +76,11 @@ fun TransactionScreenRoute(financeViewModel: FinanceViewModel)
                 modifier = modifier,
                 scrollableState = scrollableState,
                 overViewState = overViewState,
-                showTransaction = transactionGroupByDate
+                showTransaction = transactionGroupByDate,
+                showRecord = {
+                    financeViewModel.userSelectedTransaction(it)
+                    showRecord()
+                }
             )
         }
         else{
@@ -106,7 +111,8 @@ fun TransactionScreen(
     modifier: Modifier,
     scrollableState: ScrollState,
     overViewState: OverViewDisplayState,
-    showTransaction: List<TransactionByDateState>
+    showTransaction: List<TransactionByDateState>,
+    showRecord: (Int) -> Unit
 ) {
     Column(
         modifier = modifier.scrollable(scrollableState, orientation = Orientation.Vertical)
@@ -114,13 +120,14 @@ fun TransactionScreen(
         TransactionDetail(
             modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp),
             overviewUiState = overViewState,
-            showTransaction = showTransaction
+            showTransaction = showTransaction,
+            showRecord = {showRecord(it)}
         )
     }
 }
 
 @Composable
-fun TransactionDetail(modifier: Modifier, overviewUiState: OverViewDisplayState, showTransaction: List<TransactionByDateState>){
+fun TransactionDetail(modifier: Modifier, overviewUiState: OverViewDisplayState, showTransaction: List<TransactionByDateState>,showRecord: (Int) -> Unit){
     LazyColumn(modifier= modifier) {
         item {
             TransactionSummary(modifier = Modifier.fillMaxWidth()
@@ -135,8 +142,7 @@ fun TransactionDetail(modifier: Modifier, overviewUiState: OverViewDisplayState,
                     transactionYear = transaction.transactionYear,
                     totalOfTheDay = transaction.transactionTotalAmount)
                 transaction.transactionList.forEach { transactions->
-                    println("transaction from database "+transactions)
-                    AllTransaction(transactions, modifier = Modifier)
+                    AllTransaction(transactions, modifier = Modifier, showRecord = {showRecord(it)})
                 }
             }
     }
@@ -252,9 +258,17 @@ private fun TransactionDate(
     Spacer(modifier = Modifier.height(2.dp))
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun AllTransaction(transaction: TransactionListState, modifier: Modifier) {
-    Row(modifier = modifier.fillMaxWidth().background(
+fun AllTransaction(transaction: TransactionListState, modifier: Modifier,showRecord:(Int)->Unit) {
+    Row(modifier = modifier
+        .combinedClickable(
+            onClick = {
+                showRecord(transaction.transactionId)
+            },
+            onLongClick = {}
+        )
+        .fillMaxWidth().background(
         color = AppColors.surface).padding(10.dp) , verticalAlignment = Alignment.CenterVertically) {
         Column(modifier = Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -268,7 +282,6 @@ fun AllTransaction(transaction: TransactionListState, modifier: Modifier) {
                         colorFilter = ColorFilter.tint(color = Color.White)
                     )
                 Spacer(modifier = Modifier.width(10.dp))
-                println("tr "+transaction.transactionDescription)
                 Column {
                     Text(text = if(transaction.transactionDescription==" ")
                         transaction.transactionDescription

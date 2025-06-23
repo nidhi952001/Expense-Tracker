@@ -231,7 +231,6 @@ private fun dateUi(showDateDialogUI: (Boolean) -> Unit, selectedDate: Long?) {
             fontWeight = inputTextWeight,
             fontSize = MaterialTheme.typography.labelLarge.fontSize
         )
-        print("today's date ${System.currentTimeMillis()}")
     }
 }
 

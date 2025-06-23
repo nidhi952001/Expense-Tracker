@@ -136,8 +136,8 @@ fun topBarTrailingIcon(
         )
     }
     if ((currentRoute == TopLevelDestination.Finance.name &&
-        (selectedFinance.selectedFinance == R.string.expense || selectedFinance.selectedFinance == R.string.income)
-        || selectedFinance.selectedFinance == R.string.transfer) && !currentRoute.contains(TopLevelDestination.selectWallet.name)
+        (selectedFinance.selectedFinance == R.string.expense || selectedFinance.selectedFinance == R.string.income
+        || selectedFinance.selectedFinance == R.string.transfer)) && !currentRoute.contains(TopLevelDestination.selectWallet.name)
     ) {
         val enable = when (selectedFinance.selectedFinance) {
             R.string.expense -> {
