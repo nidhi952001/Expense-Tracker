@@ -41,8 +41,11 @@ data class TransactionDetailState(
     val transactionAmount: Float,
     val transactionDescription: String?,
     val transactionType: TransactionType,
+    val fromWalletId:Int,
     val fromWalletName: String,
+    val toWalletId:Int,
     val toWalletName:String?,
+    val categoryId:Int,
     val categoryName:Int,
     val categoryIcon:Int,
     val categoryColor:Color

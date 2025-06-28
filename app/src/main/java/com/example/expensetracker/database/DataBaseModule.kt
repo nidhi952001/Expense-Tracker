@@ -50,20 +50,31 @@ class DataBaseModule {
     @Singleton
     fun provideDatabaseAccess(
         @ApplicationContext context: Context,
-        callback: RoomDatabase.Callback
+        @ApplicationScope appScope: CoroutineScope
     ): AppDataBase {
         val db = Room.databaseBuilder(
             context,
             AppDataBase::class.java,
             "app_database"
         )
-            .addCallback(callback)
+            .addCallback(object : RoomDatabase.Callback() {
+                override fun onCreate(db: SupportSQLiteDatabase) {
+                    super.onCreate(db)
+                    appScope.launch(Dispatchers.IO) {
+                        AppDataBase.INSTANCE?.let { database ->
+                            if(database.categoryDao.getAllCategories().isEmpty())
+                                database.categoryDao.insertAll(listOfCategory.categoryList())
+                        }
+                    }
+                }
+            })
             .fallbackToDestructiveMigration()
             .build()
 
-        AppDataBase.INSTANCE = db // store the reference here
+        AppDataBase.INSTANCE = db
         return db
     }
+
 
     @Provides
     @Singleton

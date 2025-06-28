@@ -21,4 +21,8 @@ interface CategoryDao {
     suspend fun insertAll(categories: List<Category>)
     @Query("select categoryName from Category where categoryId=:categoryID")
     fun getCategoryNameById(categoryID: Int): Flow<Int?>
+
+
+    @Query("select * from category")
+    fun getAllCategories():List<Category>
 }

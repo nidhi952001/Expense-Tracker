@@ -92,7 +92,7 @@ private fun WelcomeScreen(
 @Composable
 fun horizontalScroller(pagerState: PagerState, modifier: Modifier) {
     HorizontalPager(state = pagerState, modifier = modifier) { page ->
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
             when (page) {
                 1 -> {
                     pagerContent(

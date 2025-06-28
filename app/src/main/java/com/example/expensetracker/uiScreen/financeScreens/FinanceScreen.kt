@@ -272,35 +272,6 @@ private fun category(selectedCat: Int?, onClickListOfCategory: () -> Unit) {
 }
 
 @Composable
-private fun financeWallet(selectedWallet: Wallet?, onClickListOfWallet: (Int) -> Unit) {
-    val annotedString = buildAnnotatedString {
-        append(selectedWallet?.walletName)
-        append("\u0020")
-        withStyle(
-            style = SpanStyle(fontWeight = FontWeight.Bold, color = Color.Black)
-        ) {
-            append("•")
-        }
-        append("\u0020₹\u0020")
-        if (selectedWallet != null) {
-            append(formatWalletAmount(selectedWallet.walletAmount.toString()))
-        }
-    }
-    label("Wallet")
-    inputWithTrailingIcon(
-        value = annotedString.text,
-        placeholder = "Select Wallet",
-        trailingIcon = Icons.Default.ArrowDropDown,
-        isReadOnly = true,
-        isEnabled = false,
-        onClick = { onClickListOfWallet(R.string.fromWallet) }
-    )
-}
-
-
-//for transfer screen
-
-@Composable
 private fun fromWallet(selectedFromWallet: Wallet?, onClickListOfWallet: (Int) -> Unit) {
     val annotedString =
         if (selectedFromWallet != null) {
@@ -332,6 +303,7 @@ private fun fromWallet(selectedFromWallet: Wallet?, onClickListOfWallet: (Int) -
         onClick = { onClickListOfWallet(R.string.fromWallet) }
     )
 }
+//for transfer screen
 
 @Composable
 private fun toWallet(selectedToWallet: Wallet?, onClickListOfWallet: (Int) -> Unit) {

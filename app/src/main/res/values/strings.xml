@@ -17,6 +17,7 @@
     <string name="go_back">GO Back</string>
     <string name="save">SAVE</string>
     <string name="previous">Previous</string>
+    <string name="delete">Delete</string>
    <!-- bottom bar-->
     <string name="transaction">Transaction</string>
     <string name="calendar">Calendar</string>
@@ -102,4 +103,12 @@
     <string name="no_record">No Record</string>
     <string name="fromWallet">From Wallet</string>
     <string name="toWallet">To Wallet</string>
+
+
+  <!--  record screen-->
+    <string name="category">Category</string>
+    <string name="amount">Amount</string>
+    <string name="date">Date</string>
+    <string name="wallet">Wallet</string>
+    <string name="type">Type</string>
 </resources>

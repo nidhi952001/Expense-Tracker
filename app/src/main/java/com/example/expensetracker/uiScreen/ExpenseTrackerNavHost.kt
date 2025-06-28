@@ -101,16 +101,22 @@ fun ExpenseTrackerNavHost() {
                     topBarBackAction(
                         currentRoute = currentRoute,
                         walletViewModel = walletViewModel,
+                        financeViewModel = financeViewModel,
+                        categoryViewModel = categoryViewModel,
                         navController = navController,
-                        onBackClick = true
+                        onBackClick = true,
+                        homeViewModel = homeViewModel
                     )
                 },
                 onEditWallet = {
                     topBarBackAction(
                         currentRoute = currentRoute,
                         walletViewModel = walletViewModel,
+                        financeViewModel = financeViewModel,
                         navController = navController,
-                        onBackClick = false
+                        onBackClick = false,
+                        homeViewModel = homeViewModel,
+                        categoryViewModel = categoryViewModel
                     )
                 },
                 walletViewModel = walletViewModel

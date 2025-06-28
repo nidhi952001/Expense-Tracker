@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -183,6 +184,21 @@ fun topBarTrailingIcon(
             )
 
         }
+        if(currentRoute == TopLevelDestination.Record.name){
+            Icon(
+                painter = painterResource(R.drawable.edit_ic),
+                contentDescription = stringResource(R.string.edit),
+                tint = onSurface,
+                modifier = Modifier.size(40.dp).padding(end = 15.dp)
+                    .clickable(onClick = { onEditWallet() })
+            )
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = stringResource(R.string.delete),
+                tint = onSurface,
+                modifier = Modifier.size(40.dp).padding(end = 15.dp)
+            )
+        }
 
 }
 
@@ -205,7 +221,8 @@ fun AppTopBar(
         currentRoute == TopLevelDestination.selectCategory.name ||
         currentRoute == TopLevelDestination.addWallet.name ||
         currentRoute == TopLevelDestination.pickWalletIcon.name ||
-        currentRoute == TopLevelDestination.showDetailOfWallet.name
+        currentRoute == TopLevelDestination.showDetailOfWallet.name ||
+        currentRoute == TopLevelDestination.Record.name
     ) {
         Surface(
             modifier = Modifier.fillMaxWidth(),

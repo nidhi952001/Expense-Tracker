@@ -8,7 +8,9 @@ import com.example.expensetracker.R
 import com.example.expensetracker.uiScreen.uiState.SelectedTopBar
 import com.example.expensetracker.viewModel.CategoryViewModel
 import com.example.expensetracker.viewModel.FinanceViewModel
+import com.example.expensetracker.viewModel.HomeViewModel
 import com.example.expensetracker.viewModel.WalletViewModel
+import java.util.Locale
 
 enum class TopLevelDestination(@StringRes val route: Int) {
     home(route = R.string.home),
@@ -76,26 +78,28 @@ fun topBarAction(
         TopLevelDestination.Finance.name -> {
             if (selectedFinanceType.selectedFinance == R.string.expense) {
                 financeViewModel.dataOfExpense()
-                navController.navigateUp()
+                navController.navigate(TopLevelDestination.transaction.name)
                 catViewModel.resetExpCategory()
             } else if (selectedFinanceType.selectedFinance == R.string.income) {
                 financeViewModel.dataOfIncome()
-                navController.navigateUp()
+                navController.navigate(TopLevelDestination.transaction.name)
                 catViewModel.resetIncCategory()
             } else {
                 financeViewModel.saveIntoTransfer()
-                navController.navigateUp()
+                navController.navigate(TopLevelDestination.transaction.name)
             }
         }
     }
 }
 
-
 fun topBarBackAction(
     currentRoute: String?,
     walletViewModel: WalletViewModel,
+    financeViewModel: FinanceViewModel,
     navController: NavController,
-    onBackClick: Boolean
+    onBackClick: Boolean,
+    homeViewModel: HomeViewModel,
+    categoryViewModel: CategoryViewModel
 ) {
     when (currentRoute) {
         TopLevelDestination.addWallet.name -> {
@@ -110,6 +114,39 @@ fun topBarBackAction(
             } else {
                 walletViewModel.populateWalletEditState()
                 navController.navigate(TopLevelDestination.addWallet.name)
+            }
+        }
+
+        TopLevelDestination.Record.name->{
+            if (onBackClick) {
+                walletViewModel.clearEditMode()
+                navController.navigateUp()
+            } else {
+                val transactionData = financeViewModel.transactionSelectedByUser.value
+                if(transactionData!=null) {
+                    print("transaction data ${transactionData.transactionType.name}")
+                    if(transactionData.transactionType.name.contains("Income")) {
+                        homeViewModel.updateSelectedFinance(R.string.income)
+                        walletViewModel.updateSelectedFromWallet(transactionData.fromWalletId)
+                        categoryViewModel.updateSelectedIncCategory(transactionData.categoryId)
+                        financeViewModel.populateFinanceData()
+                        navController.navigate(TopLevelDestination.Finance.name)
+                    }
+                    else if(transactionData.transactionType.name.contains("Expense")) {
+                        homeViewModel.updateSelectedFinance(R.string.expense)
+                        walletViewModel.updateSelectedFromWallet(transactionData.fromWalletId)
+                        categoryViewModel.updateSelectedCategory(transactionData.categoryId)
+                        financeViewModel.populateFinanceData()
+                        navController.navigate(TopLevelDestination.Finance.name)
+                    }
+                    else{
+                        homeViewModel.updateSelectedFinance(R.string.transfer)
+                        walletViewModel.updateSelectedFromWallet(transactionData.fromWalletId)
+                        walletViewModel.updateSelectedToWallet(transactionData.toWalletId)
+                        financeViewModel.populateFinanceData()
+                        navController.navigate(TopLevelDestination.Finance.name)
+                    }
+                }
             }
         }
 

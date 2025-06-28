@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TransactionDao {
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addIncome(income: Transaction)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -30,7 +30,9 @@ interface TransactionDao {
     @Query("select t.transaction_id as transactionId, t.transaction_date as transactionDate , " +
             "t.transaction_amount as transactionAmount , t.transaction_description as transactionDescription, " +
             "t.transaction_type as transactionType," +
-            "w1.walletName as fromWalletName , w2.walletName as toWalletName , c.categoryName , c.categoryIcon , c.categoryColor" +
+            "t.transaction_from_wallet_id as fromWalletId ,w1.walletName as fromWalletName , " +
+            " t.transaction_to_wallet_id as toWalletId,w2.walletName as toWalletName , " +
+            "c.categoryId as categoryId ,c.categoryName , c.categoryIcon , c.categoryColor" +
             " from `transaction` as t " +
             "inner join wallet as w1 ON t.transaction_from_wallet_id=w1.walletId " +
             "left join wallet as w2 ON t.transaction_to_wallet_id=w2.walletId " +
@@ -58,7 +60,9 @@ interface TransactionDao {
 
     @Query("select t.transaction_id as transactionId, t.transaction_date as transactionDate , t.transaction_amount as transactionAmount , " +
             "t.transaction_description as transactionDescription , t.transaction_type as transactionType ," +
-            "w1.walletName as fromWalletName , w2.walletName as toWalletName  , c.categoryName , c.categoryIcon , c.categoryColor" +
+            "t.transaction_from_wallet_id as fromWalletId ,w1.walletName as fromWalletName , " +
+            "t.transaction_to_wallet_id as toWalletId ,w2.walletName as toWalletName  , " +
+            "c.categoryId as categoryId ,c.categoryName , c.categoryIcon , c.categoryColor" +
                 " from `transaction` as t " +
             "inner join wallet as w1 ON t.transaction_from_wallet_id=w1.walletId " +
             "left join wallet as w2 ON t.transaction_to_wallet_id=w2.walletId " +
@@ -71,7 +75,10 @@ interface TransactionDao {
 
     @Query("select t.transaction_id as transactionId, t.transaction_date as transactionDate , t.transaction_amount as transactionAmount , " +
             "t.transaction_description as transactionDescription , t.transaction_type as transactionType ," +
-            "w1.walletName as fromWalletName , w2.walletName as toWalletName  , c.categoryName , c.categoryIcon , c.categoryColor" +
+            "t.transaction_from_wallet_id as fromWalletId, " +
+            "t.transaction_from_wallet_id as fromWalletId ,w1.walletName as fromWalletName ," +
+            "t.transaction_to_wallet_id as toWalletId,t.transaction_to_wallet_id as toWalletId , w2.walletName as toWalletName  , " +
+            "c.categoryId as categoryId  ,c.categoryName , c.categoryIcon , c.categoryColor" +
             " from `transaction` as t " +
             "inner join wallet as w1 ON t.transaction_from_wallet_id=w1.walletId " +
             "left join wallet as w2 ON t.transaction_to_wallet_id=w2.walletId " +
