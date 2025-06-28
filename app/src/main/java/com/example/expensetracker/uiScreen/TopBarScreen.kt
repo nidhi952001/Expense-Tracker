@@ -65,7 +65,8 @@ fun topBarWithBackArrow(
     localFinance: FinanceInputState,
     localCat: CategoryInputState,
     selectedFinance: SelectedTopBar,
-    onEditWallet: () -> Unit
+    onEditWallet: () -> Unit,
+    onDeleteTransaction: () -> Unit
 ) {
     val currentScreenName = getScreenName(currentRoute!!, selectedFinance)
     CenterAlignedTopAppBar(
@@ -94,7 +95,8 @@ fun topBarWithBackArrow(
                 localCategory = localCat,
                 selectedFinance = selectedFinance,
                 onActionClick = onActionClick,
-                onEditWallet = onEditWallet
+                onEditWallet = onEditWallet,
+                onDeleteTransaction = onDeleteTransaction,
             )
 
         }
@@ -110,6 +112,7 @@ fun topBarTrailingIcon(
     localFinance: FinanceInputState,
     localCategory: CategoryInputState,
     selectedFinance: SelectedTopBar,
+    onDeleteTransaction:()->Unit,
     onEditWallet: () -> Unit
 ) {
     if (currentRoute!! == TopLevelDestination.addWallet.name) {
@@ -197,6 +200,9 @@ fun topBarTrailingIcon(
                 contentDescription = stringResource(R.string.delete),
                 tint = onSurface,
                 modifier = Modifier.size(40.dp).padding(end = 15.dp)
+                    .clickable{
+                        onDeleteTransaction()
+                    }
             )
         }
 
@@ -213,6 +219,7 @@ fun AppTopBar(
     selectedFinanceType: SelectedTopBar,
     onSelectFinance: (Int) -> Unit,
     onEditWallet: () -> Unit,
+    onDeleteTransaction: () -> Unit,
     walletViewModel: WalletViewModel
 ) {
     val walletInputState by walletViewModel.walletInputState.collectAsState()
@@ -239,7 +246,8 @@ fun AppTopBar(
                     selectedFinance = selectedFinanceType,
                     onActionClick = onActionClick,
                     onBackClick = onBackClick,
-                    onEditWallet = onEditWallet
+                    onEditWallet = onEditWallet,
+                    onDeleteTransaction = onDeleteTransaction
                 )
                 if (currentRoute == TopLevelDestination.Finance.name
                 ) {

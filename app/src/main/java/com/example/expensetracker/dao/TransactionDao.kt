@@ -84,5 +84,8 @@ interface TransactionDao {
             "left join wallet as w2 ON t.transaction_to_wallet_id=w2.walletId " +
             "left join category as c ON t.transaction_category_id=c.categoryId "+
             "where t.transaction_id=:selectedTransactionId")
-    fun getTransactionById(selectedTransactionId: Int): Flow<TransactionDetailState>
+    fun getTransactionById(selectedTransactionId: Int): Flow<TransactionDetailState?>
+
+    @Query("delete from `transaction` where transaction_id=:transactionId")
+    suspend fun deleteTransaction(transactionId: Int?)
 }

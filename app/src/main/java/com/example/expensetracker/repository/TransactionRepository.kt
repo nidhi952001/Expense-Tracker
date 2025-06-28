@@ -68,7 +68,11 @@ class TransactionRepository @Inject constructor(
         return transactionDao.getTotalAmountForCatByWallet(walletId,categoryId)
     }
 
-    fun getTransactionById(selectedTransactionId: Int):Flow<TransactionDetailState> {
+    fun getTransactionById(selectedTransactionId: Int):Flow<TransactionDetailState?> {
         return transactionDao.getTransactionById(selectedTransactionId)
+    }
+
+    suspend fun deleteTransaction(transactionId: Int) {
+        transactionDao.deleteTransaction(transactionId)
     }
 }

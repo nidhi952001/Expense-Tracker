@@ -31,6 +31,7 @@ import com.example.expensetracker.uiScreen.walletScreens.showWalletTransaction
 import com.example.expensetracker.utils.TopLevelDestination
 import com.example.expensetracker.utils.topBarAction
 import com.example.expensetracker.utils.topBarBackAction
+import com.example.expensetracker.utils.topBarDeleteAction
 import com.example.expensetracker.viewModel.CategoryViewModel
 import com.example.expensetracker.viewModel.FinanceViewModel
 import com.example.expensetracker.viewModel.HomeViewModel
@@ -117,6 +118,12 @@ fun ExpenseTrackerNavHost() {
                         onBackClick = false,
                         homeViewModel = homeViewModel,
                         categoryViewModel = categoryViewModel
+                    )
+                },
+                onDeleteTransaction = {
+                    topBarDeleteAction(
+                        financeViewModel = financeViewModel,
+                        navController = navController,
                     )
                 },
                 walletViewModel = walletViewModel
@@ -231,6 +238,7 @@ fun ExpenseTrackerNavHost() {
         }
     }
 }
+
 
 
 

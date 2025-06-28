@@ -3,6 +3,7 @@ package com.example.expensetracker.viewModel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.cachedIn
 import com.example.expensetracker.repository.CategoryRepository
 import com.example.expensetracker.repository.TransactionRepository
@@ -528,6 +529,13 @@ class FinanceViewModel @Inject constructor(
                     isToWalletValid = true
                 )
             }
+        }
+    }
+
+    fun deleteTransaction(transactionId: Int?) {
+        viewModelScope.launch {
+            if(transactionId!=null)
+            transactionRepository.deleteTransaction(transactionId)
         }
     }
 }

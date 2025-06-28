@@ -10,6 +10,7 @@ import com.example.expensetracker.viewModel.CategoryViewModel
 import com.example.expensetracker.viewModel.FinanceViewModel
 import com.example.expensetracker.viewModel.HomeViewModel
 import com.example.expensetracker.viewModel.WalletViewModel
+import com.example.transactionensetracker.entity.Transaction
 import java.util.Locale
 
 enum class TopLevelDestination(@StringRes val route: Int) {
@@ -154,4 +155,11 @@ fun topBarBackAction(
             navController.navigateUp()
         }
     }
+}
+
+fun topBarDeleteAction(financeViewModel: FinanceViewModel, navController: NavController) {
+    val transactionData = financeViewModel.transactionSelectedByUser.value
+    financeViewModel.deleteTransaction(transactionData?.transactionId)
+    navController.navigate(TopLevelDestination.transaction.name)
+
 }
