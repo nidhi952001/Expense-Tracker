@@ -261,10 +261,10 @@ fun AppTopBar(
         }
     }
     if (currentRoute == TopLevelDestination.transaction.name ||
+        currentRoute == TopLevelDestination.statictis.name ||
         currentRoute == TopLevelDestination.showWallet.name
     ) {
         topBarWithoutBackArrow(userName, currentRoute)
-
     }
 }
 
@@ -282,7 +282,8 @@ fun topBarWithoutBackArrow(userName: String, currentRoute: String?) {
             },
             modifier = Modifier
         )
-        if (currentRoute.equals(TopLevelDestination.transaction.name)) {
+        if (currentRoute.equals(TopLevelDestination.transaction.name) ||
+            currentRoute.equals(TopLevelDestination.statictis.name)) {
             selectMonthTopBar()
         }
     }

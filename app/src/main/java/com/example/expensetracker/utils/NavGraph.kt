@@ -20,6 +20,7 @@ enum class TopLevelDestination(@StringRes val route: Int) {
     transaction(route = R.string.transaction),
     Record(route = R.string.record),
     Finance(route = R.string.finance),
+    statictis(route = R.string.statistic),
     showWallet(route = R.string.showWallet),
     addWallet(route = R.string.addWallet),
     pickWalletIcon(route = R.string.pickIcon),

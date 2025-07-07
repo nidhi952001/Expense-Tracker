@@ -1,15 +1,16 @@
 package com.example.expensetracker.utils
 
-import androidx.collection.emptyLongSet
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
-import com.example.expensetracker.R
+import com.example.expensetracker.uiScreen.uiState.OverViewDisplayState
+import com.example.expensetracker.uiScreen.uiState.TransactionByCategory
 import com.example.expensetracker.uiScreen.uiState.TransactionByDateState
 import com.example.expensetracker.uiScreen.uiState.TransactionListState
 import com.example.expensetracker.uiScreen.uiState.TransactionDetailState
 import com.example.expensetracker.utils.StaticData.listOfCategory.categoryList
 import com.example.transactionensetracker.entity.TransactionType
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.util.Calendar
 import java.util.Locale
 
@@ -60,13 +61,13 @@ private fun formatTransaction(transactionDetailStates: List<TransactionDetailSta
     transactionDetailStates.forEach {
 
         val annotedString =
-            if(it.transactionType== TransactionType.TRANSFER) {
+            if (it.transactionType == TransactionType.TRANSFER) {
                 buildAnnotatedString {
                     append(it.fromWalletName)
                     append("->")
                     append(it.toWalletName)
                 }
-            }else{
+            } else {
                 buildAnnotatedString {
                     append(it.fromWalletName)
                 }
@@ -87,10 +88,10 @@ private fun formatTransaction(transactionDetailStates: List<TransactionDetailSta
                 Color.Blue.copy(alpha = 0.5F)
             else
                 Color.Black,
-            walletName =  annotedString.text,
-            categoryName = if(it.transactionType == TransactionType.TRANSFER) categoryList()[0].categoryName else it.categoryName,
-            categoryIcon = if(it.transactionType == TransactionType.TRANSFER) categoryList()[0].categoryIcon else it.categoryIcon,
-            categoryColor = if(it.transactionType == TransactionType.TRANSFER) categoryList()[0].categoryColor else it.categoryColor
+            walletName = annotedString.text,
+            categoryName = if (it.transactionType == TransactionType.TRANSFER) categoryList()[0].categoryName else it.categoryName,
+            categoryIcon = if (it.transactionType == TransactionType.TRANSFER) categoryList()[0].categoryIcon else it.categoryIcon,
+            categoryColor = if (it.transactionType == TransactionType.TRANSFER) categoryList()[0].categoryColor else it.categoryColor
         )
         transaction.add(transactions)
     }
@@ -108,5 +109,67 @@ private fun totalForDay(transactionDetailStates: List<TransactionDetailState>): 
             0.0F
     }
     return dayTotal
+}
+
+
+fun dataForCharts(
+    transaction: List<TransactionDetailState>,
+    overViewState: OverViewDisplayState
+): List<TransactionByCategory> {
+
+    val listOfData = mutableListOf<TransactionByCategory>()
+    val listOfCategory = mutableListOf<Int>()
+
+    val transactions = transaction.groupBy {
+        it.categoryId
+    }
+
+    transactions.forEach {
+        if (it.value.first().transactionType == TransactionType.Expense) {
+            println("the data ${it.key}  and ${it.value}")
+            listOfCategory.add(it.key)
+            listOfData.add(
+                TransactionByCategory(
+                    categoryId = it.key,
+                    categoryName = it.value.first().categoryName,
+                    categoryIcon = it.value.first().categoryIcon,
+                    categoryColor = it.value.first().categoryColor,
+                    categoryExpPercentage = findExpensePercentage(
+                        it.value,
+                        overViewState.totalExpense
+                    )
+                )
+            )
+        }
+    }
+    return listOfData
+}
+
+fun findExpensePercentage(value: List<TransactionDetailState>, totalExpense: Float): Float {
+    var totalAmount = 0.0F
+    value.forEach {
+        totalAmount += it.transactionAmount
+    }
+    return roundFloatToTwoDecimals(((totalAmount / totalExpense) * 100))
+}
+
+fun roundFloatToTwoDecimals(value: Float): Float {
+    return BigDecimal(value.toString())
+        .setScale(1, RoundingMode.HALF_UP)
+        .toFloat()
+}
+
+fun getTransactionCount(
+    data: TransactionDetailState
+): Pair<Int, Int> {
+    var expenseCount = 0
+    var incomeCount = 0
+    if (data.transactionType == TransactionType.Expense) {
+        expenseCount++
+    }
+    if (data.transactionType == TransactionType.Income) {
+        incomeCount++
+    }
+    return Pair(expenseCount, incomeCount)
 }
 

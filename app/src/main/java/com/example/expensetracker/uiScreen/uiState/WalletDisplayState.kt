@@ -70,6 +70,16 @@ data class TransactionListState(
     val categoryIcon:Int,
     val categoryColor:Color
 )
+//statistic page
+data class TransactionByCategory(
+    val categoryId:Int,
+    val categoryName:Int,
+    val categoryIcon:Int,
+    val categoryColor:Color,
+    /*val categoryExpTotalAmount:String,
+    val categoryExpCount:String,*/
+    val categoryExpPercentage:Float
+)
 //detail screen of wallet
 data class selectedWalletTransactionState(
     val transactionId: Int,

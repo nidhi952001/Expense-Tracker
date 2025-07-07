@@ -47,6 +47,11 @@ object ListOfBottomButton {
             label = R.string.add
         ),
         BottomNavItem(
+            route = TopLevelDestination.statictis.name,
+            painter = (R.drawable.pie_chart_ic),
+            label = R.string.statistic
+        ),
+        BottomNavItem(
             route = TopLevelDestination.showWallet.name,
             painter = (R.drawable.wallet_ic),
             label = R.string.showWallet

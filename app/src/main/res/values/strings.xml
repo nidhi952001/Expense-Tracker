@@ -111,4 +111,8 @@
     <string name="date">Date</string>
     <string name="wallet">Wallet</string>
     <string name="type">Type</string>
+
+
+    <!--Statistic Screen-->
+    <string name="expense_structure">Expense Structure</string>
 </resources>

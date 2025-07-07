@@ -20,6 +20,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.expensetracker.ui.theme.AppColors.surface
 import com.example.expensetracker.uiScreen.financeScreens.FinanceScreenRoute
+import com.example.expensetracker.uiScreen.statisticsScreens.StatisticScreenRoute
 import com.example.expensetracker.uiScreen.transactionScreens.TransactionScreenRoute
 import com.example.expensetracker.uiScreen.transactionScreens.View_single_transaction
 import com.example.expensetracker.uiScreen.walletScreens.SelectWalletRoute
@@ -182,6 +183,9 @@ fun ExpenseTrackerNavHost() {
                         walletViewModel = walletViewModel,
                         categoryViewModel = categoryViewModel
                     )
+                }
+                composable(route = TopLevelDestination.statictis.name){
+                    StatisticScreenRoute(financeViewModel = financeViewModel)
                 }
                 composable(route = TopLevelDestination.selectWallet.name + "/{walletSelectFor}") {
                     val walletShowingFor = it.arguments?.getString("walletSelectFor")
