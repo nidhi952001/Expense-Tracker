@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -86,12 +87,17 @@ fun appBottomBar(navHostController: NavHostController, currentRoute: String?) {
                         Icon(
                             painter = painterResource(it.painter),
                             contentDescription = stringResource(it.label),
+                            modifier = if (it.painter != R.drawable.add_ic)
+                                Modifier.size(30.dp)
+                            else
+                            Modifier.size(50.dp)
                             /*tint =  if(selectedBottomBar == it.route) onSurface
                             else inverseOnSurface*/
                         )
                         if (it.painter != R.drawable.add_ic)
                             Text(
                                 text = stringResource(it.label),
+                                fontSize = MaterialTheme.typography.bodyMedium.fontSize
                                 /*color = if(selectedBottomBar == it.route) onSurface
                                         else inverseOnSurface*/
                             )

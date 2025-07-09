@@ -6,6 +6,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,14 +17,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,7 +51,7 @@ import com.example.expensetracker.utils.dataForCharts
 import com.example.expensetracker.viewModel.FinanceViewModel
 
 @Composable
-fun StatisticScreenRoute(financeViewModel: FinanceViewModel){
+fun StatisticScreenRoute(financeViewModel: FinanceViewModel,showTransactionScreen: () -> Unit,showStructureScreen :()->Unit){
 
     val scrollableState = rememberScrollState()
     val overViewState by financeViewModel.showOverView.collectAsState()
@@ -64,7 +67,9 @@ fun StatisticScreenRoute(financeViewModel: FinanceViewModel){
                 modifier = modifier,
                 scrollableState = scrollableState,
                 overviewUiState = overViewState,
-                chartsData = chartsData.take(5)
+                chartsData = chartsData.take(5),
+                showTransactionScreen = showTransactionScreen,
+                showStructureScreen = showStructureScreen
             )
         }
         else{
@@ -83,7 +88,9 @@ fun StatiscticScreen(
     modifier: Modifier,
     scrollableState: ScrollState,
     overviewUiState: OverViewDisplayState,
-    chartsData: List<TransactionByCategory>
+    chartsData: List<TransactionByCategory>,
+    showTransactionScreen: () -> Unit,
+    showStructureScreen: () -> Unit
 ) {
     Column(
         modifier = modifier.scrollable(scrollableState, orientation = Orientation.Vertical)
@@ -95,12 +102,41 @@ fun StatiscticScreen(
                         .background(color = AppColors.surface),
                     overviewUiState = overviewUiState
                 )
+                HorizontalDivider(
+                    modifier = Modifier.fillMaxWidth(),
+                    thickness = 1.dp
+                )
+                Row(modifier = Modifier.fillMaxWidth()
+                    .background(color = AppColors.surface)
+                    .clickable(onClick = {showTransactionScreen()})
+                    .padding(10.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(text = stringResource(R.string.show_more))
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = stringResource(R.string.previous)
+                    )
+                }
                 ExpenseChart(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp)
+                    modifier = Modifier.fillMaxWidth().padding(top = 20.dp)
                         .background(color = AppColors.surface),
                     chartsData = chartsData,
                     overviewUiState = overviewUiState
                 )
+                HorizontalDivider(
+                    modifier = Modifier.fillMaxWidth(),
+                    thickness = 1.dp
+                )
+                Row(modifier = Modifier.fillMaxWidth().background(color = AppColors.surface)
+                    .clickable(onClick = { showStructureScreen() })
+                    .padding(10.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(text = stringResource(R.string.show_more))
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = stringResource(R.string.previous)
+                    )
+                }
             }
         }
     }
@@ -141,7 +177,7 @@ fun ExpenseChart(
 @Composable
 fun showCharts(chartsData: List<TransactionByCategory>, overviewUiState: OverViewDisplayState) {
     var radiusOuter = 140.dp
-    var chartBarWidth = 35.dp
+    val chartBarWidth = 25.dp
     var expenseForChart = mutableListOf<Float>()
 
     //expense data - charts data
@@ -162,7 +198,7 @@ fun showCharts(chartsData: List<TransactionByCategory>, overviewUiState: OverVie
     )
 
     val animateRotation by animateFloatAsState(
-        targetValue = if (animationPlayed) 360f * 11f else 0f,
+        targetValue = if (animationPlayed) 90f * 11f else 0f,
         animationSpec = tween(
             durationMillis = 1000,
             delayMillis = 0,
@@ -171,18 +207,17 @@ fun showCharts(chartsData: List<TransactionByCategory>, overviewUiState: OverVie
     )
     Box(modifier = Modifier.size(animateSize.dp), contentAlignment = Alignment.Center){
         Canvas(
-            modifier = Modifier.size(radiusOuter *2f)
+            modifier = Modifier.size(radiusOuter *2f).rotate(animateRotation)
         ){
             expenseForChart.forEachIndexed { index, value ->
-                val sweepAngle = expenseForChart[index]
                 drawArc(
                     color = chartsData[index].categoryColor,
-                    startAngle = lastValue + animateRotation, // ✅ animate rotation here!
-                    sweepAngle = sweepAngle,
+                    lastValue,
+                    value,
                     useCenter = false,
                     style = Stroke(chartBarWidth.toPx(), cap = StrokeCap.Butt)
                 )
-                lastValue += sweepAngle
+                lastValue += value
             }
         }
         val annotedString = buildAnnotatedString {
@@ -209,7 +244,8 @@ fun showData(chartsData: List<TransactionByCategory>) {
 
                 }
                 Column(modifier = Modifier.padding(start = 5.dp)) {
-                    Text(text = stringResource(it.categoryName))
+                    Text(text = stringResource(it.categoryName) ,
+                        modifier = Modifier.padding(end = 5.dp))
                 }
                 val annotedString = buildAnnotatedString {
                     append("(")

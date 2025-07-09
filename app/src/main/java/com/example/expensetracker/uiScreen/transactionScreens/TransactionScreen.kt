@@ -61,9 +61,9 @@ fun TransactionScreenRoute(financeViewModel: FinanceViewModel,showRecord: () -> 
     val context = LocalContext.current
     val activity = context as Activity
     val scrollableState = rememberScrollState()
-    BackHandler(enabled = true){
+    /*BackHandler(enabled = true){
         activity.finish()
-    }
+    }*/
     val overViewState by financeViewModel.showOverView.collectAsState()
     val modifier = Modifier.fillMaxSize().background(color = AppColors.inverseOnSurface)
     val transaction = financeViewModel._showTransaction.collectAsLazyPagingItems().itemSnapshotList.items

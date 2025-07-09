@@ -21,6 +21,8 @@ enum class TopLevelDestination(@StringRes val route: Int) {
     Record(route = R.string.record),
     Finance(route = R.string.finance),
     statictis(route = R.string.statistic),
+    statisticsTransaction(route = R.string.statisticTransaction),
+    structureScreen(route = R.string.structure),
     showWallet(route = R.string.showWallet),
     addWallet(route = R.string.addWallet),
     pickWalletIcon(route = R.string.pickIcon),
@@ -52,7 +54,11 @@ fun getScreenName(currentRoute: String, selectedFinanceType: SelectedTopBar): St
     }
     else if(currentRoute.contains(TopLevelDestination.selectWallet.name)){
         stringResource(R.string.select_wallet)
-    }else {
+    }
+    else if(currentRoute == TopLevelDestination.statisticsTransaction.name){
+        stringResource(R.string.transaction)
+    }
+    else {
         currentRoute
 
     }

@@ -185,7 +185,22 @@ fun ExpenseTrackerNavHost() {
                     )
                 }
                 composable(route = TopLevelDestination.statictis.name){
-                    StatisticScreenRoute(financeViewModel = financeViewModel)
+                    StatisticScreenRoute(
+                        financeViewModel = financeViewModel,
+                        showTransactionScreen = {navController.navigate(TopLevelDestination.statisticsTransaction.name)},
+                        showStructureScreen = {navController.navigate(TopLevelDestination.structureScreen.name)}
+                    )
+                }
+                composable(route = TopLevelDestination.statisticsTransaction.name){
+                    TransactionScreenRoute(
+                        financeViewModel = financeViewModel,
+                        showRecord = {
+                            navController.navigate(TopLevelDestination.Record.name)
+                        }
+                    )
+                }
+                composable(route = TopLevelDestination.structureScreen.name){
+
                 }
                 composable(route = TopLevelDestination.selectWallet.name + "/{walletSelectFor}") {
                     val walletShowingFor = it.arguments?.getString("walletSelectFor")

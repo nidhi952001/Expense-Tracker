@@ -21,12 +21,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -49,6 +54,7 @@ import com.example.expensetracker.uiScreen.uiState.CategoryInputState
 import com.example.expensetracker.uiScreen.uiState.FinanceInputState
 import com.example.expensetracker.uiScreen.uiState.SelectedTopBar
 import com.example.expensetracker.uiScreen.uiState.WalletInputState
+import com.example.expensetracker.utils.StatisticCategory
 import com.example.expensetracker.utils.TopLevelDestination
 import com.example.expensetracker.utils.getScreenName
 import com.example.expensetracker.viewModel.FinanceViewModel
@@ -229,7 +235,9 @@ fun AppTopBar(
         currentRoute == TopLevelDestination.addWallet.name ||
         currentRoute == TopLevelDestination.pickWalletIcon.name ||
         currentRoute == TopLevelDestination.showDetailOfWallet.name ||
-        currentRoute == TopLevelDestination.Record.name
+        currentRoute == TopLevelDestination.Record.name ||
+        currentRoute == TopLevelDestination.statisticsTransaction.name ||
+        currentRoute == TopLevelDestination.structureScreen.name
     ) {
         Surface(
             modifier = Modifier.fillMaxWidth(),
@@ -257,6 +265,17 @@ fun AppTopBar(
                         onSelectFinanceType = onSelectFinance
                     )
                 }
+                if (currentRoute==TopLevelDestination.statisticsTransaction.name ||
+                    currentRoute == TopLevelDestination.structureScreen.name) {
+                    selectMonthTopBar()
+                    if(currentRoute == TopLevelDestination.structureScreen.name){
+                        selectStructureCategory(
+                            modifier = Modifier.fillMaxWidth(),
+                            selectedTopBar = selectedFinanceType,
+                            onSelectFinanceType = onSelectFinance
+                        )
+                    }
+                }
             }
         }
     }
@@ -266,6 +285,33 @@ fun AppTopBar(
     ) {
         topBarWithoutBackArrow(userName, currentRoute)
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun selectStructureCategory(modifier: Modifier, selectedTopBar: SelectedTopBar, onSelectFinanceType: (Int) -> Unit) {
+
+    val startDestination = StatisticCategory.EXPENSE
+    var selectedDestination by rememberSaveable{ mutableStateOf(startDestination.ordinal) }
+
+    Row( modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceEvenly) {
+        PrimaryTabRow(selectedTabIndex = selectedDestination,modifier = Modifier){
+            StatisticCategory.entries.forEachIndexed { index, category ->
+                Tab(
+                    selected = selectedDestination ==index,
+                    onClick = {selectedDestination = index},
+                    text = {
+                        Text(
+                            text = category.name
+                        )
+                    }
+                )
+            }
+        }
+    }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
