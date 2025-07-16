@@ -23,8 +23,7 @@
     <string name="calendar">Calendar</string>
     <string name="add">Add</string>
     <string name="statistic">Statistic</string>
-    <string name="statisticTransaction">Statistic Transaction</string>
-    <string name="structure">Structure</string>
+
 
    <!-- first time home screen-->
     <string name="money_category">Expense Category</string>
@@ -118,4 +117,8 @@
     <!--Statistic Screen-->
     <string name="expense_structure">Expense Structure</string>
     <string name="show_more">Show More</string>
+    <string name="statisticTransaction">Statistic Transaction</string>
+    <string name="structure">Structure</string>
+    <string name="transactionsForSelectedCategory">Transaction For Selected Category</string>
+    <string name="all">All</string>
 </resources>

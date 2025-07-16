@@ -27,6 +27,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,6 +58,7 @@ import com.example.expensetracker.uiScreen.uiState.WalletInputState
 import com.example.expensetracker.utils.StatisticCategory
 import com.example.expensetracker.utils.TopLevelDestination
 import com.example.expensetracker.utils.getScreenName
+import com.example.expensetracker.utils.selectedCategory
 import com.example.expensetracker.viewModel.FinanceViewModel
 import com.example.expensetracker.viewModel.WalletViewModel
 import java.util.Locale
@@ -72,9 +74,10 @@ fun topBarWithBackArrow(
     localCat: CategoryInputState,
     selectedFinance: SelectedTopBar,
     onEditWallet: () -> Unit,
-    onDeleteTransaction: () -> Unit
+    onDeleteTransaction: () -> Unit,
+    selectedCategoryStatistics: Int?
 ) {
-    val currentScreenName = getScreenName(currentRoute!!, selectedFinance)
+    val currentScreenName = getScreenName(currentRoute!!, selectedFinance,selectedCategoryStatistics)
     CenterAlignedTopAppBar(
         modifier = Modifier.background(color = Color.Transparent),
         title = {
@@ -226,7 +229,9 @@ fun AppTopBar(
     onSelectFinance: (Int) -> Unit,
     onEditWallet: () -> Unit,
     onDeleteTransaction: () -> Unit,
-    walletViewModel: WalletViewModel
+    walletViewModel: WalletViewModel,
+    onSelectStructure: (StatisticCategory) -> Unit,
+    selectedCategory: State<selectedCategory>
 ) {
     val walletInputState by walletViewModel.walletInputState.collectAsState()
     if (currentRoute == TopLevelDestination.Finance.name ||
@@ -237,7 +242,8 @@ fun AppTopBar(
         currentRoute == TopLevelDestination.showDetailOfWallet.name ||
         currentRoute == TopLevelDestination.Record.name ||
         currentRoute == TopLevelDestination.statisticsTransaction.name ||
-        currentRoute == TopLevelDestination.structureScreen.name
+        currentRoute == TopLevelDestination.structureScreen.name ||
+        currentRoute== TopLevelDestination.transactionsForSelectedCategory.name
     ) {
         Surface(
             modifier = Modifier.fillMaxWidth(),
@@ -255,7 +261,8 @@ fun AppTopBar(
                     onActionClick = onActionClick,
                     onBackClick = onBackClick,
                     onEditWallet = onEditWallet,
-                    onDeleteTransaction = onDeleteTransaction
+                    onDeleteTransaction = onDeleteTransaction,
+                    selectedCategoryStatistics = selectedCategory.value.selectetedCategoryName
                 )
                 if (currentRoute == TopLevelDestination.Finance.name
                 ) {
@@ -266,13 +273,14 @@ fun AppTopBar(
                     )
                 }
                 if (currentRoute==TopLevelDestination.statisticsTransaction.name ||
-                    currentRoute == TopLevelDestination.structureScreen.name) {
+                    currentRoute == TopLevelDestination.structureScreen.name ||
+                    currentRoute==TopLevelDestination.transactionsForSelectedCategory.name
+                ) {
                     selectMonthTopBar()
                     if(currentRoute == TopLevelDestination.structureScreen.name){
                         selectStructureCategory(
                             modifier = Modifier.fillMaxWidth(),
-                            selectedTopBar = selectedFinanceType,
-                            onSelectFinanceType = onSelectFinance
+                            onSelectStructure = onSelectStructure
                         )
                     }
                 }
@@ -289,19 +297,22 @@ fun AppTopBar(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun selectStructureCategory(modifier: Modifier, selectedTopBar: SelectedTopBar, onSelectFinanceType: (Int) -> Unit) {
+fun selectStructureCategory(modifier: Modifier, onSelectStructure: (StatisticCategory) -> Unit) {
 
     val startDestination = StatisticCategory.EXPENSE
     var selectedDestination by rememberSaveable{ mutableStateOf(startDestination.ordinal) }
 
-    Row( modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
+    Row( modifier = modifier.padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly) {
         PrimaryTabRow(selectedTabIndex = selectedDestination,modifier = Modifier){
             StatisticCategory.entries.forEachIndexed { index, category ->
                 Tab(
                     selected = selectedDestination ==index,
-                    onClick = {selectedDestination = index},
+                    onClick = {
+                        onSelectStructure(category)
+                        selectedDestination = index
+                              },
                     text = {
                         Text(
                             text = category.name

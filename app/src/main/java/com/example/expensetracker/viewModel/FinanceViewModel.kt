@@ -3,15 +3,18 @@ package com.example.expensetracker.viewModel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.cachedIn
 import com.example.expensetracker.repository.CategoryRepository
 import com.example.expensetracker.repository.TransactionRepository
 import com.example.expensetracker.repository.WalletRepository
 import com.example.expensetracker.uiScreen.uiState.OverViewDisplayState
 import com.example.expensetracker.uiScreen.uiState.SelectedMonthAndYear
+import com.example.expensetracker.uiScreen.uiState.TransactionDetailState
 import com.example.expensetracker.uiScreen.uiState.selectedTransaction
 import com.example.expensetracker.utils.StaticData.listOfCategory.categoryList
+import com.example.expensetracker.utils.StatisticCategory
+import com.example.expensetracker.utils.selectedCategory
+import com.example.expensetracker.utils.selectedStatistics
 import com.example.transactionensetracker.entity.Transaction
 import com.example.transactionensetracker.entity.TransactionType
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,7 +35,7 @@ import javax.inject.Inject
 @HiltViewModel
 class FinanceViewModel @Inject constructor(
     private val transactionRepository: TransactionRepository,
-    categoryRepository: CategoryRepository,
+    private val categoryRepository: CategoryRepository,
     private val walletRepository: WalletRepository,
 ) : ViewModel() {
 
@@ -206,13 +209,13 @@ class FinanceViewModel @Inject constructor(
 
     private fun saveExpense(expense: Transaction) {
         viewModelScope.launch {
-            transactionRepository.addExpense(expense)
-            if(_selectedTransactionId.value.selectedTransactionId!=0 && expense.transactionType == TransactionType.Expense) ExpenseEdit(expense)
+            if(_selectedTransactionId.value.selectedTransactionId!=0) ExpenseEdit(expense)
             else ExpenseSave(expense)
         }
     }
 
     private suspend fun ExpenseSave(expense: Transaction){
+        transactionRepository.addExpense(expense)
         //fetch current wallet amount
         val currentWalletAmount =
             walletRepository.fetchWalletAmountById(currentFromWallet.value)
@@ -226,62 +229,11 @@ class FinanceViewModel @Inject constructor(
                 resetUiState()
         }
     }
-    private suspend fun ExpenseEdit(expense: Transaction) {
-        var updateWalletId:Int=currentFromWallet.value
-        var updateWalletAmount:Float =0.0F
 
-        //if transaction values are not different
-        if (transactionSelectedByUser.value?.transactionAmount != _financeTempState.value.financeAmount.toFloat() &&
-            transactionSelectedByUser.value?.fromWalletId == currentFromWallet.value)
-        {
-            println("coming first condition")
-            //fetch current wallet amount
-            val currentWalletAmount =
-                walletRepository.fetchWalletAmountById(currentFromWallet.value)
-            //update the wallet amount
-            if (!_financeTempState.value.financeAmount.isNullOrEmpty()) {
-                updateWalletAmount = if (transactionSelectedByUser.value != null) {
-                    val difference = transactionSelectedByUser.value!!.transactionAmount -
-                            _financeTempState.value.financeAmount.toFloat()
-                    if (difference > 0) {
-                        currentWalletAmount + difference
-                    } else {
-                        currentWalletAmount + difference
-                    }
-                } else {
-                    currentWalletAmount -
-                            _financeTempState.value.financeAmount.toFloat()
-                }
-            }
-            walletRepository.updateWalletAmount(updateWalletAmount, updateWalletId)
-
-        } //if wallet are different
-        if(transactionSelectedByUser.value?.fromWalletId != currentFromWallet.value){
-            println("coming first condition")
-
-            //user previously selected wallet amount
-            val userSelectedWalletAmount =
-                transactionSelectedByUser.value?.fromWalletId?.let {
-                    walletRepository.fetchWalletAmountById(
-                        it
-                    )
-                }
-            if (userSelectedWalletAmount != null) {
-                updateWalletAmount = userSelectedWalletAmount + (transactionSelectedByUser.value?.transactionAmount
-                    ?: 0.0F)
-                updateWalletId = transactionSelectedByUser.value!!.fromWalletId
-                walletRepository.updateWalletAmount(updateWalletAmount, updateWalletId)
-            }
-
-            //user currently selected wallet amount
-            val currentWalletAmount = walletRepository.fetchWalletAmountById(currentFromWallet.value)
-            val updateCurrentWalletAmount = currentWalletAmount - _financeTempState.value.financeAmount.toFloat()
-            walletRepository.updateWalletAmount(updateCurrentWalletAmount, currentFromWallet.value)
-        }
-        if (expense.transactionType == TransactionType.Expense)
-            resetUiState()
+    private fun ExpenseEdit(expense:Transaction){
+        if(expense.transactionType== TransactionType.Expense) //for transfer no need to delete here
+            deleteTransaction(transactionSelectedByUser.value,expense)
     }
-
 
     fun dataOfIncome() {
         Log.d("DEBUG", "Current state: ${_financeTempState.value}")
@@ -304,16 +256,16 @@ class FinanceViewModel @Inject constructor(
     }
 
     private fun saveIncome(income: Transaction) {
-        if(income.transactionType == TransactionType.Income)
-            viewModelScope.launch {
-                transactionRepository.addIncome(income) // only one transaction should add into table if it is transfer
-            }
         if(_selectedTransactionId.value.selectedTransactionId!=0) IncomeEdit(income)
         else IncomeSave(income)
     }
 
     private fun IncomeSave(income: Transaction){
         viewModelScope.launch {
+            // save into transaction table only if it is income
+            if(income.transactionType == TransactionType.Income)
+                transactionRepository.addIncome(income)
+
             //fetch current wallet amount
             val currentWalletAmount = if(income.transactionType == TransactionType.TRANSFER){
                 walletRepository.fetchWalletAmountById(currentToWallet.value)
@@ -325,132 +277,18 @@ class FinanceViewModel @Inject constructor(
             if (!_financeTempState.value.financeAmount.isNullOrEmpty()) {
                 val updateWalletAmount = currentWalletAmount +
                         _financeTempState.value.financeAmount.toFloat()
-                if(income.transactionType == TransactionType.TRANSFER) {
-                    walletRepository.updateWalletAmount(updateWalletAmount, currentToWallet.value)
-                    resetUiState()
-                }
-                else{
+                if(income.transactionType == TransactionType.Income)
                     walletRepository.updateWalletAmount(updateWalletAmount, currentFromWallet.value)
-                    resetUiState()
-                }
-
+                else
+                    walletRepository.updateWalletAmount(updateWalletAmount, currentToWallet.value)
+                resetUiState()
             }
         }
     }
     private fun IncomeEdit(income: Transaction){
-        var currentFromWalletAmount:Float=0.0F
-        var currentToWalletAmount:Float=0.0F
-
-        var updateWalletId:Int=currentFromWallet.value
-        var updateWalletAmount:Float =0.0F
-        viewModelScope.launch {
-            //fetch current wallet amount
-             if (income.transactionType == TransactionType.TRANSFER) {
-                // only one transaction should add into table if it is transfer
-                 currentToWalletAmount = walletRepository.fetchWalletAmountById(currentToWallet.value)
-            } else {
-                 currentFromWalletAmount = walletRepository.fetchWalletAmountById(currentFromWallet.value)
-            }
-            //only amount change
-            if(transactionSelectedByUser.value?.transactionAmount != _financeTempState.value.financeAmount.toFloat() &&
-                transactionSelectedByUser.value?.fromWalletId == currentFromWallet.value &&
-                transactionSelectedByUser.value?.toWalletId == currentToWallet.value) {
-                //update the wallet
-                if (!_financeTempState.value.financeAmount.isNullOrEmpty()) {
-                    if(transactionSelectedByUser.value!=null){
-                        val difference = transactionSelectedByUser.value!!.transactionAmount -
-                                _financeTempState.value.financeAmount.toFloat()
-                        currentFromWalletAmount -= difference
-                        currentToWalletAmount-=difference
-                    }
-                    else {
-                        currentFromWalletAmount +=
-                                _financeTempState.value.financeAmount.toFloat()
-                    }
-                    if (income.transactionType == TransactionType.TRANSFER) {
-                        walletRepository.updateWalletAmount(currentToWalletAmount, currentToWallet.value)
-                    } else {
-                        walletRepository.updateWalletAmount(currentFromWalletAmount, currentFromWallet.value)
-                    }
-
-                }
-            } //only wallet changes
-            if(transactionSelectedByUser.value?.fromWalletId != currentFromWallet.value &&
-                transactionSelectedByUser.value?.transactionType == TransactionType.Income){
-
-                //user previously selected wallet amount
-                val userSelectedWalletAmount =
-                    transactionSelectedByUser.value?.fromWalletId?.let {
-                        walletRepository.fetchWalletAmountById(
-                            it
-                        )
-                    }
-                if (userSelectedWalletAmount != null) {
-                    updateWalletAmount = userSelectedWalletAmount - (transactionSelectedByUser.value?.transactionAmount
-                        ?: 0.0F)
-                    updateWalletId = transactionSelectedByUser.value!!.fromWalletId
-                    walletRepository.updateWalletAmount(updateWalletAmount, updateWalletId)
-                }
-
-                //user currently selected wallet amount
-                val currentWalletAmount = walletRepository.fetchWalletAmountById(currentFromWallet.value)
-                val updateCurrentWalletAmount = currentWalletAmount + _financeTempState.value.financeAmount.toFloat()
-                walletRepository.updateWalletAmount(updateCurrentWalletAmount, currentFromWallet.value)
-            }
-            if(transactionSelectedByUser.value?.transactionType == TransactionType.TRANSFER){
-                if(transactionSelectedByUser.value?.fromWalletId != currentFromWallet.value){
-                    //user previously selected wallet amount
-                    val userSelectedWalletAmount =
-                        transactionSelectedByUser.value?.fromWalletId?.let {
-                            walletRepository.fetchWalletAmountById(
-                                it
-                            )
-                        }
-                    if (userSelectedWalletAmount != null) {
-                        updateWalletAmount = userSelectedWalletAmount + (transactionSelectedByUser.value?.transactionAmount
-                            ?: 0.0F)
-                        updateWalletId = transactionSelectedByUser.value!!.fromWalletId
-                        walletRepository.updateWalletAmount(updateWalletAmount, updateWalletId)
-                    }
-
-                    //user currently selected wallet amount
-                    val currentWalletAmount = walletRepository.fetchWalletAmountById(currentFromWallet.value)
-                    val updateCurrentWalletAmount = currentWalletAmount - _financeTempState.value.financeAmount.toFloat()
-                    walletRepository.updateWalletAmount(updateCurrentWalletAmount, currentFromWallet.value)
-                }
-                else {
-                    //user previously selected to wallet amount is not equal to currently selected from wallet
-                    if(transactionSelectedByUser.value?.toWalletId != currentFromWallet.value) {
-                        val userSelectedWalletAmount =
-                            transactionSelectedByUser.value?.toWalletId?.let {
-                                walletRepository.fetchWalletAmountById(
-                                    it
-                                )
-                            }
-                        if (userSelectedWalletAmount != null) {
-                            updateWalletAmount =
-                                userSelectedWalletAmount - (transactionSelectedByUser.value?.transactionAmount
-                                    ?: 0.0F)
-                            updateWalletId = transactionSelectedByUser.value!!.toWalletId
-                            walletRepository.updateWalletAmount(updateWalletAmount, updateWalletId)
-                        }
-                    }
-
-                    //user currently selected wallet amount
-                    val currentWalletAmount =
-                        walletRepository.fetchWalletAmountById(currentToWallet.value)
-                    val updateCurrentWalletAmount =
-                        currentWalletAmount + _financeTempState.value.financeAmount.toFloat()
-                    walletRepository.updateWalletAmount(
-                        updateCurrentWalletAmount,
-                        currentToWallet.value
-                    )
-                }
-            }
-            resetUiState()
-
-        }
+        deleteTransaction(transactionSelectedByUser.value,income)
     }
+
     fun resetUiState() {
         _financeTempState.update {
             it.copy(
@@ -532,10 +370,96 @@ class FinanceViewModel @Inject constructor(
         }
     }
 
-    fun deleteTransaction(transactionId: Int?) {
+    fun deleteTransaction(transaction: TransactionDetailState?,expense: Transaction?) {
+        var updateWalletAmount:Float
         viewModelScope.launch {
-            if(transactionId!=null)
-            transactionRepository.deleteTransaction(transactionId)
+            if(transaction!=null) {
+                val currentWalletAmount = walletRepository.fetchWalletAmountById(transaction.fromWalletId)
+                    if(transaction.transactionType==TransactionType.Expense) {
+                        updateWalletAmount = currentWalletAmount + transaction.transactionAmount
+                    }
+                    else if(transaction.transactionType == TransactionType.Income) {
+                        updateWalletAmount =currentWalletAmount - transaction.transactionAmount
+                    }
+                    else {
+                        updateWalletAmount = currentWalletAmount + transaction.transactionAmount
+                        val currentToWalletAmount = walletRepository.fetchWalletAmountById(transaction.toWalletId)
+                        //update to wallet
+                        walletRepository.updateWalletAmount(currentToWalletAmount-transaction.transactionAmount,transaction.toWalletId)
+                    }
+                walletRepository.updateWalletAmount(updateWalletAmount,transaction.fromWalletId)
+                transactionRepository.deleteTransaction(transaction.transactionId)
+
+                //in case of edit with existing id update the transaction table
+                if(expense!=null) {
+                    if(expense.transactionType == TransactionType.Expense)
+                        ExpenseSave(expense)
+                    else if(expense.transactionType == TransactionType.Income)
+                        IncomeSave(expense)
+                    else {
+                        ExpenseSave(expense)
+                        IncomeSave(expense)
+                    }
+                }
+            }
         }
     }
+
+    //statistic screen - user selected the top bar
+    private var selectedStatistics = MutableStateFlow(selectedStatistics())
+    val _selectedStatistics = selectedStatistics.asStateFlow()
+
+    fun updateStatistics(selected: StatisticCategory) {
+        selectedStatistics.update {
+            it.copy(selectedStatisticBar = selected)
+        }
+    }
+
+    private var userSelectedCategory = MutableStateFlow(selectedCategory())
+    val _userSelectedCategory = userSelectedCategory.asStateFlow()
+    fun updateSelectedCategory(id: Int) {
+        userSelectedCategory.update {
+            it.copy(
+                selectedCategoryId =  id
+            )
+        }
+        viewModelScope.launch {
+            val selectedCategoryName = userSelectedCategory.map {
+                it.selectedCategoryId
+            }.distinctUntilChanged().flatMapLatest {
+                categoryRepository.getCategoryNameById(it)
+            }.stateIn(viewModelScope)
+            userSelectedCategory.update {
+                it.copy(
+                    selectetedCategoryName = selectedCategoryName.value
+                )
+            }
+        }
+
+    }
+
+    fun resetStatisticsSelection(){
+        selectedStatistics.update {
+            it.copy(
+                selectedStatisticBar = StatisticCategory.EXPENSE
+            )
+        }
+    }
+
+    val _showTransactionByCategory = combine(
+        _currentMonthYear,
+        userSelectedCategory.asStateFlow()
+    ) { currentMonthYearState, selectedCategoryState ->
+        val monthRange = getSelectedMonthRange(currentMonthYearState.currentMonthYear)
+        val selectedCatId = selectedCategoryState.selectedCategoryId
+        val firstDayOfMonth = monthRange.keys.first()
+        val lastDayOfMonth = monthRange.values.first()
+
+        Triple(firstDayOfMonth, lastDayOfMonth, selectedCatId)
+    }.distinctUntilChanged()
+        .flatMapLatest { (firstDay, lastDay, selectedCatId) ->
+            transactionRepository.showTransactionByCategory(firstDay, lastDay, selectedCatId)
+        }.cachedIn(viewModelScope)
+
+
 }

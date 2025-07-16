@@ -75,4 +75,11 @@ class TransactionRepository @Inject constructor(
     suspend fun deleteTransaction(transactionId: Int) {
         transactionDao.deleteTransaction(transactionId)
     }
+
+    fun showTransactionByCategory(firstDayOfMonth: Long, lastDayOfMonth: Long,selectedCategoryId: Int):Flow<PagingData<TransactionDetailState>>{
+        return Pager(
+            config = PagingConfig(pageSize = 10)){
+            transactionDao.showTransactionByCategory(firstDayOfMonth,lastDayOfMonth,selectedCategoryId)
+        }.flow
+    }
 }

@@ -76,8 +76,8 @@ data class TransactionByCategory(
     val categoryName:Int,
     val categoryIcon:Int,
     val categoryColor:Color,
-    /*val categoryExpTotalAmount:String,
-    val categoryExpCount:String,*/
+    val categoryExpTotalAmount:String,
+    val categoryExpCount:String,
     val categoryExpPercentage:Float
 )
 //detail screen of wallet

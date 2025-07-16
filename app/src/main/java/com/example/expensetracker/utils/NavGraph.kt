@@ -10,8 +10,6 @@ import com.example.expensetracker.viewModel.CategoryViewModel
 import com.example.expensetracker.viewModel.FinanceViewModel
 import com.example.expensetracker.viewModel.HomeViewModel
 import com.example.expensetracker.viewModel.WalletViewModel
-import com.example.transactionensetracker.entity.Transaction
-import java.util.Locale
 
 enum class TopLevelDestination(@StringRes val route: Int) {
     home(route = R.string.home),
@@ -23,6 +21,7 @@ enum class TopLevelDestination(@StringRes val route: Int) {
     statictis(route = R.string.statistic),
     statisticsTransaction(route = R.string.statisticTransaction),
     structureScreen(route = R.string.structure),
+    transactionsForSelectedCategory(route = R.string.transactionsForSelectedCategory),
     showWallet(route = R.string.showWallet),
     addWallet(route = R.string.addWallet),
     pickWalletIcon(route = R.string.pickIcon),
@@ -33,7 +32,11 @@ enum class TopLevelDestination(@StringRes val route: Int) {
 }
 
 @Composable
-fun getScreenName(currentRoute: String, selectedFinanceType: SelectedTopBar): String {
+fun getScreenName(
+    currentRoute: String,
+    selectedFinanceType: SelectedTopBar,
+    selectedCategoryStatistics: Int?
+): String {
     return if (currentRoute == TopLevelDestination.userName.name) {
         stringResource(R.string.add_name)
     } else if (currentRoute == TopLevelDestination.initialAmount.name) {
@@ -57,6 +60,15 @@ fun getScreenName(currentRoute: String, selectedFinanceType: SelectedTopBar): St
     }
     else if(currentRoute == TopLevelDestination.statisticsTransaction.name){
         stringResource(R.string.transaction)
+    }
+    else if(currentRoute == TopLevelDestination.structureScreen.name){
+        stringResource(R.string.structure)
+    }
+    else if(currentRoute ==TopLevelDestination.transactionsForSelectedCategory.name){
+        if (selectedCategoryStatistics != null) {
+            stringResource(selectedCategoryStatistics)
+        }
+        else ""
     }
     else {
         currentRoute
@@ -158,6 +170,13 @@ fun topBarBackAction(
             }
         }
 
+        TopLevelDestination.structureScreen.name->{
+            if(onBackClick){
+                financeViewModel.resetStatisticsSelection()
+                navController.navigateUp()
+            }
+        }
+
         else -> {
             navController.navigateUp()
         }
@@ -166,7 +185,7 @@ fun topBarBackAction(
 
 fun topBarDeleteAction(financeViewModel: FinanceViewModel, navController: NavController) {
     val transactionData = financeViewModel.transactionSelectedByUser.value
-    financeViewModel.deleteTransaction(transactionData?.transactionId)
+    financeViewModel.deleteTransaction(transactionData,null)
     navController.navigate(TopLevelDestination.transaction.name)
 
 }

@@ -1,6 +1,7 @@
 package com.example.expensetracker.uiScreen
 
 import android.os.Build
+import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
@@ -21,6 +22,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.expensetracker.ui.theme.AppColors.surface
 import com.example.expensetracker.uiScreen.financeScreens.FinanceScreenRoute
 import com.example.expensetracker.uiScreen.statisticsScreens.StatisticScreenRoute
+import com.example.expensetracker.uiScreen.statisticsScreens.StructureScreenRoute
+import com.example.expensetracker.uiScreen.statisticsScreens.showCategoryTransaction
 import com.example.expensetracker.uiScreen.transactionScreens.TransactionScreenRoute
 import com.example.expensetracker.uiScreen.transactionScreens.View_single_transaction
 import com.example.expensetracker.uiScreen.walletScreens.SelectWalletRoute
@@ -127,7 +130,9 @@ fun ExpenseTrackerNavHost() {
                         navController = navController,
                     )
                 },
-                walletViewModel = walletViewModel
+                walletViewModel = walletViewModel,
+                onSelectStructure = {financeViewModel.updateStatistics(it)},
+                selectedCategory = financeViewModel._userSelectedCategory.collectAsState()
             )
         }, bottomBar = {
             appBottomBar(navController, currentRoute)
@@ -200,7 +205,20 @@ fun ExpenseTrackerNavHost() {
                     )
                 }
                 composable(route = TopLevelDestination.structureScreen.name){
+                    StructureScreenRoute(
+                        financeViewModel = financeViewModel,
+                        showSelectedCategory = {navController.navigate(TopLevelDestination.transactionsForSelectedCategory.name)},
+                        navigateback = {navController.navigateUp()}
+                    )
 
+                }
+                composable(route = TopLevelDestination.transactionsForSelectedCategory.name){
+                    showCategoryTransaction(
+                        financeViewModel = financeViewModel,
+                        showRecord = {
+                            navController.navigate(TopLevelDestination.Record.name)
+                        }
+                    )
                 }
                 composable(route = TopLevelDestination.selectWallet.name + "/{walletSelectFor}") {
                     val walletShowingFor = it.arguments?.getString("walletSelectFor")

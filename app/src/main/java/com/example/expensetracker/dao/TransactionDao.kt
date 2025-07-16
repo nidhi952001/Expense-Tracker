@@ -88,4 +88,24 @@ interface TransactionDao {
 
     @Query("delete from `transaction` where transaction_id=:transactionId")
     suspend fun deleteTransaction(transactionId: Int?)
+
+
+    @Query("select t.transaction_id as transactionId, t.transaction_date as transactionDate , " +
+            "t.transaction_amount as transactionAmount , t.transaction_description as transactionDescription, " +
+            "t.transaction_type as transactionType," +
+            "t.transaction_from_wallet_id as fromWalletId ,w1.walletName as fromWalletName , " +
+            " t.transaction_to_wallet_id as toWalletId,w2.walletName as toWalletName , " +
+            "c.categoryId as categoryId ,c.categoryName , c.categoryIcon , c.categoryColor" +
+            " from `transaction` as t " +
+            "inner join wallet as w1 ON t.transaction_from_wallet_id=w1.walletId " +
+            "left join wallet as w2 ON t.transaction_to_wallet_id=w2.walletId " +
+            "left join category as c ON t.transaction_category_id=c.categoryId " +
+            "where t.transaction_date between :firstDayOfMonth and :lastDayOfMonth " +
+            "and c.categoryId=:selectedCategoryId " +
+            "order by t.transaction_date desc")
+    fun showTransactionByCategory(
+        firstDayOfMonth: Long,
+        lastDayOfMonth: Long,
+        selectedCategoryId: Int
+    ): PagingSource<Int, TransactionDetailState>
 }

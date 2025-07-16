@@ -49,6 +49,7 @@ import com.example.expensetracker.uiScreen.uiState.OverViewDisplayState
 import com.example.expensetracker.uiScreen.uiState.TransactionByCategory
 import com.example.expensetracker.utils.dataForCharts
 import com.example.expensetracker.viewModel.FinanceViewModel
+import com.example.transactionensetracker.entity.TransactionType
 
 @Composable
 fun StatisticScreenRoute(financeViewModel: FinanceViewModel,showTransactionScreen: () -> Unit,showStructureScreen :()->Unit){
@@ -58,7 +59,7 @@ fun StatisticScreenRoute(financeViewModel: FinanceViewModel,showTransactionScree
     val modifier = Modifier.fillMaxSize().background(color = AppColors.inverseOnSurface)
     val transaction = financeViewModel._showTransaction.collectAsLazyPagingItems().itemSnapshotList.items
     val chartsData = remember(transaction){
-        dataForCharts(transaction,overViewState)
+        dataForCharts(transaction,overViewState,TransactionType.Expense)
     }
 
     if(!overViewState.isLoading){
@@ -175,7 +176,8 @@ fun ExpenseChart(
 }
 
 @Composable
-fun showCharts(chartsData: List<TransactionByCategory>, overviewUiState: OverViewDisplayState) {
+
+fun showCharts(chartsData: List<TransactionByCategory>, overviewUiState: OverViewDisplayState,selectedStatistics: TransactionType = TransactionType.Expense) {
     var radiusOuter = 140.dp
     val chartBarWidth = 25.dp
     var expenseForChart = mutableListOf<Float>()
@@ -220,14 +222,19 @@ fun showCharts(chartsData: List<TransactionByCategory>, overviewUiState: OverVie
                 lastValue += value
             }
         }
-        val annotedString = buildAnnotatedString {
+        val annotedExpString = buildAnnotatedString {
             append("Expense")
             append("\n")
             append("- ")
             append(overviewUiState.totalExpense.toString())
         }
+        val annotedIncomeString = buildAnnotatedString {
+            append("Income")
+            append("\n")
+            append(overviewUiState.totalIncome.toString())
+        }
         Text(
-            text = annotedString
+            text = if(selectedStatistics == TransactionType.Expense) annotedExpString else annotedIncomeString
         )
     }
 

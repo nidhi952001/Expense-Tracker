@@ -1,7 +1,6 @@
 package com.example.expensetracker.uiScreen.transactionScreens
 
 import android.app.Activity
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
@@ -25,6 +24,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -220,7 +220,7 @@ fun TransactionSummary(modifier: Modifier, overviewUiState: OverViewDisplayState
 }
 
 @Composable
-private fun TransactionDate(
+fun TransactionDate(
     transactionDate: String,
     transactionDay: String,
     transactionMonth: String,
@@ -255,7 +255,7 @@ private fun TransactionDate(
             Text(text = annotedString)
         }
     }
-    Spacer(modifier = Modifier.height(2.dp))
+    HorizontalDivider(modifier = Modifier.fillMaxWidth(), thickness = 1.dp)
 }
 
 @OptIn(ExperimentalFoundationApi::class)
