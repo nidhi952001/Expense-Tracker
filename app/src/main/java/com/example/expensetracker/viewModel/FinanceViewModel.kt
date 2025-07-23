@@ -11,7 +11,7 @@ import com.example.expensetracker.uiScreen.uiState.OverViewDisplayState
 import com.example.expensetracker.uiScreen.uiState.SelectedMonthAndYear
 import com.example.expensetracker.uiScreen.uiState.TransactionDetailState
 import com.example.expensetracker.uiScreen.uiState.selectedTransaction
-import com.example.expensetracker.utils.StaticData.listOfCategory.categoryList
+import com.example.expensetracker.utils.StaticData.listOfCategory.defaultCategories
 import com.example.expensetracker.utils.StatisticCategory
 import com.example.expensetracker.utils.selectedCategory
 import com.example.expensetracker.utils.selectedStatistics
@@ -52,13 +52,13 @@ class FinanceViewModel @Inject constructor(
 
     private val _selectedTransactionId = MutableStateFlow(selectedTransaction())
 
-    var lastDayOfMonth: Long
-    var firstDayOfMonth: Long
+    var endDate: Long
+    var startDate : Long
 
     init {
         val mapValue = getSelectedMonthRange(_currentMonthYear.value.currentMonthYear)
-        firstDayOfMonth = mapValue.keys.first()
-        lastDayOfMonth = mapValue.entries.first().value
+        startDate  = mapValue.keys.first()
+        endDate = mapValue.entries.first().value
     }
 
     private fun getSelectedMonthRange(currentMonthYear: Calendar): Map<Long, Long> {
@@ -70,7 +70,7 @@ class FinanceViewModel @Inject constructor(
         firstDay.set(Calendar.MINUTE, 0)
         firstDay.set(Calendar.SECOND, 0)
         firstDay.set(Calendar.MILLISECOND, 0)
-        firstDayOfMonth = firstDay.timeInMillis
+        startDate  = firstDay.timeInMillis
 
         val lastDay = selectedCalendar.clone() as Calendar
         lastDay.set(Calendar.DAY_OF_MONTH, 1)
@@ -79,9 +79,9 @@ class FinanceViewModel @Inject constructor(
         lastDay.set(Calendar.MINUTE, 0)
         lastDay.set(Calendar.SECOND, 0)
         lastDay.set(Calendar.MILLISECOND, 0)
-        lastDayOfMonth = lastDay.timeInMillis
+        endDate = lastDay.timeInMillis
 
-        return mapOf(firstDayOfMonth to lastDayOfMonth)
+        return mapOf(startDate  to endDate)
     }
 
 
@@ -90,12 +90,12 @@ class FinanceViewModel @Inject constructor(
         _currentMonthYear.map {
             it.currentMonthYear
             val mapValue = getSelectedMonthRange(it.currentMonthYear)
-            firstDayOfMonth = mapValue.keys.first()
-            lastDayOfMonth = mapValue.entries.first().value
-            transactionRepository.showTotalExpense(
+            startDate  = mapValue.keys.first()
+            endDate = mapValue.entries.first().value
+            transactionRepository.getTransactionSummaryByType(
                 TransactionType.Expense,
-                firstDayOfMonth,
-                lastDayOfMonth
+                startDate ,
+                endDate
             )
         }.distinctUntilChanged().flatMapLatest {
             it
@@ -106,12 +106,12 @@ class FinanceViewModel @Inject constructor(
         _currentMonthYear.map {
             it.currentMonthYear
             val mapValue = getSelectedMonthRange(it.currentMonthYear)
-            firstDayOfMonth = mapValue.keys.first()
-            lastDayOfMonth = mapValue.entries.first().value
-            transactionRepository.showTotalIncome(
+            startDate  = mapValue.keys.first()
+            endDate = mapValue.entries.first().value
+            transactionRepository.getTransactionSummaryByType(
                 TransactionType.Income,
-                firstDayOfMonth,
-                lastDayOfMonth
+                startDate ,
+                endDate
             )
         }.distinctUntilChanged().flatMapLatest {
             it
@@ -122,9 +122,9 @@ class FinanceViewModel @Inject constructor(
         _currentMonthYear.map {
             it.currentMonthYear
             val mapValue = getSelectedMonthRange(it.currentMonthYear)
-            firstDayOfMonth = mapValue.keys.first()
-            lastDayOfMonth = mapValue.entries.first().value
-            transactionRepository.showTransaction(firstDayOfMonth, lastDayOfMonth)
+            startDate  = mapValue.keys.first()
+            endDate = mapValue.entries.first().value
+            transactionRepository.getTransactionsByDateRange(startDate , endDate)
         }.distinctUntilChanged().flatMapLatest {
             it
         }.cachedIn(viewModelScope)
@@ -215,10 +215,10 @@ class FinanceViewModel @Inject constructor(
     }
 
     private suspend fun ExpenseSave(expense: Transaction){
-        transactionRepository.addExpense(expense)
+        transactionRepository.insertTransaction(expense)
         //fetch current wallet amount
         val currentWalletAmount =
-            walletRepository.fetchWalletAmountById(currentFromWallet.value)
+            walletRepository.getWalletAmount(currentFromWallet.value)
         //update the wallet
         if (!_financeTempState.value.financeAmount.isNullOrEmpty()) {
             val updateWalletAmount = currentWalletAmount -
@@ -264,14 +264,14 @@ class FinanceViewModel @Inject constructor(
         viewModelScope.launch {
             // save into transaction table only if it is income
             if(income.transactionType == TransactionType.Income)
-                transactionRepository.addIncome(income)
+                transactionRepository.insertTransaction(income)
 
             //fetch current wallet amount
             val currentWalletAmount = if(income.transactionType == TransactionType.TRANSFER){
-                walletRepository.fetchWalletAmountById(currentToWallet.value)
+                walletRepository.getWalletAmount(currentToWallet.value)
             }
             else{
-                walletRepository.fetchWalletAmountById(currentFromWallet.value)
+                walletRepository.getWalletAmount(currentFromWallet.value)
             }
             //update the wallet
             if (!_financeTempState.value.financeAmount.isNullOrEmpty()) {
@@ -317,7 +317,7 @@ class FinanceViewModel @Inject constructor(
             transactionAmount = _financeTempState.value.financeAmount.toFloat(),
             transactionDescription = _financeTempState.value.financeDescription,
             transactionType = TransactionType.TRANSFER,
-            transactionCategory = categoryList()[1].categoryId,
+            transactionCategory = defaultCategories()[1].categoryId,
             transactionFromWallet = currentFromWallet.value,
             transactionToWallet = currentToWallet.value
 
@@ -374,7 +374,7 @@ class FinanceViewModel @Inject constructor(
         var updateWalletAmount:Float
         viewModelScope.launch {
             if(transaction!=null) {
-                val currentWalletAmount = walletRepository.fetchWalletAmountById(transaction.fromWalletId)
+                val currentWalletAmount = walletRepository.getWalletAmount(transaction.fromWalletId)
                     if(transaction.transactionType==TransactionType.Expense) {
                         updateWalletAmount = currentWalletAmount + transaction.transactionAmount
                     }
@@ -383,7 +383,7 @@ class FinanceViewModel @Inject constructor(
                     }
                     else {
                         updateWalletAmount = currentWalletAmount + transaction.transactionAmount
-                        val currentToWalletAmount = walletRepository.fetchWalletAmountById(transaction.toWalletId)
+                        val currentToWalletAmount = walletRepository.getWalletAmount(transaction.toWalletId)
                         //update to wallet
                         walletRepository.updateWalletAmount(currentToWalletAmount-transaction.transactionAmount,transaction.toWalletId)
                     }
@@ -452,13 +452,13 @@ class FinanceViewModel @Inject constructor(
     ) { currentMonthYearState, selectedCategoryState ->
         val monthRange = getSelectedMonthRange(currentMonthYearState.currentMonthYear)
         val selectedCatId = selectedCategoryState.selectedCategoryId
-        val firstDayOfMonth = monthRange.keys.first()
-        val lastDayOfMonth = monthRange.values.first()
+        val startDate  = monthRange.keys.first()
+        val endDate = monthRange.values.first()
 
-        Triple(firstDayOfMonth, lastDayOfMonth, selectedCatId)
+        Triple(startDate , endDate, selectedCatId)
     }.distinctUntilChanged()
         .flatMapLatest { (firstDay, lastDay, selectedCatId) ->
-            transactionRepository.showTransactionByCategory(firstDay, lastDay, selectedCatId)
+            transactionRepository.getTransactionsByCategory(firstDay, lastDay, selectedCatId)
         }.cachedIn(viewModelScope)
 
 

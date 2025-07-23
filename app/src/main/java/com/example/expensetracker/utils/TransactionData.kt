@@ -1,6 +1,5 @@
 package com.example.expensetracker.utils
 
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.buildAnnotatedString
 import com.example.expensetracker.uiScreen.uiState.OverViewDisplayState
@@ -8,7 +7,7 @@ import com.example.expensetracker.uiScreen.uiState.TransactionByCategory
 import com.example.expensetracker.uiScreen.uiState.TransactionByDateState
 import com.example.expensetracker.uiScreen.uiState.TransactionListState
 import com.example.expensetracker.uiScreen.uiState.TransactionDetailState
-import com.example.expensetracker.utils.StaticData.listOfCategory.categoryList
+import com.example.expensetracker.utils.StaticData.listOfCategory.defaultCategories
 import com.example.transactionensetracker.entity.TransactionType
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -97,9 +96,9 @@ fun transactionData(it: TransactionDetailState): TransactionListState {
         else
             Color.Black,
         walletName = annotedString.text,
-        categoryName = if (it.transactionType == TransactionType.TRANSFER) categoryList()[0].categoryName else it.categoryName,
-        categoryIcon = if (it.transactionType == TransactionType.TRANSFER) categoryList()[0].categoryIcon else it.categoryIcon,
-        categoryColor = if (it.transactionType == TransactionType.TRANSFER) categoryList()[0].categoryColor else it.categoryColor
+        categoryName = if (it.transactionType == TransactionType.TRANSFER) defaultCategories()[0].categoryName else it.categoryName,
+        categoryIcon = if (it.transactionType == TransactionType.TRANSFER) defaultCategories()[0].categoryIcon else it.categoryIcon,
+        categoryColor = if (it.transactionType == TransactionType.TRANSFER) defaultCategories()[0].categoryColor else it.categoryColor
     )
     return transactions
 }

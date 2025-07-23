@@ -20,44 +20,32 @@ class TransactionRepository @Inject constructor(
 ) {
 
     //sharing across financeViewModel and walletViewModel
-        val _tempFinanceState = MutableStateFlow(FinanceInputState())
+    val _tempFinanceState = MutableStateFlow(FinanceInputState())
 
-    suspend fun addExpense(transaction: Transaction){
-        transactionDao.addExpense(transaction)
+    suspend fun insertTransaction(transaction: Transaction){
+        transactionDao.insertTransaction(transaction)
     }
 
-    fun showTotalExpense(expense: TransactionType, firstDayOfMonth: Long, lastDayOfMonth: Long):Flow<Float>{
-        return transactionDao.showTotalExpense(expense,firstDayOfMonth,lastDayOfMonth)
+    fun getTransactionSummaryByType(type: TransactionType, startDate : Long, endDate: Long): Flow<Float> {
+        return transactionDao.getTransactionSummaryByType(type,startDate ,endDate)
     }
 
-    suspend fun addIncome(income: Transaction){
-        transactionDao.addIncome(income)
-    }
-
-    fun showTotalIncome(income: TransactionType, firstDayOfMonth: Long, lastDayOfMonth: Long): Flow<Float> {
-        return transactionDao.showTotalIncome(income,firstDayOfMonth,lastDayOfMonth)
-    }
-
-    fun showTransaction(firstDayOfMonth: Long, lastDayOfMonth: Long):Flow<PagingData<TransactionDetailState>>{
+    fun getTransactionsByDateRange(startDate : Long, endDate: Long):Flow<PagingData<TransactionDetailState>>{
         return Pager(
             config = PagingConfig(pageSize = 10)){
-                    transactionDao.showTransaction(firstDayOfMonth,lastDayOfMonth)
+                    transactionDao.getTransactionsByDateRange(startDate ,endDate)
             }.flow
     }
 
-    fun getExpenseCountById(walletId:Int,expense: TransactionType):Flow<Int>{
-        return transactionDao.getExpenseCountById(walletId, expense)
-    }
-
-    fun getIncomeCountById(walletId:Int,income: TransactionType):Flow<Int>{
-        return transactionDao.getIncomeCountById(walletId, income)
+    fun getTransactionCountByWalletAndType(walletId:Int, expense: TransactionType):Flow<Int>{
+        return transactionDao.getTransactionCountByWalletAndType(walletId, expense)
     }
     fun getTransferCountById(walletId: Int,transfer:TransactionType):Flow<Int>{
         return transactionDao.getTransferCountById(walletId,transfer)
     }
 
-    fun showTransactionByWallet(walletId: Int): Flow<List<selectedWalletTransactionState>> {
-        return transactionDao.showTransactionByWallet(walletId)
+    fun getWalletTransactionSummary(walletId: Int): Flow<List<selectedWalletTransactionState>> {
+        return transactionDao.getWalletTransactionSummary(walletId)
     }
 
     fun getTransaction_selectedWallet_ByCat(categoryId: Int): Flow<List<TransactionDetailState>> {
@@ -76,10 +64,10 @@ class TransactionRepository @Inject constructor(
         transactionDao.deleteTransaction(transactionId)
     }
 
-    fun showTransactionByCategory(firstDayOfMonth: Long, lastDayOfMonth: Long,selectedCategoryId: Int):Flow<PagingData<TransactionDetailState>>{
+    fun getTransactionsByCategory(startDate: Long, endDate: Long, selectedCategoryId: Int):Flow<PagingData<TransactionDetailState>>{
         return Pager(
             config = PagingConfig(pageSize = 10)){
-            transactionDao.showTransactionByCategory(firstDayOfMonth,lastDayOfMonth,selectedCategoryId)
+            transactionDao.getTransactionsByCategory(startDate,endDate,selectedCategoryId)
         }.flow
     }
 }

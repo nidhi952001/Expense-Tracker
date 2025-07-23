@@ -11,14 +11,15 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CategoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addCategory(category: Category)
+    suspend fun insertCategory(category: Category)
 
 
     @Query("Select * From Category where categoryType=:category")
-    fun showCategoryByType(category: CategoryType): Flow<List<Category>>
+    fun getCategoriesByType(category: CategoryType): Flow<List<Category>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(categories: List<Category>)
+    suspend fun insertCategories(categories: List<Category>)
+
     @Query("select categoryName from Category where categoryId=:categoryID")
     fun getCategoryNameById(categoryID: Int): Flow<Int?>
 

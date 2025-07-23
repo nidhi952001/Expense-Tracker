@@ -7,7 +7,7 @@ import com.example.expensetracker.utils.StaticData.listOfWalletColor.coloCodeToC
 
 object listOfCategory {
     val categoryList = mutableListOf<Category>()
-    fun categoryList(): List<Category> {
+    fun defaultCategories(): List<Category> {
         val c1= Category(0,R.string.transfer,R.drawable.transfer_ic, coloCodeToColor.values.last(),CategoryType.TRANSFER)
         val c2= Category(1,R.string.transfer_in,R.drawable.transfer_in_ic, coloCodeToColor.values.last(),CategoryType.TRANSFER)
         val c3= Category(2,R.string.transfer_out,R.drawable.transfer_out_ic, coloCodeToColor.values.last(),CategoryType.TRANSFER)

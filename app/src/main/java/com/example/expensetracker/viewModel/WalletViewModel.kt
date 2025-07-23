@@ -73,7 +73,7 @@ class WalletViewModel @Inject constructor(
         )
 
     //Flow of total balance across all wallets.
-    val totalAllWalletBalance: StateFlow<Float> = walletRepository.totalBalance().stateIn(
+    val totalAllWalletBalance: StateFlow<Float> = walletRepository.getTotalBalance().stateIn(
         viewModelScope, SharingStarted.WhileSubscribed(), 0F
     )
 
@@ -91,7 +91,7 @@ class WalletViewModel @Inject constructor(
     //add wallet
     fun addWallet(wallet: Wallet) {
         viewModelScope.launch(Dispatchers.IO) {
-            walletRepository.addWallet(wallet)
+            walletRepository.insertWallet(wallet)
         }
     }
 
@@ -236,14 +236,14 @@ class WalletViewModel @Inject constructor(
     val selectedWallet = _walletInputState.map {
         it.selectedFinanceFromWalletId
     }.distinctUntilChanged().flatMapLatest {
-        walletRepository.getWalletDataById(it)
+        walletRepository.getWalletById(it)
     }
 
     //transfer screen based on user selected wallet , show wallet amount
     val selectedToWallet = _walletInputState.map {
         it.selectedFinanceToWalletId
     }.distinctUntilChanged().flatMapLatest {
-        walletRepository.getWalletDataById(it)
+        walletRepository.getWalletById(it)
     }
 
     //this is for the wallet screen , in wallet screen , click on one wallet
@@ -259,21 +259,21 @@ class WalletViewModel @Inject constructor(
     val selectedwalletDetail = _walletInputState.map {
         it.selectedwalletIdDetail
     }.distinctUntilChanged().flatMapLatest {
-        walletRepository.getWalletDataById(it)
+        walletRepository.getWalletById(it)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
 
     //total expense done by selected wallet - wallet detail screen
     val selectedWalletExpenseCount = _walletInputState.map {
         it.selectedwalletIdDetail
     }.distinctUntilChanged().flatMapLatest {
-        transactionRepository.getExpenseCountById(it, TransactionType.Expense)
+        transactionRepository.getTransactionCountByWalletAndType(it, TransactionType.Expense)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
 
     //total income for selected wallet - wallet detail screen
     val selectedWalletIncomeCount = _walletInputState.map {
         it.selectedwalletIdDetail
     }.distinctUntilChanged().flatMapLatest {
-        transactionRepository.getIncomeCountById(it, TransactionType.Income)
+        transactionRepository.getTransactionCountByWalletAndType(it, TransactionType.Income)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
 
     //total transfer for selected wallet - wallet detail screen
@@ -287,7 +287,7 @@ class WalletViewModel @Inject constructor(
     val transactionsForSelectedWallet = _walletInputState.map {
         it.selectedwalletIdDetail
     }.distinctUntilChanged().flatMapLatest {
-        transactionRepository.showTransactionByWallet(it)
+        transactionRepository.getWalletTransactionSummary(it)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     /**combine
@@ -354,7 +354,7 @@ class WalletViewModel @Inject constructor(
             walletColor = _walletInputState.value.selectedColors
         )
         viewModelScope.launch(Dispatchers.IO) {
-            walletRepository.editWallet(wallet)
+            walletRepository.updateWallet(wallet)
 
         }
     }

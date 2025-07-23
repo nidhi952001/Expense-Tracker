@@ -17,7 +17,7 @@ interface WalletDao {
      * @return A Flow emitting the list of wallets.
      */
     @Query("select * from wallet")
-    fun showWallet():Flow<List<Wallet>>
+    fun getAllWallets():Flow<List<Wallet>>
 
     /**
      * Calculates the total sum of all wallet balances.
@@ -25,23 +25,23 @@ interface WalletDao {
      * @return A Flow emitting the sum as a Float.
      */
     @Query("select IFNULL(SUM(walletAmount),0) from wallet")
-    fun totalBalance():Flow<Float>
+    fun getTotalBalance():Flow<Float>
 
     /**
      * add wallet into the database.
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addWallet(wallet: Wallet)
+    suspend fun insertWallet(wallet: Wallet)
 
     @Query("select * from wallet where walletId=:walletID")
-    fun getWalletDataById(walletID: Int): Flow<Wallet?>
+    fun getWalletById(walletID: Int): Flow<Wallet?>
 
     @Query("update wallet set walletAmount=:updateWalletAmount where walletId=:walletId")
     suspend fun updateWalletAmount(updateWalletAmount: Float, walletId: Int)
     @Query("select walletAmount from wallet where walletId=:walletId")
-    suspend fun fetchWalletAmountById(walletId: Int): Float
+    suspend fun getWalletAmount(walletId: Int): Float
 
     @Update
-    suspend fun editWallet(wallet:Wallet)
+    suspend fun updateWallet(wallet:Wallet)
 
 }

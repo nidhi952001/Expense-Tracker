@@ -28,18 +28,18 @@ class CategoryViewModel @Inject constructor(
 
     //in finance screen , click on category - shows list of category
     //if top bar selected expense
-    val listOfExpCategory:StateFlow<List<Category>> = categoryRepository.showCategoryByType(CategoryType.EXPENSE).stateIn(
+    val listOfExpCategory:StateFlow<List<Category>> = categoryRepository.getCategoriesByType(CategoryType.EXPENSE).stateIn(
         viewModelScope, SharingStarted.WhileSubscribed(), emptyList()
     )
     //in finance screen , click on category - shows list of category
     //if top bar selected income
-    val listOfIncCategory = categoryRepository.showCategoryByType(CategoryType.INCOME).stateIn(
+    val listOfIncCategory = categoryRepository.getCategoriesByType(CategoryType.INCOME).stateIn(
         viewModelScope,SharingStarted.WhileSubscribed(), emptyList()
     )
 
     fun addCategory(category: Category){
         viewModelScope.launch(Dispatchers.IO) {
-            categoryRepository.addCategory(category)
+            categoryRepository.insertCategory(category)
         }
     }
 
@@ -57,7 +57,7 @@ class CategoryViewModel @Inject constructor(
         else _temCatUiState.update { it.copy(isExpenseCategoryValid = false) }
 
         //this will update the category , which going to be use to save into database
-        categoryRepository.updateselectedCategory(selectedCategory)
+        categoryRepository.selectCategory(selectedCategory)
     }
     fun updateSelectedIncCategory(selectedCategory: Int){
         _temCatUiState.update {
@@ -69,7 +69,7 @@ class CategoryViewModel @Inject constructor(
         if(selectedCategory!=0) _temCatUiState.update { it.copy(isIncomeCategoryValid = true) }
         else _temCatUiState.update { it.copy(isIncomeCategoryValid = false) }
         //this will update the category , which going to be use to save into database
-        categoryRepository.updateselectedCategory(selectedCategory)
+        categoryRepository.selectCategory(selectedCategory)
     }
 
     //this both show on expense screen

@@ -7,6 +7,7 @@ import com.example.expensetracker.entity.CategoryType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -15,23 +16,36 @@ class CategoryRepository @Inject constructor(
     private val categoryDao: CategoryDao
 ) {
 
+    //state management
     private val _selectedCategory  = MutableStateFlow(0)
     val selectedCategory = _selectedCategory.asStateFlow()
-    suspend fun addCategory(category: Category){
-        categoryDao.addCategory(category)
+
+
+    suspend fun insertCategory(category: Category){
+        categoryDao.insertCategory(category)
     }
 
-     fun showCategoryByType(category:CategoryType):Flow<List<Category>> {
-        return categoryDao.showCategoryByType(category)
+     fun getCategoriesByType(category:CategoryType):Flow<List<Category>> {
+         return categoryDao.getCategoriesByType(category)
+             .catch { e ->
+                 Log.e("CategoryRepo", "Error fetching categories by type", e)
+                 emit(emptyList())
+             }
     }
 
     fun getCategoryNameById(categoryId: Int): Flow<Int?> {
         return categoryDao.getCategoryNameById(categoryId)
+            .catch { e ->
+                Log.e("CategoryRepo", "Error fetching category name", e)
+                emit(null)
+            }
     }
 
-    //this is for expense screen
-    fun updateselectedCategory(selectedCategory: Int) {
-        Log.d("DEBUG", "Category Repo updated: $selectedCategory")
-        _selectedCategory.value = selectedCategory
+    //this is for expense & income from finance screen
+    fun selectCategory(categoryId: Int) {
+        //if (_selectedCategory.value != categoryId) {
+            Log.d("CategoryRepo", "Selected category changed to: $categoryId")
+            _selectedCategory.value = categoryId
+       // }
     }
 }

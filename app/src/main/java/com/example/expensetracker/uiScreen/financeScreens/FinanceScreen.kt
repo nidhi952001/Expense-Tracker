@@ -43,6 +43,7 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -101,7 +102,7 @@ fun FinanceScreenRoute(
     val selectedFinanceType by homeViewModel.selectedFinance.collectAsState()
     val selectedFinanceCategory by categoryViewModel.currentFinanceCategory.collectAsState(initial = null)
     val selectedIncCategory by categoryViewModel.currentIncCategory.collectAsState(initial = null)
-    var selectedCategory =
+    val selectedCategory =
         if (selectedFinanceType.selectedFinance == R.string.expense) selectedFinanceCategory
         else if (selectedFinanceType.selectedFinance == R.string.income) selectedIncCategory
         else 0  //because initially everything will be null
@@ -115,9 +116,7 @@ fun FinanceScreenRoute(
 
 
     val datePickerState = rememberDatePickerState()
-    val currentTime = Calendar.getInstance()
-    var formattedTime: String = ""
-    var modifier = Modifier.fillMaxSize()
+    val modifier = Modifier.fillMaxSize()
     FinanceScreen(
         modifier = modifier,
         scrollableState = scrollableState,

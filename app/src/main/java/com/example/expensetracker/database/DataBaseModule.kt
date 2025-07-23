@@ -3,7 +3,6 @@ package com.example.expensetracker.database
 import android.content.Context
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.expensetracker.dao.CategoryDao
 import com.example.expensetracker.dao.TransactionDao
@@ -23,79 +22,51 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class DataBaseModule {
+object DatabaseModule {
 
     @Provides
     @ApplicationScope
-     fun provideApplicationScope():CoroutineScope = CoroutineScope(SupervisorJob() )
-
-    @Provides
-    fun provideCallback(
-        @ApplicationScope appScope: CoroutineScope
-    ): RoomDatabase.Callback {
-        return object : RoomDatabase.Callback() {
-            override fun onCreate(db: SupportSQLiteDatabase) {
-                super.onCreate(db)
-                // use the db created via Room.builder by providing a lambda to the builder
-                appScope.launch(Dispatchers.IO) {
-                    // this is safe now; will be the correct db instance
-                    AppDataBase.INSTANCE?.categoryDao?.insertAll(listOfCategory.categoryList())
-                }
-            }
-        }
-    }
-
+    fun provideApplicationScope(): CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     @Provides
     @Singleton
-    fun provideDatabaseAccess(
+    fun provideDatabase(
         @ApplicationContext context: Context,
-        @ApplicationScope appScope: CoroutineScope
-    ): AppDataBase {
-        val db = Room.databaseBuilder(
+        @ApplicationScope scope: CoroutineScope
+    ): AppDatabase {
+        return Room.databaseBuilder(
             context,
-            AppDataBase::class.java,
-            "app_database"
+            AppDatabase::class.java,
+            "expense_tracker.db"
         )
             .addCallback(object : RoomDatabase.Callback() {
                 override fun onCreate(db: SupportSQLiteDatabase) {
                     super.onCreate(db)
-                    appScope.launch(Dispatchers.IO) {
-                        AppDataBase.INSTANCE?.let { database ->
-                            if(database.categoryDao.getAllCategories().isEmpty())
-                                database.categoryDao.insertAll(listOfCategory.categoryList())
+                    scope.launch {
+                        val categoryDao = AppDatabase.getInstance(context).categoryDao()
+                        if (categoryDao.getAllCategories().isEmpty()) {
+                            categoryDao.insertCategories(listOfCategory.defaultCategories())
                         }
                     }
                 }
             })
             .fallbackToDestructiveMigration()
             .build()
-
-        AppDataBase.INSTANCE = db
-        return db
-    }
-
-
-    @Provides
-    @Singleton
-    fun provideCategoryDao(appDataBase: AppDataBase): CategoryDao {
-        return appDataBase.categoryDao
     }
 
     @Provides
     @Singleton
-    fun provideWalletDao(appDataBase: AppDataBase): WalletDao {
-        return appDataBase.walletDao
-    }
+    fun provideCategoryDao(database: AppDatabase): CategoryDao = database.categoryDao()
 
     @Provides
     @Singleton
-    fun provideTransactionDao(appDataBase: AppDataBase): TransactionDao {
-        return appDataBase.transactionDao
-    }
+    fun provideWalletDao(database: AppDatabase): WalletDao = database.walletDao()
 
+    @Provides
+    @Singleton
+    fun provideTransactionDao(database: AppDatabase): TransactionDao = database.transactionDao()
 }
 
-@Qualifier
 @Retention(AnnotationRetention.RUNTIME)
+@Qualifier
 annotation class ApplicationScope

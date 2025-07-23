@@ -257,16 +257,4 @@ fun showDateDialog(state: DatePickerState, onDismiss: () -> Unit, onDateSelected
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun showTimeDialog(currentTime: Calendar, onTimeSelected: (String) -> Unit) {
-    Card(
-        modifier = Modifier
-            .background(color = Color.White)
-            .wrapContentWidth()
-            .wrapContentHeight()
-    ) {
-
-    }
-}
 
