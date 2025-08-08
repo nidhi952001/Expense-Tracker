@@ -10,7 +10,10 @@
     <string name="pickIcon">Pick Icon</string>
     <string name="select_wallet">Select wallet</string>
     <string name="selectCategory">Select Category</string>
-    <string name="transactionsForSelectedWallet"> Transaction By Wallet</string>
+    <string name="transactionsByWallet"> Transaction By Wallet</string>
+    <string name="statisticsByWallet">statistics By Wallet</string>
+    <string name="statisticsTransactionByWallet">statistics Transaction By Wallet</string>
+    <string name="structureByWallet">structure By Wallet</string>
     <string name="record">Record</string>
 
     <!--top bar -->
@@ -118,7 +121,6 @@
     <string name="expense_structure">Expense Structure</string>
     <string name="show_more">Show More</string>
     <string name="statisticTransaction">Statistic Transaction</string>
-    <string name="structure">Structure</string>
     <string name="transactionsForSelectedCategory">Transaction For Selected Category</string>
     <string name="all">All</string>
 </resources>

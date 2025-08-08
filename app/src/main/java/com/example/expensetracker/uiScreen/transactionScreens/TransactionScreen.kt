@@ -115,10 +115,10 @@ fun TransactionScreen(
     showRecord: (Int) -> Unit
 ) {
     Column(
-        modifier = modifier.scrollable(scrollableState, orientation = Orientation.Vertical)
+        modifier = Modifier.fillMaxSize().scrollable(scrollableState, orientation = Orientation.Vertical)
     ) {
         TransactionDetail(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp),
+            modifier = Modifier.fillMaxWidth().background(color = AppColors.inverseOnSurface),
             overviewUiState = overViewState,
             showTransaction = showTransaction,
             showRecord = {showRecord(it)}
@@ -130,7 +130,7 @@ fun TransactionScreen(
 fun TransactionDetail(modifier: Modifier, overviewUiState: OverViewDisplayState, showTransaction: List<TransactionByDateState>,showRecord: (Int) -> Unit){
     LazyColumn(modifier= modifier) {
         item {
-            TransactionSummary(modifier = Modifier.fillMaxWidth()
+            TransactionSummary(modifier = Modifier.fillMaxWidth().padding(top = 20.dp)
                 .background(color = AppColors.surface),
                 overviewUiState = overviewUiState)
         }
@@ -159,10 +159,6 @@ fun TransactionSummary(modifier: Modifier, overviewUiState: OverViewDisplayState
                 fontWeight = FontWeight.Bold,
                 fontSize = MaterialTheme.typography.titleMedium.fontSize,
                 modifier = Modifier.padding(end = 3.dp)
-            )
-            Icon(
-                imageVector = Icons.Outlined.Info,
-                contentDescription = stringResource(R.string.info),
             )
         }
         if(overviewUiState.showAll) { // useful to resuse in wallet detail and transaction screen both
@@ -268,8 +264,8 @@ fun AllTransaction(transaction: TransactionListState, modifier: Modifier,showRec
             },
             onLongClick = {}
         )
-        .fillMaxWidth().background(
-        color = AppColors.surface).padding(10.dp) , verticalAlignment = Alignment.CenterVertically) {
+        .fillMaxWidth().
+        background(color = AppColors.surface).padding(10.dp) , verticalAlignment = Alignment.CenterVertically) {
         Column(modifier = Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                     Image(
@@ -283,12 +279,15 @@ fun AllTransaction(transaction: TransactionListState, modifier: Modifier,showRec
                     )
                 Spacer(modifier = Modifier.width(10.dp))
                 Column {
-                    Text(text = if(transaction.transactionDescription==" ")
-                        transaction.transactionDescription
-                                else
-                        stringResource(transaction.categoryName),
-                        fontWeight = FontWeight.ExtraBold
-                    )
+                    (   if(transaction.transactionDescription!="")
+                            transaction.transactionDescription
+                        else
+                            stringResource(transaction.categoryName)
+                    )?.let {
+                        Text(text = it,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    }
                     Text(text = transaction.walletName)
                 }
             }

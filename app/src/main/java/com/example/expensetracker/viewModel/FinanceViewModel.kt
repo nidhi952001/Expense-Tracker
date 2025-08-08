@@ -132,7 +132,6 @@ class FinanceViewModel @Inject constructor(
     fun previousMonthYear(currentMonthYear: Calendar) {
         val updatedCalendar = currentMonthYear.clone() as Calendar
         updatedCalendar.add(Calendar.MONTH, -1)
-        Log.d("the current Month year changed now ", updatedCalendar.toString())
         _currentMonthYear.update {
             it.copy(currentMonthYear = updatedCalendar)
         }
@@ -173,7 +172,6 @@ class FinanceViewModel @Inject constructor(
         _financeTempState.update {
             it.copy(financeAmount = amount)
         }
-        Log.d("TAG", "updateExpenseAmount: $amount")
         if (amount.isNotEmpty() && amount.isNotBlank()) _financeTempState.update {
             it.copy(
                 isFinanceAmountValid = true
@@ -225,8 +223,10 @@ class FinanceViewModel @Inject constructor(
                     _financeTempState.value.financeAmount.toFloat()
 
             walletRepository.updateWalletAmount(updateWalletAmount, currentFromWallet.value)
-            if (expense.transactionType == TransactionType.Expense)
+            if (expense.transactionType == TransactionType.Expense) {
                 resetUiState()
+                resetUserSelectedTransaction()
+            }
         }
     }
 
@@ -282,6 +282,7 @@ class FinanceViewModel @Inject constructor(
                 else
                     walletRepository.updateWalletAmount(updateWalletAmount, currentToWallet.value)
                 resetUiState()
+                resetUserSelectedTransaction()
             }
         }
     }
@@ -300,6 +301,9 @@ class FinanceViewModel @Inject constructor(
                 isFromWalletValid = true
             )
         }
+    }
+
+    fun resetUserSelectedTransaction(){
         _selectedTransactionId.update {
             it.copy(
                 selectedTransactionId = 0
@@ -374,7 +378,7 @@ class FinanceViewModel @Inject constructor(
         var updateWalletAmount:Float
         viewModelScope.launch {
             if(transaction!=null) {
-                val currentWalletAmount = walletRepository.getWalletAmount(transaction.fromWalletId)
+                    val currentWalletAmount = walletRepository.getWalletAmount(transaction.fromWalletId)
                     if(transaction.transactionType==TransactionType.Expense) {
                         updateWalletAmount = currentWalletAmount + transaction.transactionAmount
                     }
@@ -460,6 +464,68 @@ class FinanceViewModel @Inject constructor(
         .flatMapLatest { (firstDay, lastDay, selectedCatId) ->
             transactionRepository.getTransactionsByCategory(firstDay, lastDay, selectedCatId)
         }.cachedIn(viewModelScope)
+
+
+    //wallet - statistic screen
+
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val showExpenseTotalByWallet =
+        _currentMonthYear.map {
+            it.currentMonthYear
+            val mapValue = getSelectedMonthRange(it.currentMonthYear)
+            startDate  = mapValue.keys.first()
+            endDate = mapValue.entries.first().value
+            val selectedWallet = walletRepository.walletSelected.value
+            transactionRepository.getTransactionSummaryByWallet(
+                TransactionType.Expense,
+                startDate ,
+                endDate,
+                selectedWallet
+            )
+        }.distinctUntilChanged().flatMapLatest {
+            it
+        }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val showIncomeTotalByWallet =
+        _currentMonthYear.map {
+            it.currentMonthYear
+            val mapValue = getSelectedMonthRange(it.currentMonthYear)
+            startDate  = mapValue.keys.first()
+            endDate = mapValue.entries.first().value
+            val selectedWallet = walletRepository.walletSelected.value
+            transactionRepository.getTransactionSummaryByWallet(
+                TransactionType.Income,
+                startDate ,
+                endDate,
+                selectedWallet
+            )
+        }.distinctUntilChanged().flatMapLatest {
+            it
+        }
+
+    val showOverViewByWallet = combine(showExpenseTotalByWallet, showIncomeTotalByWallet) { expense, income ->
+        OverViewDisplayState(expense, income, (income - expense), isLoading = false)
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(),
+        OverViewDisplayState(isLoading = true)
+    )
+
+    val _showTransactionByWallet = combine(_currentMonthYear, walletRepository.walletSelected)
+    { monthYearData, selectedWallet ->
+            val mapValue = getSelectedMonthRange(monthYearData.currentMonthYear)
+            startDate = mapValue.keys.first()
+            endDate = mapValue.entries.first().value
+
+            transactionRepository.getWalletTransactionsByDateRange(
+                startDate, endDate, selectedWallet
+            )
+
+    }.distinctUntilChanged()
+        .flatMapLatest { it }
+        .cachedIn(viewModelScope)
 
 
 }

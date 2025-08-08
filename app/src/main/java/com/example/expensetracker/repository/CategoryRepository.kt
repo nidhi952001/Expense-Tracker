@@ -28,7 +28,6 @@ class CategoryRepository @Inject constructor(
      fun getCategoriesByType(category:CategoryType):Flow<List<Category>> {
          return categoryDao.getCategoriesByType(category)
              .catch { e ->
-                 Log.e("CategoryRepo", "Error fetching categories by type", e)
                  emit(emptyList())
              }
     }
@@ -44,7 +43,6 @@ class CategoryRepository @Inject constructor(
     //this is for expense & income from finance screen
     fun selectCategory(categoryId: Int) {
         //if (_selectedCategory.value != categoryId) {
-            Log.d("CategoryRepo", "Selected category changed to: $categoryId")
             _selectedCategory.value = categoryId
        // }
     }

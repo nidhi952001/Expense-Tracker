@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.expensetracker.R
 import com.example.expensetracker.ui.theme.AppColors
+import com.example.expensetracker.uiScreen.transactionScreens.NoTransactionScreen
 import com.example.expensetracker.uiScreen.transactionScreens.TransactionSummary
 import com.example.expensetracker.uiScreen.uiState.OverViewDisplayState
 import com.example.expensetracker.uiScreen.uiState.TransactionByCategory
@@ -74,15 +75,11 @@ fun StatisticScreenRoute(financeViewModel: FinanceViewModel,showTransactionScree
             )
         }
         else{
-            NoStatisticScreen(modifier)
+            NoTransactionScreen(modifier)
         }
     }
 }
 
-@Composable
-fun NoStatisticScreen(modifier: Modifier){
-
-}
 
 @Composable
 fun StatiscticScreen(

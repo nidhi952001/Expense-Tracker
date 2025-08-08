@@ -75,7 +75,8 @@ fun topBarWithBackArrow(
     selectedFinance: SelectedTopBar,
     onEditWallet: () -> Unit,
     onDeleteTransaction: () -> Unit,
-    selectedCategoryStatistics: Int?
+    selectedCategoryStatistics: Int?,
+    showStatisticByWallet: () -> Unit
 ) {
     val currentScreenName = getScreenName(currentRoute!!, selectedFinance,selectedCategoryStatistics)
     CenterAlignedTopAppBar(
@@ -106,6 +107,7 @@ fun topBarWithBackArrow(
                 onActionClick = onActionClick,
                 onEditWallet = onEditWallet,
                 onDeleteTransaction = onDeleteTransaction,
+                showStatisticByWallet = showStatisticByWallet
             )
 
         }
@@ -122,7 +124,8 @@ fun topBarTrailingIcon(
     localCategory: CategoryInputState,
     selectedFinance: SelectedTopBar,
     onDeleteTransaction:()->Unit,
-    onEditWallet: () -> Unit
+    onEditWallet: () -> Unit,
+    showStatisticByWallet:()->Unit
 ) {
     if (currentRoute!! == TopLevelDestination.addWallet.name) {
         IconButton(
@@ -193,6 +196,7 @@ fun topBarTrailingIcon(
                 contentDescription = stringResource(R.string.statistic),
                 tint = onSurface,
                 modifier = Modifier.size(40.dp).padding(end = 15.dp)
+                    .clickable(onClick = {showStatisticByWallet()})
             )
 
         }
@@ -231,7 +235,8 @@ fun AppTopBar(
     onDeleteTransaction: () -> Unit,
     walletViewModel: WalletViewModel,
     onSelectStructure: (StatisticCategory) -> Unit,
-    selectedCategory: State<selectedCategory>
+    selectedCategory: State<selectedCategory>,
+    showStatisticByWallet: () -> Unit
 ) {
     val walletInputState by walletViewModel.walletInputState.collectAsState()
     if (currentRoute == TopLevelDestination.Finance.name ||
@@ -243,8 +248,12 @@ fun AppTopBar(
         currentRoute == TopLevelDestination.Record.name ||
         currentRoute == TopLevelDestination.statisticsTransaction.name ||
         currentRoute == TopLevelDestination.structureScreen.name ||
-        currentRoute== TopLevelDestination.transactionsForSelectedCategory.name
-    ) {
+        currentRoute== TopLevelDestination.transactionsForSelectedCategory.name ||
+        currentRoute == TopLevelDestination.statisticsByWallet.name ||
+        currentRoute == TopLevelDestination.transactionsByWallet.name ||
+        currentRoute == TopLevelDestination.statisticsTransactionByWallet.name ||
+        currentRoute == TopLevelDestination.structureByWallet.name
+        ) {
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RectangleShape,
@@ -262,7 +271,8 @@ fun AppTopBar(
                     onBackClick = onBackClick,
                     onEditWallet = onEditWallet,
                     onDeleteTransaction = onDeleteTransaction,
-                    selectedCategoryStatistics = selectedCategory.value.selectetedCategoryName
+                    selectedCategoryStatistics = selectedCategory.value.selectetedCategoryName,
+                    showStatisticByWallet = showStatisticByWallet
                 )
                 if (currentRoute == TopLevelDestination.Finance.name
                 ) {
@@ -274,10 +284,14 @@ fun AppTopBar(
                 }
                 if (currentRoute==TopLevelDestination.statisticsTransaction.name ||
                     currentRoute == TopLevelDestination.structureScreen.name ||
-                    currentRoute==TopLevelDestination.transactionsForSelectedCategory.name
+                    currentRoute==TopLevelDestination.transactionsForSelectedCategory.name ||
+                    currentRoute == TopLevelDestination.statisticsByWallet.name ||
+                    currentRoute == TopLevelDestination.statisticsTransactionByWallet.name ||
+                    currentRoute == TopLevelDestination.structureByWallet.name
                 ) {
                     selectMonthTopBar()
-                    if(currentRoute == TopLevelDestination.structureScreen.name){
+                    if(currentRoute == TopLevelDestination.structureScreen.name ||
+                        currentRoute== TopLevelDestination.structureByWallet.name){
                         selectStructureCategory(
                             modifier = Modifier.fillMaxWidth(),
                             onSelectStructure = onSelectStructure

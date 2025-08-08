@@ -54,6 +54,9 @@ interface TransactionDao {
         endDate: Long
     ): PagingSource<Int, TransactionDetailState>
 
+    @Query("$BASE_TRANSACTION_DETAIL_QUERY WHERE (t.transaction_from_wallet_id=:selectedWallet or t.transaction_to_wallet_id=:selectedWallet) and t.transaction_date BETWEEN :startDate AND :endDate ORDER BY t.transaction_date DESC")
+    fun getWalletTransactionsByDateRange(startDate: Long, endDate: Long, selectedWallet: Int): PagingSource<Int, TransactionDetailState>
+
     @Query("select count(transaction_id) from `transaction` where transaction_from_wallet_id=:walletId and transaction_type=:type")
     fun getTransactionCountByWalletAndType(walletId: Int, type: TransactionType): Flow<Int>
 
@@ -97,4 +100,8 @@ interface TransactionDao {
         endDate: Long,
         selectedCategoryId: Int
     ): PagingSource<Int, TransactionDetailState>
+
+    @Query("select sum(transaction_amount) from `Transaction` where transaction_type=:type and " +
+            "transaction_date between :startDate and :endDate and transaction_from_wallet_id=:selectedWallet")
+    fun getTransactionSummaryByWallet(type: TransactionType, startDate: Long, endDate: Long, selectedWallet: Int): Flow<Float>
 }

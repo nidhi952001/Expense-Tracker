@@ -20,7 +20,7 @@ enum class TopLevelDestination(@StringRes val route: Int) {
     Finance(route = R.string.finance),
     statictis(route = R.string.statistic),
     statisticsTransaction(route = R.string.statisticTransaction),
-    structureScreen(route = R.string.structure),
+    structureScreen(route = R.string.statistic),
     transactionsForSelectedCategory(route = R.string.transactionsForSelectedCategory),
     showWallet(route = R.string.showWallet),
     addWallet(route = R.string.addWallet),
@@ -28,7 +28,10 @@ enum class TopLevelDestination(@StringRes val route: Int) {
     showDetailOfWallet(route = R.string.show_detail_of_wallet),
     selectWallet(route = R.string.select_wallet),
     selectCategory(route = R.string.selectCategory),
-    transactionsForSelectedWallet(route = R.string.transactionsForSelectedWallet)
+    transactionsByWallet(route = R.string.transactionsByWallet),
+    statisticsByWallet(route = R.string.statisticsByWallet),
+    statisticsTransactionByWallet(route = R.string.statisticsTransactionByWallet),
+    structureByWallet(route=R.string.structureByWallet)
 }
 
 @Composable
@@ -44,7 +47,7 @@ fun getScreenName(
     } else if (currentRoute == TopLevelDestination.Finance.name) {
         if (selectedFinanceType.selectedFinance == R.string.expense)
             stringResource(R.string.expense)
-        else if (selectedFinanceType.selectedFinance == R.string.expense)
+        else if (selectedFinanceType.selectedFinance == R.string.income)
             stringResource(R.string.income)
         else
             stringResource(R.string.transfer)
@@ -58,17 +61,20 @@ fun getScreenName(
     else if(currentRoute.contains(TopLevelDestination.selectWallet.name)){
         stringResource(R.string.select_wallet)
     }
-    else if(currentRoute == TopLevelDestination.statisticsTransaction.name){
+    else if(currentRoute == TopLevelDestination.statisticsTransaction.name || currentRoute == TopLevelDestination.statisticsTransactionByWallet.name){
         stringResource(R.string.transaction)
     }
-    else if(currentRoute == TopLevelDestination.structureScreen.name){
-        stringResource(R.string.structure)
+    else if(currentRoute == TopLevelDestination.structureScreen.name || currentRoute == TopLevelDestination.structureByWallet.name){
+        stringResource(R.string.statistic)
     }
-    else if(currentRoute ==TopLevelDestination.transactionsForSelectedCategory.name){
+    else if(currentRoute ==TopLevelDestination.transactionsForSelectedCategory.name || currentRoute==TopLevelDestination.transactionsByWallet.name){
         if (selectedCategoryStatistics != null) {
             stringResource(selectedCategoryStatistics)
         }
         else ""
+    }
+    else if(currentRoute == TopLevelDestination.statisticsByWallet.name){
+        stringResource(R.string.statistic)
     }
     else {
         currentRoute
@@ -140,11 +146,11 @@ fun topBarBackAction(
         TopLevelDestination.Record.name->{
             if (onBackClick) {
                 walletViewModel.clearEditMode()
+                financeViewModel.resetUserSelectedTransaction()
                 navController.navigateUp()
             } else {
                 val transactionData = financeViewModel.transactionSelectedByUser.value
                 if(transactionData!=null) {
-                    print("transaction data ${transactionData.transactionType.name}")
                     if(transactionData.transactionType.name.contains("Income")) {
                         homeViewModel.updateSelectedFinance(R.string.income)
                         walletViewModel.updateSelectedFromWallet(transactionData.fromWalletId)
@@ -176,6 +182,12 @@ fun topBarBackAction(
                 navController.navigateUp()
             }
         }
+        TopLevelDestination.Finance.name->{
+            if(onBackClick){
+                homeViewModel.updateSelectedFinance(R.string.expense)
+                navController.navigateUp()
+            }
+        }
 
         else -> {
             navController.navigateUp()
@@ -186,6 +198,7 @@ fun topBarBackAction(
 fun topBarDeleteAction(financeViewModel: FinanceViewModel, navController: NavController) {
     val transactionData = financeViewModel.transactionSelectedByUser.value
     financeViewModel.deleteTransaction(transactionData,null)
+    financeViewModel.resetUserSelectedTransaction()
     navController.navigate(TopLevelDestination.transaction.name)
 
 }

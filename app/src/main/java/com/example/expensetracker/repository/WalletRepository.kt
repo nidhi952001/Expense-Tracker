@@ -22,6 +22,10 @@ class WalletRepository @Inject constructor(
     private val _selectedToWalletId = MutableStateFlow(0)
     val selectedToWalletId = _selectedToWalletId.asStateFlow()
 
+    //wallet -> statistics screen useful
+    private var _walletSelected = MutableStateFlow(0)
+    val walletSelected = _walletSelected.asStateFlow()
+
     suspend fun insertWallet(wallet: Wallet) {
         walletDao.insertWallet(wallet)
     }
@@ -51,6 +55,7 @@ class WalletRepository @Inject constructor(
      * Returns a Flow emitting the wallet matching the given ID.
      */
     fun getWalletById(walletId: Int): Flow<Wallet?> {
+        _walletSelected.value = walletId
         return walletDao.getWalletById(walletId)
     }
     /**

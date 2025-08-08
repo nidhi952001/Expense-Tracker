@@ -169,7 +169,6 @@ fun inputWithTrailingIcon(
             }*/
             .fillMaxWidth().clickable(
                 onClick = {
-                    Log.d("click ","click is true")
                     onClick()
                 }
             ),

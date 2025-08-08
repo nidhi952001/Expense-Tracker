@@ -27,10 +27,13 @@ import com.example.expensetracker.uiScreen.transactionScreens.TransactionScreenR
 import com.example.expensetracker.uiScreen.transactionScreens.View_single_transaction
 import com.example.expensetracker.uiScreen.walletScreens.SelectWalletRoute
 import com.example.expensetracker.uiScreen.walletScreens.ShowIconScreen
+import com.example.expensetracker.uiScreen.walletScreens.StatisticScreenWalletRoute
+import com.example.expensetracker.uiScreen.walletScreens.StructureScreenWalletRoute
 import com.example.expensetracker.uiScreen.walletScreens.WalletScreenEntry
 import com.example.expensetracker.uiScreen.walletScreens.addWalletScreenEntry
 import com.example.expensetracker.uiScreen.walletScreens.showWalletDetailRoute
 import com.example.expensetracker.uiScreen.walletScreens.showWalletTransaction
+import com.example.expensetracker.uiScreen.walletScreens.statisticsTransactionScreenWalletRoute
 import com.example.expensetracker.utils.TopLevelDestination
 import com.example.expensetracker.utils.topBarAction
 import com.example.expensetracker.utils.topBarBackAction
@@ -131,7 +134,8 @@ fun ExpenseTrackerNavHost() {
                 },
                 walletViewModel = walletViewModel,
                 onSelectStructure = {financeViewModel.updateStatistics(it)},
-                selectedCategory = financeViewModel._userSelectedCategory.collectAsState()
+                selectedCategory = financeViewModel._userSelectedCategory.collectAsState(),
+                showStatisticByWallet = { navController.navigate(TopLevelDestination.statisticsByWallet.name) }
             )
         }, bottomBar = {
             appBottomBar(navController, currentRoute)
@@ -172,7 +176,7 @@ fun ExpenseTrackerNavHost() {
                     )
                 }
                 composable(route = TopLevelDestination.Record.name){
-                    View_single_transaction(financeViewModel= financeViewModel)
+                    View_single_transaction(financeViewModel= financeViewModel, onback = {navController.popBackStack()})
                 }
                 composable(route = TopLevelDestination.Finance.name) {
                     FinanceScreenRoute(
@@ -181,7 +185,7 @@ fun ExpenseTrackerNavHost() {
                         homeViewModel = homeViewModel,
                         onClickListOfCategory = { navController.navigate(TopLevelDestination.selectCategory.name) },
                         onBack = {
-                            navController.navigateUp()
+                            navController.popBackStack()
                         },
                         financeViewModel = financeViewModel,
                         walletViewModel = walletViewModel,
@@ -207,9 +211,8 @@ fun ExpenseTrackerNavHost() {
                     StructureScreenRoute(
                         financeViewModel = financeViewModel,
                         showSelectedCategory = {navController.navigate(TopLevelDestination.transactionsForSelectedCategory.name)},
-                        navigateback = {navController.navigateUp()}
+                        navigateback = {navController.popBackStack()}
                     )
-
                 }
                 composable(route = TopLevelDestination.transactionsForSelectedCategory.name){
                     showCategoryTransaction(
@@ -260,14 +263,38 @@ fun ExpenseTrackerNavHost() {
                 }
                 composable(route = TopLevelDestination.showDetailOfWallet.name) {
                     showWalletDetailRoute(walletViewModel = walletViewModel,
+                        financeViewModel = financeViewModel,
                         onClickTransactionFromWallet = {
-                            navController.navigate(TopLevelDestination.transactionsForSelectedWallet.name)
+                            navController.navigate(TopLevelDestination.transactionsByWallet.name)
                         })
                 }
-                composable(route = TopLevelDestination.transactionsForSelectedWallet.name){
+                composable(route = TopLevelDestination.transactionsByWallet.name){
                     showWalletTransaction(walletViewModel = walletViewModel,
                         financeViewModel = financeViewModel,
                         showRecord = {navController.navigate(TopLevelDestination.Record.name)}
+                    )
+                }
+                composable(route = TopLevelDestination.statisticsByWallet.name){
+                    StatisticScreenWalletRoute(
+                        financeViewModel = financeViewModel,
+                        showTransactionScreen = {navController.navigate(TopLevelDestination.statisticsTransactionByWallet.name)},
+                        showStructureScreen = {navController.navigate(TopLevelDestination.structureByWallet.name)},
+                        onBack = {navController.popBackStack()}
+                    )
+                }
+                composable(route = TopLevelDestination.statisticsTransactionByWallet.name){
+                    statisticsTransactionScreenWalletRoute(
+                        financeViewModel = financeViewModel,
+                        showRecord = {
+                            navController.navigate(TopLevelDestination.Record.name)
+                        }
+                    )
+                }
+                composable(route = TopLevelDestination.structureByWallet.name){
+                    StructureScreenWalletRoute(
+                        financeViewModel = financeViewModel,
+                        showSelectedCategory = {navController.navigate(TopLevelDestination.transactionsForSelectedCategory.name)},
+                        navigateback = {navController.popBackStack()}
                     )
                 }
             }

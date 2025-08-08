@@ -132,7 +132,6 @@ fun dataForCharts(
 
     transactions.forEach {
         if (it.value.first().transactionType == selectedStatistics) {
-            println("the data ${it.key}  and ${it.value}")
             listOfCategory.add(it.key)
             listOfData.add(
                 TransactionByCategory(
@@ -163,6 +162,7 @@ fun dataForCharts(
 }
 
 fun findPercentage(value: List<TransactionDetailState>, totalExpense: Float): Float {
+    if(totalExpense==0.0F) return 0F
     var totalAmount = 0.0F
     value.forEach {
         totalAmount += it.transactionAmount

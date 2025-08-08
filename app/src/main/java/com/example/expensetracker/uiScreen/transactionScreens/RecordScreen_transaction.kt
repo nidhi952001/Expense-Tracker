@@ -1,5 +1,6 @@
 package com.example.expensetracker.uiScreen.transactionScreens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -33,7 +34,12 @@ import com.example.expensetracker.viewModel.FinanceViewModel
 import java.util.Locale
 
 @Composable
-fun View_single_transaction( financeViewModel: FinanceViewModel) {
+fun View_single_transaction(financeViewModel: FinanceViewModel,onback:()->Unit) {
+    BackHandler {
+        financeViewModel.resetUserSelectedTransaction()
+        onback()
+    }
+
     val transactionData = financeViewModel.transactionSelectedByUser.collectAsState()
     transactionData.value?.let {
 

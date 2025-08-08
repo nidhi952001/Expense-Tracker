@@ -29,12 +29,26 @@ class TransactionRepository @Inject constructor(
     fun getTransactionSummaryByType(type: TransactionType, startDate : Long, endDate: Long): Flow<Float> {
         return transactionDao.getTransactionSummaryByType(type,startDate ,endDate)
     }
+    fun getTransactionSummaryByWallet(
+        type: TransactionType,
+        startDate: Long,
+        endDate: Long,
+        selectedWallet: Int
+    ): Flow<Float> {
+        return transactionDao.getTransactionSummaryByWallet(type,startDate ,endDate,selectedWallet)
+    }
 
     fun getTransactionsByDateRange(startDate : Long, endDate: Long):Flow<PagingData<TransactionDetailState>>{
         return Pager(
             config = PagingConfig(pageSize = 10)){
                     transactionDao.getTransactionsByDateRange(startDate ,endDate)
             }.flow
+    }
+    fun getWalletTransactionsByDateRange(startDate: Long, endDate: Long, selectedWallet: Int):Flow<PagingData<TransactionDetailState>>{
+        return Pager(
+            config = PagingConfig(pageSize = 10)){
+            transactionDao.getWalletTransactionsByDateRange(startDate ,endDate,selectedWallet)
+        }.flow
     }
 
     fun getTransactionCountByWalletAndType(walletId:Int, expense: TransactionType):Flow<Int>{

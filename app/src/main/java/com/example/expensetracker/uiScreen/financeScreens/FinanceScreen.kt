@@ -292,7 +292,7 @@ private fun fromWallet(selectedFromWallet: Wallet?, onClickListOfWallet: (Int) -
                 append("")
             }
         }
-    label("Wallet")
+    label("From Wallet")
     inputWithTrailingIcon(
         value = annotedString.text,
         placeholder = "Select Wallet",
@@ -324,7 +324,7 @@ private fun toWallet(selectedToWallet: Wallet?, onClickListOfWallet: (Int) -> Un
                 append("")
             }
         }
-    label("Wallet")
+    label("To Wallet")
     inputWithTrailingIcon(
         value = annotedString.text,
         placeholder = "Select Wallet",

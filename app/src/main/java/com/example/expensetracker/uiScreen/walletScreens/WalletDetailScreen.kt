@@ -54,6 +54,7 @@ import com.example.transactionensetracker.entity.TransactionType
 @Composable
 fun showWalletDetailRoute(
     walletViewModel: WalletViewModel,
+    financeViewModel: FinanceViewModel,
     onClickTransactionFromWallet: () -> Unit
 ) {
     val scrollableState = rememberScrollState()
@@ -62,7 +63,7 @@ fun showWalletDetailRoute(
     showWalletDetail(walletData = walletDetailUiState,
         selectedWalletId = selectedwalletIdDetail.selectedwalletIdDetail,
         scrollableState = scrollableState,
-        onClickTransactionFromWallet = {
+        onClickTransactionFromWallet = { financeViewModel.updateSelectedCategory(it)
         walletViewModel.selectedCategoryForWallet(it)
         onClickTransactionFromWallet()
     })

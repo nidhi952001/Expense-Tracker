@@ -1,5 +1,6 @@
 package com.example.expensetracker.uiScreen
 
+import androidx.collection.emptyLongSet
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -26,7 +27,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.expensetracker.R
+import com.example.expensetracker.ui.theme.AppColors.inverseOnSurface
+import com.example.expensetracker.ui.theme.AppColors.inversePrimary
 import com.example.expensetracker.ui.theme.AppColors.onSurface
+import com.example.expensetracker.ui.theme.AppColors.primaryContainer
+import com.example.expensetracker.ui.theme.AppColors.secondary
 import com.example.expensetracker.utils.TopLevelDestination
 
 data class BottomNavItem(
@@ -38,14 +43,14 @@ data class BottomNavItem(
 object ListOfBottomButton {
     val BottomNavItems = listOf(
         BottomNavItem(
-            route = TopLevelDestination.transaction.name,
-            painter = R.drawable.transaction_ic,
-            label = R.string.transaction
-        ),
-        BottomNavItem(
             route = TopLevelDestination.Finance.name,
             painter = R.drawable.add_ic,
             label = R.string.add
+        ),
+        BottomNavItem(
+            route = TopLevelDestination.transaction.name,
+            painter = R.drawable.transaction_ic,
+            label = R.string.transaction
         ),
         BottomNavItem(
             route = TopLevelDestination.statictis.name,
@@ -65,7 +70,8 @@ object ListOfBottomButton {
 @Composable
 fun appBottomBar(navHostController: NavHostController, currentRoute: String?) {
     if (currentRoute.equals(TopLevelDestination.transaction.name) ||
-        currentRoute.equals(TopLevelDestination.showWallet.name)
+        currentRoute.equals(TopLevelDestination.showWallet.name) ||
+        currentRoute.equals(TopLevelDestination.statictis.name)
     ) {
         BottomAppBar(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest, contentColor = onSurface, tonalElevation = 5.dp) {
             var selectedBottomBar by remember { mutableStateOf(currentRoute) }
@@ -87,20 +93,16 @@ fun appBottomBar(navHostController: NavHostController, currentRoute: String?) {
                         Icon(
                             painter = painterResource(it.painter),
                             contentDescription = stringResource(it.label),
-                            modifier = if (it.painter != R.drawable.add_ic)
-                                Modifier.size(30.dp)
-                            else
-                            Modifier.size(50.dp)
-                            /*tint =  if(selectedBottomBar == it.route) onSurface
-                            else inverseOnSurface*/
+                                Modifier.size(30.dp),
+                            tint =  if(selectedBottomBar == it.route) MaterialTheme.colorScheme.primary
+                            else secondary
                         )
-                        if (it.painter != R.drawable.add_ic)
-                            Text(
+                        Text(
                                 text = stringResource(it.label),
-                                fontSize = MaterialTheme.typography.bodyMedium.fontSize
-                                /*color = if(selectedBottomBar == it.route) onSurface
-                                        else inverseOnSurface*/
-                            )
+                                fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                                color = if(selectedBottomBar == it.route) MaterialTheme.colorScheme.primary
+                                        else secondary
+                        )
                     }
                 }
             }
