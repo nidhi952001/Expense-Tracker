@@ -32,6 +32,10 @@ Room Database (for wallets & transactions)
 
 Dagger Hilt (Dependency Injection) 
 
+**Demo Video 📽️**
+
+https://github.com/user-attachments/assets/aa055dc4-8764-4090-94ba-9c78606f0444
+
 **Screenshots 📸**
 <div style="display: flex; overflow-x: auto;">
   <img src="https://github.com/user-attachments/assets/87cce5d1-3a94-4aff-bd0b-2f9de947105d" width="200" style="margin-right: 10px;"/>  &nbsp;  
@@ -41,12 +45,6 @@ Dagger Hilt (Dependency Injection)
   <img src="https://github.com/user-attachments/assets/286b3bc3-d077-43e2-a9cc-b42f2abfd31f" width="200" style="margin-right: 10px;"/>  &nbsp;
   <img src="https://github.com/user-attachments/assets/93bda386-8c6e-4155-b926-4b1dc8adfc82" width="200" style="margin-right: 10px;"/>  &nbsp;
 </div>
-
-
-**Demo Video 📽️**
-
-https://github.com/user-attachments/assets/aa055dc4-8764-4090-94ba-9c78606f0444
-
 
 ## Installation ⚙️  
 
