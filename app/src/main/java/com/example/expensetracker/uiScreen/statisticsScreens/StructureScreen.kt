@@ -101,7 +101,7 @@ fun StructureScreenRoute(financeViewModel: FinanceViewModel,showSelectedCategory
 
 @Composable
 fun showDetailData(detailData: List<TransactionByCategory>,showSelectedCategory:(Int,String)->Unit) {
-    LazyColumn {
+    LazyColumn(modifier = Modifier.padding(top = 20.dp)) {
         items(detailData){transaction->
             Row(modifier = Modifier.fillMaxWidth().padding(10.dp).clickable(onClick = {showSelectedCategory(transaction.categoryId,transaction.categoryExpTotalAmount)}), verticalAlignment = Alignment.CenterVertically) {
                 Column {

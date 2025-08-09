@@ -204,7 +204,7 @@ fun showCharts(chartsData: List<TransactionByCategory>, overviewUiState: OverVie
             easing = LinearOutSlowInEasing
         )
     )
-    Box(modifier = Modifier.size(animateSize.dp), contentAlignment = Alignment.Center){
+    Box(modifier = Modifier.size(animateSize.dp-10.dp).padding(end = 10.dp), contentAlignment = Alignment.Center){
         Canvas(
             modifier = Modifier.size(radiusOuter *2f).rotate(animateRotation)
         ){
